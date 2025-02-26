@@ -186,7 +186,7 @@ while running:
             screen.blit(lose_text, (WIDTH // 2 - 70, HEIGHT // 2 - 20))  # Center "You Lost!"
             screen.blit(score_text, (WIDTH // 2 - 100, HEIGHT // 2 + 20))  # Score below it
             pygame.display.flip()
-            pygame.time.wait(5000)  # Wait 5 seconds
+            pygame.time.wait(1000)  # Wait 1 second
             running = False
         elif t_laser[1] > HEIGHT:
             tie_lasers.remove(t_laser)

@@ -100,7 +100,7 @@ while running:
         tie[2] += 0.05
         tie[0] = deathstar_pos[0] + math.cos(tie[2]) * (deathstar_radius + 50)
         tie[1] = deathstar_pos[1] + math.sin(tie[2]) * (deathstar_radius + 50)
-        if random.randint(0, 100) < 2:
+        if random.randint(0, 100) < 1:
             tie_lasers.append([tie[0] + tie_width // 2, tie[1] + tie_height])
 
     # Timer logic

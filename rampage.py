@@ -234,10 +234,14 @@ def draw_enemy_count(screen, enemy_count):
 
 def draw_end_score(screen, score):
     font = pygame.font.Font(None, 72)
-    text = font.render(f"Final Score: {score}", True, (255, 255, 255))
-    text_rect = text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2))
+    rank = get_rank(score)
+    score_text = font.render(f"Final Score: {score}", True, (255, 255, 255))
+    rank_text = font.render(f"Rank: {rank}", True, (255, 255, 255))
     screen.fill((0, 0, 0))
-    screen.blit(text, text_rect)
+    score_rect = score_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 - 40))
+    rank_rect = rank_text.get_rect(center=(SCREEN_WIDTH // 2, SCREEN_HEIGHT // 2 + 40))
+    screen.blit(score_text, score_rect)
+    screen.blit(rank_text, rank_rect)
     pygame.display.flip()
     pygame.time.wait(2000)
 
@@ -251,6 +255,28 @@ def draw_high_scores(screen, high_scores):
         screen.blit(text, (SCREEN_WIDTH // 2 - 150, 200 + i * 50))
     pygame.display.flip()
     pygame.time.wait(2000)
+
+def get_rank(score):
+    if score >= 15000:
+        return "Legend"
+    elif score >= 10000:
+        return "Destructor"
+    elif score >= 8000:
+        return "Master"
+    elif score >= 5000:
+        return "Elite"
+    elif score >= 4000:
+        return "Commander"
+    elif score >= 2500:
+        return "Veteran"
+    elif score >= 1500:
+        return "Enforcer"
+    elif score >= 750:
+        return "Soldier"
+    elif score >= 300:
+        return "Beginner"
+    else:
+        return "Rookie"
 
 def get_initials():
     initials = input("Enter your 3 initials: ").upper()[:3]

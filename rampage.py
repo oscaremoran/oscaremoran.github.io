@@ -154,7 +154,7 @@ class Projectile:
 
 class BoostProjectile:
     def __init__(self, x, y, dx, dy):
-        self.rect = pygame.Rect(x, y, 30, 10)
+        self.rect = pygame.Rect(x, y, 120, 10)
         dist = math.hypot(dx, dy)
         if dist != 0:
             self.dx = (dx / dist) * BOOST_PROJECTILE_SPEED

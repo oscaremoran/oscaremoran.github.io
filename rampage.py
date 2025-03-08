@@ -392,7 +392,7 @@ def main(high_scores):
         for building in buildings:
             building.update()
             if player.rect.colliderect(building.rect):
-                building.take_damage(50)
+                building.take_damage(1)
         buildings = [b for b in buildings if b.health > 0]
 
         current_time = pygame.time.get_ticks()

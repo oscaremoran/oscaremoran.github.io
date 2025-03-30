@@ -245,16 +245,19 @@ def draw_end_score(screen, score):
     pygame.display.flip()
     pygame.time.wait(2000)
 
+import pygame
+
 def draw_high_scores(screen, high_scores):
-    font = pygame.font.Font(None, 48)
-    screen.fill((0, 0, 0))
+    font = pygame.font.Font(None, 36)
+    screen.fill((0, 0, 0))  # Black background
     title = font.render("High Scores", True, (255, 255, 255))
-    screen.blit(title, (SCREEN_WIDTH // 2 - 100, 100))
+    screen.blit(title, (SCREEN_WIDTH // 2 - 50, 10))
+    # Display all entries, assuming high_scores has up to 10
     for i, entry in enumerate(high_scores):
         text = font.render(f"{i+1}. {entry['initials']} - {entry['score']}", True, (255, 255, 255))
-        screen.blit(text, (SCREEN_WIDTH // 2 - 150, 200 + i * 50))
+        screen.blit(text, (SCREEN_WIDTH // 2 - 100, 50 + i * 30))
     pygame.display.flip()
-    pygame.time.wait(2000)
+    pygame.time.wait(2000)  # Show for 2 seconds
 
 def get_rank(score):
     if score >= 15000:
@@ -280,27 +283,25 @@ def get_rank(score):
 
 def get_initials():
     initials = input("Enter your 3 initials: ").upper()[:3]
-    return initials if len(initials) == 3 else "XXX"
+    return initials if len(initials) == 3 else "BOT"
 
 def update_high_scores(score, high_scores):
+    # Safeguard: initialize as empty list if None
+    if high_scores is None:
+        high_scores = []
+    # Assuming get_initials() is defined elsewhere
     initials = get_initials()
     high_scores.append({"initials": initials, "score": score})
     high_scores.sort(key=lambda x: x["score"], reverse=True)
-    return high_scores[:3]
+    return high_scores[:10]
 
 def save_high_scores(high_scores):
     with open("high_scores.txt", "w") as f:
         for entry in high_scores:
             f.write(f"{entry['initials']},{entry['score']}\n")
 
-def load_high_scores():
-    default_scores = [
-        {"initials": "AAA", "score": 1000},
-        {"initials": "BBB", "score": 500},
-        {"initials": "CCC", "score": 200}
-    ]
-    if not os.path.exists("high_scores.txt"):
-        return default_scores
+
+
     high_scores = []
     try:
         with open("high_scores.txt", "r") as f:
@@ -311,6 +312,39 @@ def load_high_scores():
         return high_scores[:3] if len(high_scores) >= 3 else default_scores
     except (ValueError, FileNotFoundError):
         return default_scores
+def load_high_scores():
+    default_scores = [
+        {"initials": "OEM", "score": 12250},
+        {"initials": "OEM", "score": 10850},
+        {"initials": "OEM", "score": 3950},
+        {"initials": "DDD", "score": 700},
+        {"initials": "EEE", "score": 600},
+        {"initials": "FFF", "score": 500},
+        {"initials": "GGG", "score": 400},
+        {"initials": "HHH", "score": 300},
+        {"initials": "III", "score": 200},
+        {"initials": "JJJ", "score": 100},
+    ]
+    if not os.path.exists("high_scores.txt"):
+        return default_scores
+    high_scores = []
+    try:
+        with open("high_scores.txt", "r") as f:
+            for line in f:
+                try:
+                    initials, score_str = line.strip().split(",")
+                    score = int(score_str)
+                    high_scores.append({"initials": initials, "score": score})
+                except ValueError:
+                    continue  # Skip invalid lines
+        if not high_scores:  # If file is empty, use defaults
+            return default_scores
+        high_scores.sort(key=lambda x: x["score"], reverse=True)
+        return high_scores[:10]
+    except Exception as e:
+        print(f"Error loading high scores: {e}")
+        return default_scores
+
 
 def generate_buildings(num_buildings):
     buildings = []
@@ -528,11 +562,11 @@ def main(high_scores):
     save_high_scores(high_scores)  # Save on death too
     return high_scores, True
 
-if __name__ == '__main__':
-    high_scores = load_high_scores()  # Load from file at start
-    while True:
+if __name__ == "__main__":
+    high_scores = load_high_scores()  # Always a list
+    keep_running = True
+    while keep_running:
         high_scores, keep_running = main(high_scores)
-        if not keep_running:
-            break
+        save_high_scores(high_scores)  # Save after each game
     pygame.quit()
     sys.exit()

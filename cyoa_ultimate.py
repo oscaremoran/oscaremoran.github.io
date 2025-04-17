@@ -41,17 +41,57 @@ def save_game(player, rooms):
     chest3_opened = int(rooms[2]['CHEST3']['opened'])
     save_code = f"{player['room']}-{player['hp']}-{player['gold']}-{player['gems']}-{chest1_opened}-{chest2_opened}-{door1_broken}-{bush1_attacked}-{bush2_attacked}-{bush3_attacked}-{has_armor}-{lootchest_opened}-{door2_broken}-{trader_dead}-{wallportal_unlocked}-{has_frost_horn}-{chest3_opened}"
     print(f"Save code: {save_code}")
-
-def load_game():
-    save_code = input("Enter save code: ").strip()
+    slot = input("Enter save slot (1-10): ").strip()
     try:
+        slot_num = int(slot)
+        if not 1 <= slot_num <= 10:
+            raise ValueError
+    except ValueError:
+        print("Invalid slot. Must be 1-10.")
+        return
+    try:
+        try:
+            with open("saves.txt", "r") as f:
+                lines = f.readlines()
+        except FileNotFoundError:
+            lines = [""] * 10
+        lines = [line.strip() for line in lines] + [""] * (10 - len(lines))
+        lines[slot_num - 1] = f"{slot_num}. {save_code}"
+        with open("saves.txt", "w") as f:
+            f.write("\n".join(lines))
+        print(f"Saved to slot {slot_num}.")
+    except Exception as e:
+        print(f"Error saving: {e}")
+
+def load_game(player):
+    if player['room'] != 1:
+        print("Can only load in Room 1.")
+        return None
+    slot = input("Enter save slot (1-10): ").strip()
+    try:
+        slot_num = int(slot)
+        if not 1 <= slot_num <= 10:
+            raise ValueError
+    except ValueError:
+        print("Invalid slot. Must be 1-10.")
+        return None
+    try:
+        with open("saves.txt", "r") as f:
+            lines = f.readlines()
+        if slot_num > len(lines) or not lines[slot_num - 1].strip():
+            print("No save in this slot.")
+            return None
+        save_code = lines[slot_num - 1].strip().split(". ", 1)[1]
         parts = save_code.split('-')
         if len(parts) != 17:
             raise ValueError
         room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened = map(int, parts)
         return (room, hp, gold, gems, bool(chest1_opened), bool(chest2_opened), bool(door1_broken), bool(bush1_attacked), bool(bush2_attacked), bool(bush3_attacked), bool(has_armor), bool(lootchest_opened), bool(door2_broken), bool(trader_dead), bool(wallportal_unlocked), bool(has_frost_horn), bool(chest3_opened))
-    except ValueError:
-        print("Invalid save code.")
+    except FileNotFoundError:
+        print("Save file not found.")
+        return None
+    except Exception as e:
+        print(f"Invalid save code: {e}")
         return None
 
 def combat_with_goblin(player):
@@ -126,7 +166,10 @@ def combat_with_flame_boar(player):
                 print(f"You use Drain, dealing 10 damage to both! Boar HP: {boar_hp}, Your HP: {player['hp']}")
                 if boar_hp <= 0:
                     print("You defeated the Flame Boar!")
-                return True
+                    return True
+                if player['hp'] <= 0:
+                    print("You have been defeated.")
+                    return False
             else:
                 print("Drain can only be used once per battle.")
         elif choice == 'H':
@@ -326,7 +369,7 @@ def main():
         2: {
             'BUSH1': {'attacked': False, 'content': 'Goblin'},
             'BUSH2': {'attacked': False, 'content': 'Goblin'},
-            'BUSH3': {'attacked': False, 'content': 'Goblin'},
+            'BUSH3': {'attacked': False, ' c': 'Goblin'},
             'LOOTCHEST': {'opened': False, 'content': 'Armor'},
             'DOOR': {'broken': False},
             'TRADER': {'dead': False},
@@ -359,7 +402,7 @@ def main():
         elif command == 'S':
             save_game(player, rooms)
         elif command == 'L':
-            loaded_data = load_game()
+            loaded_data = load_game(player)
             if loaded_data:
                 (room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened) = loaded_data
                 player['room'] = room

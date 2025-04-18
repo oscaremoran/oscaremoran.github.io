@@ -25,6 +25,10 @@ def display_room_description(player):
     elif player['room'] == 4:
         objects = ["TRAP1", "TRAP2", "SHRINE"]
         print(f"You are in Room 4, a treacherous chamber with traps and a glowing shrine. You can interact with {', '.join(objects)}.")
+        if player.get('curse_active', False):
+            player['curse_active'] = False
+            player['curse_start_time'] = 0
+            print("The dark spirit vanishes!")
         if not rooms[4].get("event_triggered", False):
             event = random.choice(["Treasure Cache", "Mystic Voice", "Hidden Gem"])
             rooms[4]["event_triggered"] = True
@@ -40,7 +44,7 @@ def display_room_description(player):
                 print("You find a Hidden Gem! +1 Gem.")
 
 def check_curse_timer(player):
-    if player.get('curse_start_time', 0) > 0:
+    if player.get('curse_active', False) and player.get('curse_start_time', 0) > 0:
         elapsed = time.time() - player['curse_start_time']
         if elapsed > 300:  # 5 minutes
             print("The dark spirit consumes you! You collapse.")
@@ -65,7 +69,8 @@ def save_game(player, rooms):
     has_orb = int(player.get('has_orb', False))
     curse_start_time = int(player.get('curse_start_time', 0))
     room4_event_triggered = int(rooms[4].get('event_triggered', False))
-    save_code = f"{player['room']}-{player['hp']}-{player['gold']}-{player['gems']}-{chest1_opened}-{chest2_opened}-{door1_broken}-{bush1_attacked}-{bush2_attacked}-{bush3_attacked}-{has_armor}-{lootchest_opened}-{door2_broken}-{trader_dead}-{wallportal_unlocked}-{has_frost_horn}-{chest3_opened}-{trap1_disarmed}-{trap2_disarmed}-{has_orb}-{curse_start_time}-{room4_event_triggered}"
+    curse_active = int(player.get('curse_active', False))
+    save_code = f"{player['room']}-{player['hp']}-{player['gold']}-{player['gems']}-{chest1_opened}-{chest2_opened}-{door1_broken}-{bush1_attacked}-{bush2_attacked}-{bush3_attacked}-{has_armor}-{lootchest_opened}-{door2_broken}-{trader_dead}-{wallportal_unlocked}-{has_frost_horn}-{chest3_opened}-{trap1_disarmed}-{trap2_disarmed}-{has_orb}-{curse_start_time}-{room4_event_triggered}-{curse_active}"
     print(f"Save code: {save_code}")
     slot = input("Enter save slot (1-10): ").strip()
     try:
@@ -109,10 +114,10 @@ def load_game(player):
             return None
         save_code = lines[slot_num - 1].strip().split(". ", 1)[1]
         parts = save_code.split('-')
-        if len(parts) != 22:
+        if len(parts) != 23:
             raise ValueError
-        room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened, trap1_disarmed, trap2_disarmed, has_orb, curse_start_time, room4_event_triggered = map(int, parts)
-        return (room, hp, gold, gems, bool(chest1_opened), bool(chest2_opened), bool(door1_broken), bool(bush1_attacked), bool(bush2_attacked), bool(bush3_attacked), bool(has_armor), bool(lootchest_opened), bool(door2_broken), bool(trader_dead), bool(wallportal_unlocked), bool(has_frost_horn), bool(chest3_opened), bool(trap1_disarmed), bool(trap2_disarmed), bool(has_orb), curse_start_time, bool(room4_event_triggered))
+        room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened, trap1_disarmed, trap2_disarmed, has_orb, curse_start_time, room4_event_triggered, curse_active = map(int, parts)
+        return (room, hp, gold, gems, bool(chest1_opened), bool(chest2_opened), bool(door1_broken), bool(bush1_attacked), bool(bush2_attacked), bool(bush3_attacked), bool(has_armor), bool(lootchest_opened), bool(door2_broken), bool(trader_dead), bool(wallportal_unlocked), bool(has_frost_horn), bool(chest3_opened), bool(trap1_disarmed), bool(trap2_disarmed), bool(has_orb), curse_start_time, bool(room4_event_triggered), bool(curse_active))
     except FileNotFoundError:
         print("Save file not found.")
         return None
@@ -134,7 +139,7 @@ def combat_with_goblin(player):
             print(f"You attack the Goblin for {player_damage} damage. Goblin HP: {goblin_hp}")
             if goblin_hp <= 0:
                 print("You defeated the Goblin!")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - combat_start
                 return True
             damage_taken = max(0, goblin_damage - (2 if player['has_armor'] else 0))
@@ -142,12 +147,12 @@ def combat_with_goblin(player):
             print(f"The Goblin attacks you for {damage_taken} damage. Your HP: {player['hp']}")
             if player['hp'] <= 0:
                 print("You have been defeated.")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - combat_start
                 return False
         elif choice == 'F':
             print("You fled.")
-            if player.get('curse_start_time', 0) > 0:
+            if player.get('curse_active', False):
                 player['curse_start_time'] += time.time() - combat_start
             return False
         elif choice == 'D':
@@ -158,12 +163,12 @@ def combat_with_goblin(player):
                 print(f"You use Drain, dealing 10 damage to both! Goblin HP: {goblin_hp}, Your HP: {player['hp']}")
                 if goblin_hp <= 0:
                     print("You defeated the Goblin!")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return True
                 if player['hp'] <= 0:
                     print("You have been defeated.")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return False
             else:
@@ -171,7 +176,7 @@ def combat_with_goblin(player):
         elif choice == 'H':
             if player['has_frost_horn']:
                 print("You use the Frost Horn, freezing the Goblin instantly!")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - combat_start
                 return True
             else:
@@ -185,11 +190,11 @@ def combat_with_flame_boar(player):
     inferno_damage = 11
     drain_used = False
     weather = random.choice(["Firestorm", "Mist"])
-    inferno_prob = ["nothing", "nothing", "inferno"] if weather == "Mist" else ["nothing", "inferno", "inferno"]
+    inferno_prob = ["nothing", "nothing", "inferno"] if weather == "Mist" else ["nothing", "nothing", "inferno"]
     print(f"As you enter this strange area, you hear the sound of a crackling flame. A {weather} rages! Suddenly, a huge creature leaps towards you! It is a huge Boar with a crackling flame horn. BOSS FIGHT: Flame Boar.")
     if weather == "Mist":
         boar_hp -= 10
-        print("The Mist weakens the Flame Boar, dealing 10 damage! Boar HP: 30")
+        print(f"The Mist weakens the Flame Boar, dealing 10 damage! Boar HP: {boar_hp}")
     print("Combat starts! Choose (A)ttack, (F)lee, (D)rain (once per battle), or (H)orn (if you have Frost Horn).")
     combat_start = time.time()
     while True:
@@ -199,12 +204,12 @@ def combat_with_flame_boar(player):
             print(f"You attack the Flame Boar for {player_damage} damage. Boar HP: {boar_hp}")
             if boar_hp <= 0:
                 print("You defeated the Flame Boar!")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - combat_start
                 return True
         elif choice == 'F':
             print("You fled from the Flame Boar.")
-            if player.get('curse_start_time', 0) > 0:
+            if player.get('curse_active', False):
                 player['curse_start_time'] += time.time() - combat_start
             return False
         elif choice == 'D':
@@ -215,12 +220,12 @@ def combat_with_flame_boar(player):
                 print(f"You use Drain, dealing 10 damage to both! Boar HP: {boar_hp}, Your HP: {player['hp']}")
                 if boar_hp <= 0:
                     print("You defeated the Flame Boar!")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return True
                 if player['hp'] <= 0:
                     print("You have been defeated.")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return False
             else:
@@ -231,7 +236,7 @@ def combat_with_flame_boar(player):
                 print(f"You use the Frost Horn, dealing 10 damage to the Flame Boar! Boar HP: {boar_hp}")
                 if boar_hp <= 0:
                     print("You defeated the Flame Boar!")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return True
             else:
@@ -247,7 +252,7 @@ def combat_with_flame_boar(player):
                 print(f"The Flame Boar uses Inferno, dealing {damage_taken} damage. Your HP: {player['hp']}")
                 if player['hp'] <= 0:
                     print("You have been defeated.")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - combat_start
                     return False
             else:
@@ -268,11 +273,11 @@ def number_pressing_phase(player):
                 print(f"Wrong or too slow! You take 5 damage. Your HP: {player['hp']}")
                 if player['hp'] <= 0:
                     print("You have been defeated.")
-                    if player.get('curse_start_time', 0) > 0:
+                    if player.get('curse_active', False):
                         player['curse_start_time'] += time.time() - phase_start
                     return False
                 print("Try again!")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - phase_start
                 return number_pressing_phase(player)
         else:
@@ -280,31 +285,33 @@ def number_pressing_phase(player):
             print(f"Time's up! You take 5 damage. Your HP: {player['hp']}")
             if player['hp'] <= 0:
                 print("You have been defeated.")
-                if player.get('curse_start_time', 0) > 0:
+                if player.get('curse_active', False):
                     player['curse_start_time'] += time.time() - phase_start
                 return False
             print("Try again!")
-            if player.get('curse_start_time', 0) > 0:
+            if player.get('curse_active', False):
                 player['curse_start_time'] += time.time() - phase_start
             return number_pressing_phase(player)
     print("Success! You passed the test!")
-    if player.get('curse_start_time', 0) > 0:
+    if player.get('curse_active', False):
         player['curse_start_time'] += time.time() - phase_start
     return True
 
 def disable_trap(player, trap_name):
-    code = f"{random.randint(0, 9)}{random.randint(0, 9)}{random.randint(0, 9)}"
-    print(f"Trap activates! Code: {code}")
-    time.sleep(1)
-    print("\033[H\033[J", end="")  # Clear screen
-    print("Enter the 3-digit code:")
-    user_input = input().strip()
-    if user_input == code:
-        print("Trap disarmed!")
+    if trap_name == 'TRAP1':
+        question = "What is 2 + 7?"
+        answer = "9"
+    elif trap_name == 'TRAP2':
+        question = "What is 5 * 2?"
+        answer = "10"
+    print(question)
+    user_answer = input().strip().lower()
+    if user_answer == answer:
+        print("Correct! Trap disarmed.")
         rooms[4][trap_name]['disarmed'] = True
     else:
         player['hp'] -= 3
-        print(f"Wrong code! You take 3 damage. Your HP: {player['hp']}")
+        print(f"Wrong! You take 3 damage. Your HP: {player['hp']}")
         if player['hp'] <= 0:
             print("You have been defeated.")
             game_over()
@@ -363,6 +370,7 @@ def attack_object(object_name, player, rooms):
         if not obj['dead']:
             print("The trader falls, and a dark spirit rises! You feel your life draining.")
             obj['dead'] = True
+            player['curse_active'] = True
             player['curse_start_time'] = time.time()
         else:
             print("The trader is already dead.")
@@ -442,7 +450,7 @@ def interact_with_object(object_name, player, rooms):
                 if choice == '1':
                     if player['gold'] >= 3:
                         player['gold'] -= 3
-                        print("The wall to a new area vanishes!")
+                        print("The wall to a new area vanishes! You may now interact with WALLPORTAL.")
                         rooms[2]['WALLPORTAL'] = {'unlocked': True}
                     else:
                         print("Not enough Gold!")
@@ -471,7 +479,7 @@ def interact_with_object(object_name, player, rooms):
 def main():
     global rooms
     display_welcome()
-    player = {'room': 1, 'hp': 20, 'gold': 0, 'gems': 0, 'has_armor': False, 'has_frost_horn': False, 'has_orb': False, 'curse_start_time': 0, 'max_hp': 20}
+    player = {'room': 1, 'hp': 20, 'gold': 0, 'gems': 0, 'has_armor': False, 'has_frost_horn': False, 'has_orb': False, 'curse_start_time': 0, 'max_hp': 20, 'curse_active': False}
     rooms = {
         1: {
             'BUSH': {'attacked': False, 'content': None},
@@ -523,7 +531,7 @@ def main():
         elif command == 'L':
             loaded_data = load_game(player)
             if loaded_data:
-                (room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened, trap1_disarmed, trap2_disarmed, has_orb, curse_start_time, room4_event_triggered) = loaded_data
+                (room, hp, gold, gems, chest1_opened, chest2_opened, door1_broken, bush1_attacked, bush2_attacked, bush3_attacked, has_armor, lootchest_opened, door2_broken, trader_dead, wallportal_unlocked, has_frost_horn, chest3_opened, trap1_disarmed, trap2_disarmed, has_orb, curse_start_time, room4_event_triggered, curse_active) = loaded_data
                 player['room'] = room
                 player['hp'] = hp
                 player['gold'] = gold
@@ -532,6 +540,7 @@ def main():
                 player['has_frost_horn'] = has_frost_horn
                 player['has_orb'] = has_orb
                 player['curse_start_time'] = curse_start_time
+                player['curse_active'] = curse_active
                 player['max_hp'] = 20 + (5 if room4_event_triggered and rooms[4].get('event_triggered', False) else 0)
                 rooms[1]['CHEST1']['opened'] = chest1_opened
                 rooms[1]['CHEST2']['opened'] = chest2_opened

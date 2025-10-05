@@ -48,7 +48,7 @@ class Item:
         }
 
 class Enemy:
-    def __init__(self, name, health, damage, info=None, gold_drop=50):
+    def __init__(self, name, health, damage, info=None, gold_drop=10):
         self.name = name
         self.health = health
         self.damage = damage
@@ -65,18 +65,14 @@ class Enemy:
         }
 
 class NPC:
-    def __init__(self, name, dialogue, is_monster=False, monster=None):
+    def __init__(self, name, dialogue):
         self.name = name
         self.dialogue = dialogue
-        self.is_monster = is_monster
-        self.monster = monster
 
     def to_dict(self):
         return {
             "name": self.name,
-            "dialogue": self.dialogue,
-            "is_monster": self.is_monster,
-            "monster": self.monster.to_dict() if self.monster else None
+            "dialogue": self.dialogue
         }
 
 class Player:
@@ -121,7 +117,7 @@ def setup_world():
     rooms["castle_hall"] = Room(
         "Castle Hall",
         "A grand hall with echoing footsteps. Paths lead to various rooms.",
-        exits={"south": "castle_start", "east": "castle_library", "west": "castle_armory", "north": "castle_kitchen", "boss": "castle_boss"}
+        exits={"south": "castle_start", "east": "castle_library", "west": "castle_armory", "north": "castle_kitchen", "chamber": "dragon_chamber"}
     )
     rooms["castle_library"] = Room(
         "Castle Library",
@@ -141,10 +137,10 @@ def setup_world():
         items=[Item("health potion", "Restores health.", usable=True)],
         exits={"south": "castle_hall"}
     )
-    rooms["castle_boss"] = Room(
-        "Castle Boss Room",
-        "A massive chamber where a dragon lurks.",
-        enemies=[Enemy("Dragon", 75, 50, "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'")],
+    rooms["dragon_chamber"] = Room(
+        "Dragon Chamber",
+        "A massive chamber with ancient carvings.",
+        enemies=[Enemy("Dragon", 150, 50, "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'")],
         exits={"south": "castle_hall", "out": "town_square"}
     )
 
@@ -152,7 +148,7 @@ def setup_world():
     rooms["town_square"] = Room(
         "Town Square",
         "A small town terrified by a nearby hydra. Villagers look scared.",
-        exits={"north": "forest", "east": "shrine", "west": "hydra_lair", "south": "shop"}
+        exits={"north": "forest", "east": "shrine", "west": "hydra_lair", "south": "shop", "dock": "dock"}
     )
     rooms["forest"] = Room(
         "Forest",
@@ -168,8 +164,8 @@ def setup_world():
     rooms["shrine"].puzzle_solved = False
     rooms["hydra_lair"] = Room(
         "Hydra’s Lair",
-        "The den of a fearsome hydra.",
-        enemies=[Enemy("Hydra", 60, 35, "The hydra hisses: 'Razukan is on Lokendar Island, plotting with Thanatos to corrupt the world!'")],
+        "A dark and eerie lair.",
+        enemies=[Enemy("Hydra", 120, 35, "The hydra hisses: 'Razukan is on Lokendar Island, plotting with Thanatos to corrupt the world!'")],
         exits={"east": "town_square"}
     )
     rooms["shop"] = Room(
@@ -183,36 +179,41 @@ def setup_world():
         exits={"north": "town_square"},
         is_shop=True
     )
+    rooms["dock"] = Room(
+        "Dock",
+        "A wooden dock extending into the sea. From here, you can sail to other islands if you have a boat.",
+        exits={"town": "town_square"}
+    )
 
     # Lokendar Quadrants
     rooms["lokendar_se"] = Room(
         "Lokendar - Southeast Quadrant",
-        "Corrupted area with suspicious officials.",
-        npcs=[NPC("Townsperson A", "Welcome to Lokendar.")],
+        "An area with suspicious officials.",
+        npcs=[NPC("Townsperson A", "Welcome to Lokendar, traveler. The city has seen better days.")],
         exits={"north": "lokendar_ne", "west": "lokendar_sw"}
     )
     rooms["lokendar_sw"] = Room(
         "Lokendar - Southwest Quadrant",
-        "More corruption in the government buildings.",
-        npcs=[NPC("Townsperson B", "Be careful around here.")],
+        "Government buildings loom here.",
+        npcs=[NPC("Townsperson B", "Keep your wits about you; rumors of monsters in disguise abound.")],
         exits={"east": "lokendar_se", "north": "lokendar_nw"}
     )
     rooms["lokendar_ne"] = Room(
         "Lokendar - Northeast Quadrant",
-        "Hidden monsters lurking in the shadows.",
-        npcs=[NPC("Townsperson C", "Nothing suspicious here.")],
+        "Shadows linger in this quadrant.",
+        npcs=[NPC("Townsperson C", "Nothing to see here, just going about my day.")],
         exits={"south": "lokendar_se", "west": "lokendar_nw"}
     )
     rooms["lokendar_nw"] = Room(
         "Lokendar - Northwest Quadrant",
-        "The heart of corruption.",
-        npcs=[NPC("Shady Townsperson", "What do you want?", is_monster=True, monster=Enemy("Hidden Monster", 40, 25))],
-        exits={"east": "lokendar_ne", "south": "lokendar_sw", "boss": "lokendar_boss"}
+        "The capital's center.",
+        npcs=[NPC("Townsperson D", "What brings you to this part of town? Looking for trouble?")],
+        exits={"east": "lokendar_ne", "south": "lokendar_sw", "chamber": "central_chamber"}
     )
-    rooms["lokendar_boss"] = Room(
-        "Lokendar Boss Room",
-        "The final chamber with the corruption monster.",
-        enemies=[Enemy("Corruption Monster", 30, 30)],
+    rooms["central_chamber"] = Room(
+        "Central Chamber",
+        "The central chamber of the capital.",
+        enemies=[Enemy("Corruption Monster", 80, 30)],
         exits={"south": "lokendar_nw"}
     )
 
@@ -263,7 +264,7 @@ def parse_command(command, player, rooms):
     elif action == "go":
         return go_to(player, target, rooms)
     elif action == "talk":
-        return talk_npc(player, target)
+        return talk_npc(player, target, rooms)
     elif action == "memorize":
         return memorize_puzzle(player)
     elif action == "help":
@@ -285,15 +286,51 @@ def get_item(player, item_name):
             return f"You picked up {item.name}."
     return "No such item here."
 
-def talk_npc(player, npc_name):
+def talk_npc(player, npc_name, rooms):
     for npc in player.current_room.npcs:
         if npc.name.lower() == npc_name:
-            print(npc.dialogue)
-            if npc.is_monster:
-                player.current_room.enemies.append(npc.monster)
+            rand = random.random()
+            if rand < 0.5:
+                # Boring dialogue
+                return npc.dialogue
+            elif rand < 0.75:
+                # Gambling game
+                print("Want to play a gambling game?")
+                response = input("> ").lower()
+                if response in ["y", "yes"]:
+                    if player.gold >= 50:
+                        player.gold -= 50
+                        return "The Game Begins! Oh... wait... where did he go? Oh no, I can't find 50 of my gold!"
+                    else:
+                        return "You don't have enough gold."
+                else:
+                    return "Maybe next time."
+            elif rand < 0.85:
+                # Monster reveal
+                monster = Enemy("Hidden Monster", 60, 25)
+                player.current_room.enemies.append(monster)
                 player.current_room.npcs.remove(npc)
                 return "The townsperson reveals itself as a monster! Prepare to fight!"
-            return "You talked to the NPC."
+            elif rand < 0.95:
+                # Offer spell scroll
+                spell = random.choice(["firebolt", "icebolt", "heal"])
+                print(f"Want to buy a {spell} scroll for 100 gold?")
+                response = input("> ").lower()
+                if response in ["y", "yes"]:
+                    if player.gold >= 100:
+                        player.gold -= 100
+                        player.spells.append(spell)
+                        return f"You bought the {spell} scroll!"
+                    else:
+                        return "Not enough gold."
+                else:
+                    return "Offer declined."
+            else:
+                # Punch
+                player.health -= 10
+                if player.health <= 0:
+                    return "You died! Game over."
+                return f"The townsperson punches you in the face! -10 health. Your health: {player.health}"
     return "No such NPC here."
 
 def memorize_puzzle(player):
@@ -341,10 +378,14 @@ def attack_enemy(player, enemy_name, rooms):
                 elif action == "cast" and target:
                     if target in player.spells and player.mana >= 20:
                         player.mana -= 20
-                        enemy.health -= 30
-                        if enemy.health <= 0:
-                            break
-                        print(f"You cast {target}! Enemy health: {enemy.health}")
+                        if target == "heal":
+                            player.health += 30
+                            print(f"You cast {target}! Health restored to {player.health}")
+                        else:
+                            enemy.health -= 20
+                            if enemy.health <= 0:
+                                break
+                            print(f"You cast {target}! Enemy health: {enemy.health}")
                     else:
                         print("Can't cast that.")
                         continue
@@ -361,33 +402,31 @@ def attack_enemy(player, enemy_name, rooms):
                         attack_types.append("special")
                     attack = random.choice(attack_types)
                     if attack == "light":
-                        side = random.choice(["left", "right"])
-                        dodge_side = "right" if side == "left" else "left"
-                        prompt = f"Enemy light attack from the {side}! Type 'dodge {dodge_side}' within 2 seconds!"
-                        correct = [f"dodge {dodge_side}"]
-                        time_limit = 2
-                        dmg = random.randint(5, 15)
-                    elif attack == "heavy":
-                        prompt = "Enemy heavy attack! Type 'jump' within 4 seconds!"
+                        prompt = f"Enemy light attack! Type 'jump' within 2 seconds!"
                         correct = ["jump"]
+                        time_limit = 2
+                        dmg = random.randint(5 + enemy.damage // 10, 15 + enemy.damage // 10)
+                    elif attack == "heavy":
+                        prompt = f"Enemy heavy attack! Type 'dodge' within 4 seconds!"
+                        correct = ["dodge"]
                         time_limit = 4
-                        dmg = random.randint(10, 20)
+                        dmg = random.randint(10 + enemy.damage // 10, 20 + enemy.damage // 10)
                     elif attack == "special":
                         if enemy.name == "Dragon":
                             prompt = "Dragon breathes fire! Type 'roll' within 3 seconds!"
                             correct = ["roll"]
                             time_limit = 3
-                            dmg = 30
+                            dmg = 30 + enemy.damage // 10
                         elif enemy.name == "Hydra":
                             prompt = "Hydra spits poison! Type 'block' within 3 seconds!"
                             correct = ["block"]
                             time_limit = 3
-                            dmg = 25
+                            dmg = 25 + enemy.damage // 10
                         elif enemy.name == "Corruption Monster":
                             prompt = "Corruption Monster fires a corrupt beam! Type 'reflect' within 3 seconds!"
                             correct = ["reflect"]
                             time_limit = 3
-                            dmg = 35
+                            dmg = 35 + enemy.damage // 10
 
                     print(prompt)
                     start_time = time.time()
@@ -442,7 +481,7 @@ def use_item(player, item_name, rooms, in_combat=False):
             elif item_name == "strange symbol":
                 return "It doesn't seem to do anything."
             elif item_name == "boat":
-                if "town" in player.current_room.name.lower():
+                if player.current_room.name == "Dock":
                     player.current_room = rooms["lokendar_se"]
                     return f"You sail to {player.current_room.name}. " + get_room_info(player.current_room)
             return f"Used {item.name}."
@@ -488,12 +527,7 @@ def load_game(player, rooms):
             rooms[room_key].exits = room_data["exits"]
             rooms[room_key].locked_exits = room_data["locked_exits"]
             rooms[room_key].npcs = [
-                NPC(
-                    npc["name"],
-                    npc["dialogue"],
-                    npc["is_monster"],
-                    Enemy(**npc["monster"]) if npc["monster"] else None
-                ) for npc in room_data.get("npcs", [])
+                NPC(npc["name"], npc["dialogue"]) for npc in room_data.get("npcs", [])
             ]
             if "puzzle_solved" in room_data:
                 setattr(rooms[room_key], "puzzle_solved", room_data["puzzle_solved"])

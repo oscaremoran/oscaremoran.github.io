@@ -48,8 +48,10 @@ class Item:
         }
 
 class Enemy:
-    def __init__(self, name, health, damage, info=None, gold_drop=10):
+    def __init__(self, name, title, description, health, damage, info=None, gold_drop=10):
         self.name = name
+        self.title = title
+        self.description = description
         self.health = health
         self.damage = damage
         self.info = info
@@ -58,6 +60,8 @@ class Enemy:
     def to_dict(self):
         return {
             "name": self.name,
+            "title": self.title,
+            "description": self.description,
             "health": self.health,
             "damage": self.damage,
             "info": self.info,
@@ -90,7 +94,8 @@ class Player:
             Item("strange symbol", "A circle inside another circle. It doesn't seem to do anything.", usable=True)
         ]
         self.current_room = None
-        self.memory = "I don’t know what happened to me and I want to find out. I am in a strange castle and don’t know where I am. There is a locked door in the room I am in. The room is lit by candles on the walls. I want to get out of here to find out what happened."
+        self.memory = "You don’t know what happened to yourself and you need to find out. I am in a strange castle and don’t know where I am. There is a locked door in the room I am in. The room is lit by candles on the walls. I want to get out of here to find out what happened."
+        self.unlocked_destinations = ["lokendar_se"]
 
     def to_dict(self):
         return {
@@ -99,7 +104,8 @@ class Player:
             "gold": self.gold,
             "spells": self.spells,
             "inventory": [item.to_dict() for item in self.inventory],
-            "current_room_name": self.current_room.name if self.current_room else None
+            "current_room_name": self.current_room.name if self.current_room else None,
+            "unlocked_destinations": self.unlocked_destinations
         }
 
 # Game World Setup
@@ -140,7 +146,13 @@ def setup_world():
     rooms["dragon_chamber"] = Room(
         "Dragon Chamber",
         "A massive chamber with ancient carvings.",
-        enemies=[Enemy("Dragon", 150, 50, "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'")],
+        enemies=[Enemy(
+            "Dragon",
+            "The Dragon, Flame-Wreathed Sovereign",
+            "A colossal beast with scales of molten crimson, its eyes glowing like embers and wings casting ominous shadows.",
+            150, 50,
+            "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'"
+        )],
         exits={"south": "castle_hall", "out": "town_square"}
     )
 
@@ -165,15 +177,21 @@ def setup_world():
     rooms["hydra_lair"] = Room(
         "Hydra’s Lair",
         "A dark and eerie lair.",
-        enemies=[Enemy("Hydra", 120, 35, "The hydra hisses: 'Razukan is on Lokendar Island, plotting with Thanatos to corrupt the world!'")],
+        enemies=[Enemy(
+            "Hydra",
+            "Venomous Terror of the Deep",
+            "A multi-headed serpent with glistening green scales, each head hissing with dripping venom.",
+            120, 35,
+            "The hydra hisses: 'Razukan is on Lokendar Island, plotting with Thanatos to corrupt the world!'"
+        )],
         exits={"east": "town_square"}
     )
     rooms["shop"] = Room(
         "Town Shop",
         "A shop where you can buy items.",
         items=[
-            Item("health potion", "Restores health.", usable=True, price=20),
-            Item("mana potion", "Restores mana.", usable=True, price=30),
+            Item("health potion", "Restores health.", usable=True, price=40),
+            Item("mana potion", "Restores mana.", usable=True, price=40),
             Item("better sword", "A better sword.", usable=True, price=50)
         ],
         exits={"north": "town_square"},
@@ -213,7 +231,12 @@ def setup_world():
     rooms["central_chamber"] = Room(
         "Central Chamber",
         "The central chamber of the capital.",
-        enemies=[Enemy("Corruption Monster", 80, 30)],
+        enemies=[Enemy(
+            "Corruption Monster",
+            "Blight of the Eternal Void",
+            "A grotesque mass of writhing shadows, its form pulsating with dark tendrils and glowing red eyes.",
+            80, 30
+        )],
         exits={"south": "lokendar_nw"}
     )
 
@@ -238,7 +261,7 @@ def get_room_info(room):
 def parse_command(command, player, rooms):
     parts = command.lower().split()
     if not parts:
-        return "Invalid command."
+        return "Unrecognizable command. Try 'help'."
 
     action = parts[0]
     target = " ".join(parts[1:]) if len(parts) > 1 else None
@@ -270,7 +293,7 @@ def parse_command(command, player, rooms):
     elif action == "help":
         return "Commands: get [item], attack [enemy], cast [spell on enemy], use [item], buy [item], save, load, look, inventory, go [direction], talk [npc], memorize (at shrine)"
     else:
-        return "Unknown command."
+        return "Unknown command. Try 'help'."
 
 def get_item(player, item_name):
     for item in player.current_room.items:
@@ -307,7 +330,7 @@ def talk_npc(player, npc_name, rooms):
                     return "Maybe next time."
             elif rand < 0.85:
                 # Monster reveal
-                monster = Enemy("Hidden Monster", 60, 25)
+                monster = Enemy("Hidden Monster", "Shadowed Deceiver", "A cloaked figure with glowing eyes, its form shimmering unnaturally.", 60, 25)
                 player.current_room.enemies.append(monster)
                 player.current_room.npcs.remove(npc)
                 return "The townsperson reveals itself as a monster! Prepare to fight!"
@@ -342,8 +365,9 @@ def memorize_puzzle(player):
     print("Memorize the sequence:")
     for num in sequence:
         print(num, end=" ", flush=True)
-        time.sleep(1)
-    print("\nNow, enter the sequence separated by spaces:")
+        time.sleep(0.75)
+    print("\r" + " " * 20, end="\r", flush=True)  # Clear the line
+    print("Now, enter the sequence separated by spaces:")
     inp = input("> ").strip().split()
     try:
         user_seq = [int(x) for x in inp]
@@ -359,6 +383,7 @@ def attack_enemy(player, enemy_name, rooms):
     bosses = ["Dragon", "Hydra", "Corruption Monster"]
     for enemy in player.current_room.enemies:
         if enemy.name.lower() == enemy_name:
+            print(f"{enemy.title}: {enemy.description}")
             while enemy.health > 0 and player.health > 0:
                 print(f"Combat with {enemy.name}! Enemy health: {enemy.health}, Your health: {player.health}, Mana: {player.mana}")
                 print("What do you do? (attack, cast [spell], use [item], flee)")
@@ -481,9 +506,28 @@ def use_item(player, item_name, rooms, in_combat=False):
             elif item_name == "strange symbol":
                 return "It doesn't seem to do anything."
             elif item_name == "boat":
-                if player.current_room.name == "Dock":
-                    player.current_room = rooms["lokendar_se"]
-                    return f"You sail to {player.current_room.name}. " + get_room_info(player.current_room)
+                if player.current_room.name != "Dock":
+                    return "You can only use the boat at a dock."
+                destinations = {
+                    "lokendar_se": "Lokendar",
+                    "spring_of_courage": "???",
+                    "whirlpool": "???"
+                }
+                unlocked = [k for k in destinations.keys() if k in player.unlocked_destinations]
+                print("Available destinations:")
+                for key in destinations:
+                    name = destinations[key] if key in player.unlocked_destinations else "???"
+                    print(f"- {name}")
+                print("Where would you like to sail?")
+                choice = input("> ").lower()
+                for key, name in destinations.items():
+                    if choice == name.lower() or (key in player.unlocked_destinations and choice == key):
+                        if key in player.unlocked_destinations:
+                            player.current_room = rooms[key]
+                            return f"You sail to {player.current_room.name}. " + get_room_info(player.current_room)
+                        else:
+                            return "That destination is locked."
+                return "Invalid destination."
             return f"Used {item.name}."
     return "Can't use that."
 
@@ -519,6 +563,7 @@ def load_game(player, rooms):
         player.gold = data["player"]["gold"]
         player.spells = data["player"]["spells"]
         player.inventory = [Item(**item_data) for item_data in data["player"]["inventory"]]
+        player.unlocked_destinations = data["player"].get("unlocked_destinations", ["lokendar_se"])
         current_room_name = data["player"]["current_room_name"]
         # Reconstruct rooms
         for room_key, room_data in data["rooms"].items():
@@ -554,9 +599,8 @@ def main():
     rooms, start_key = setup_world()
     player = Player()
     player.current_room = rooms[start_key]
-    print("Text Adventure Game")
+    print("Tales of Razukan")
     print(get_room_info(player.current_room))
-    print(player.memory)
 
     while True:
         command = input("> ")

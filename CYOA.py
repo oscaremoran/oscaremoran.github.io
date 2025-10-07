@@ -96,6 +96,7 @@ class Player:
         self.current_room = None
         self.memory = "You don’t know what happened to yourself and you need to find out. I am in a strange castle and don’t know where I am. There is a locked door in the room I am in. The room is lit by candles on the walls. I want to get out of here to find out what happened."
         self.unlocked_destinations = ["lokendar_se"]
+        self.corruption_monster_defeated = False
 
     def to_dict(self):
         return {
@@ -105,7 +106,8 @@ class Player:
             "spells": self.spells,
             "inventory": [item.to_dict() for item in self.inventory],
             "current_room_name": self.current_room.name if self.current_room else None,
-            "unlocked_destinations": self.unlocked_destinations
+            "unlocked_destinations": self.unlocked_destinations,
+            "corruption_monster_defeated": self.corruption_monster_defeated
         }
 
 # Game World Setup
@@ -145,15 +147,16 @@ def setup_world():
     )
     rooms["dragon_chamber"] = Room(
         "Dragon Chamber",
-        "A massive chamber with ancient carvings.",
+        "A massive chamber with ancient carvings. The dragon blocks the path to the outside.",
         enemies=[Enemy(
             "Dragon",
             "The Dragon, Flame-Wreathed Sovereign",
             "A colossal beast with scales of molten crimson, its eyes glowing like embers and wings casting ominous shadows.",
-            150, 50,
+            80, 50,
             "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'"
         )],
-        exits={"south": "castle_hall", "out": "town_square"}
+        exits={"south": "castle_hall"},
+        locked_exits={"out": "town_square"}  # Locked until dragon is defeated
     )
 
     # Town Areas
@@ -179,7 +182,7 @@ def setup_world():
         "A dark and eerie lair.",
         enemies=[Enemy(
             "Hydra",
-            "Venomous Terror of the Deep",
+            "The Hydra, Venomous Terror of the Deep",
             "A multi-headed serpent with glistening green scales, each head hissing with dripping venom.",
             120, 35,
             "The hydra hisses: 'Razukan is on Lokendar Island, plotting with Thanatos to corrupt the world!'"
@@ -205,10 +208,11 @@ def setup_world():
 
     # Lokendar Quadrants
     rooms["lokendar_se"] = Room(
-        "Lokendar - Southeast Quadrant",
+        "Dock",
         "An area with suspicious officials.",
         npcs=[NPC("Townsperson A", "Welcome to Lokendar, traveler. The city has seen better days.")],
-        exits={"north": "lokendar_ne", "west": "lokendar_sw"}
+        exits={"north": "lokendar_ne", "west": "lokendar_sw", "junkyard": "junkyard"},
+        locked_exits={"gate": "black_keep_gate"}  # Locked until Corruption Monster is defeated
     )
     rooms["lokendar_sw"] = Room(
         "Lokendar - Southwest Quadrant",
@@ -233,11 +237,78 @@ def setup_world():
         "The central chamber of the capital.",
         enemies=[Enemy(
             "Corruption Monster",
-            "Blight of the Eternal Void",
+            "Corruption Monster, Blight of Lokendar",
             "A grotesque mass of writhing shadows, its form pulsating with dark tendrils and glowing red eyes.",
-            80, 30
+            150, 30,
+            "As it falls, the Corruption Monster wheezes: 'Razukan awaits at the Black Keep, a dungeon beyond Lokendar’s borders!'"
         )],
         exits={"south": "lokendar_nw"}
+    )
+
+    # Junkyard
+    rooms["junkyard"] = Room(
+        "The Junkyard",
+        "A desolate expanse filled with broken machinery and refuse.",
+        items=[
+            Item("grenade", "A one-use explosive device that deals heavy damage.", usable=True, price=60)
+        ],
+        exits={"southeast": "lokendar_se"},
+        is_shop=True
+    )
+
+    # Black Keep
+    rooms["black_keep_gate"] = Room(
+        "Black Keep Gate",
+        "The imposing gate of the Black Keep, a dark fortress shrouded in mist. Ancient runes pulse faintly on the stone.",
+        exits={"southeast": "lokendar_se", "north": "black_keep_courtyard"},
+        items=[Item("keep key 1", "A heavy iron key, one of three needed to unlock the inner chamber.", usable=True)]
+    )
+    rooms["black_keep_courtyard"] = Room(
+        "Black Keep Courtyard",
+        "A cracked stone courtyard surrounded by crumbling towers. Shadows move in the corners.",
+        enemies=[Enemy(
+            "Spectral Knight",
+            "",
+            "",
+            60, 25
+        )],
+        exits={"south": "black_keep_gate", "east": "black_keep_hall", "west": "black_keep_armory"}
+    )
+    rooms["black_keep_hall"] = Room(
+        "Black Keep Hall",
+        "A long hall lined with faded tapestries. The air feels heavy with dread.",
+        enemies=[Enemy(
+            "Shadow Hound",
+            "",
+            "",
+            50, 20
+        )],
+        items=[Item("keep key 2", "A silver key etched with cryptic symbols, one of three needed to unlock the inner chamber.", usable=True)],
+        exits={"west": "black_keep_courtyard"}
+    )
+    rooms["black_keep_armory"] = Room(
+        "Black Keep Armory",
+        "Rusted weapons and armor lie scattered, remnants of a forgotten garrison.",
+        items=[Item("keep key 3", "A bronze key with a skull motif, one of three needed to unlock the inner chamber.", usable=True)],
+        enemies=[Enemy(
+            "Cursed Sentinel",
+            "",
+            "",
+            70, 30
+        )],
+        exits={"east": "black_keep_courtyard"},
+        locked_exits={"north": "razukan_lair"}  # Locked until three keys are used
+    )
+    rooms["razukan_lair"] = Room(
+        "Razukan's Lair",
+        "A foreboding chamber pulsing with dark energy. Razukan stands here, his presence chilling the air.",
+        enemies=[Enemy(
+            "Razukan",
+            "Razukan, The Eternal Lich",
+            "A skeletal figure cloaked in tattered robes, his eyes burning with unholy fire.",
+            1, 0  # Not meant to be fought directly
+        )],
+        exits={"south": "black_keep_armory"}
     )
 
     return rooms, "castle_start"
@@ -380,10 +451,24 @@ def memorize_puzzle(player):
         return "Invalid input."
 
 def attack_enemy(player, enemy_name, rooms):
-    bosses = ["Dragon", "Hydra", "Corruption Monster"]
+    bosses = ["Dragon", "Hydra", "Corruption Monster", "Crystal Mech"]
     for enemy in player.current_room.enemies:
         if enemy.name.lower() == enemy_name:
-            print(f"{enemy.title}: {enemy.description}")
+            if enemy.name == "Razukan":
+                print("Razukan laughs: 'My secret plan to destroy the world is nearly complete... But you won't be there to see it. CRYSTAL MECH? Destroy him.'")
+                print("Razukan flies off, summoning the Crystal Mech!")
+                player.current_room.enemies.remove(enemy)
+                crystal_mech = Enemy(
+                    "Crystal Mech",
+                    "Crystal Mech, Guardian of Annihilation",
+                    "A towering construct of shimmering crystals, its limbs crackling with destructive energy.",
+                    220, 40
+                )
+                player.current_room.enemies.append(crystal_mech)
+                return "The Crystal Mech activates! Prepare for battle."
+            if enemy.title and enemy.description:
+                print(f"{enemy.title}: {enemy.description}")
+            frozen = False
             while enemy.health > 0 and player.health > 0:
                 print(f"Combat with {enemy.name}! Enemy health: {enemy.health}, Your health: {player.health}, Mana: {player.mana}")
                 print("What do you do? (attack, cast [spell], use [item], flee)")
@@ -406,6 +491,12 @@ def attack_enemy(player, enemy_name, rooms):
                         if target == "heal":
                             player.health += 30
                             print(f"You cast {target}! Health restored to {player.health}")
+                        elif target == "icebolt":
+                            enemy.health -= 20
+                            frozen = True
+                            print(f"You cast {target}! Enemy health: {enemy.health}. The enemy is frozen for a turn!")
+                            if enemy.health <= 0:
+                                break
                         else:
                             enemy.health -= 20
                             if enemy.health <= 0:
@@ -422,6 +513,10 @@ def attack_enemy(player, enemy_name, rooms):
                     continue
 
                 if enemy.health > 0:
+                    if frozen:
+                        print("The enemy is frozen and skips its turn!")
+                        frozen = False
+                        continue
                     attack_types = ["light", "heavy"]
                     if enemy.name in bosses:
                         attack_types.append("special")
@@ -452,6 +547,11 @@ def attack_enemy(player, enemy_name, rooms):
                             correct = ["reflect"]
                             time_limit = 3
                             dmg = 35 + enemy.damage // 10
+                        elif enemy.name == "Crystal Mech":
+                            prompt = "Crystal Mech charges a laser! Type 'duck' within 3 seconds!"
+                            correct = ["duck"]
+                            time_limit = 3
+                            dmg = 40 + enemy.damage // 10
 
                     print(prompt)
                     start_time = time.time()
@@ -468,6 +568,27 @@ def attack_enemy(player, enemy_name, rooms):
                         print(f"You took {dmg} damage! Your health: {player.health}")
                         if player.health <= 0:
                             return "You died! Game over."
+                    if enemy.name == "Crystal Mech" and enemy.health <= 110:
+                        print("Crystal Mech attacks again!")
+                        # Repeat attack logic for back-to-back attacks
+                        attack = random.choice(attack_types)
+                        # Crystal Mech phase 2: back-to-back attack if health <= 110
+                        if attack == "light":
+                            prompt = f"Enemy light attack! Type 'jump' within 2 seconds!"
+                            correct = ["jump"]
+                            time_limit = 2
+                            dmg = random.randint(5 + enemy.damage // 10, 15 + enemy.damage // 10)
+                        elif attack == "heavy":
+                            prompt = f"Enemy heavy attack! Type 'dodge' within 4 seconds!"
+                            correct = ["dodge"]
+                            time_limit = 4
+                            dmg = random.randint(10 + enemy.damage // 10, 20 + enemy.damage // 10)
+                        elif attack == "special":
+                            prompt = "Crystal Mech charges a laser! Type 'duck' within 3 seconds!"
+                            correct = ["duck"]
+                            time_limit = 3
+                            dmg = 40 + enemy.damage // 10
+                            # ... (repeat the attack code here for phase 2)
 
             if player.health > 0:
                 player.current_room.enemies.remove(enemy)
@@ -476,6 +597,19 @@ def attack_enemy(player, enemy_name, rooms):
                 if enemy.name == "Hydra":
                     player.inventory.append(Item("boat", "A boat to reach Lokendar.", usable=True))
                     info += " You received a boat!"
+                if enemy.name == "Dragon" and player.current_room.name == "Dragon Chamber":
+                    player.current_room.exits["out"] = player.current_room.locked_exits["out"]
+                    del player.current_room.locked_exits["out"]
+                    info += " The path to the outside is now open!"
+                if enemy.name == "Corruption Monster":
+                    player.corruption_monster_defeated = True
+                    rooms["lokendar_se"].exits["gate"] = rooms["lokendar_se"].locked_exits["gate"]
+                    del rooms["lokendar_se"].locked_exits["gate"]
+                    player.unlocked_destinations.append("spring_of_courage")
+                    info += " The gate to the Black Keep is now accessible! Spring of Courage unlocked for sailing."
+                if enemy.name == "Crystal Mech":
+                    player.unlocked_destinations.append("whirlpool")
+                    info += " Whirlpool unlocked for sailing."
                 return f"You defeated {enemy.name}! {info} Gained {enemy.gold_drop} gold."
     return "No such enemy here."
 
@@ -510,8 +644,8 @@ def use_item(player, item_name, rooms, in_combat=False):
                     return "You can only use the boat at a dock."
                 destinations = {
                     "lokendar_se": "Lokendar",
-                    "spring_of_courage": "???",
-                    "whirlpool": "???"
+                    "spring_of_courage": "Spring of Courage",
+                    "whirlpool": "Whirlpool"
                 }
                 unlocked = [k for k in destinations.keys() if k in player.unlocked_destinations]
                 print("Available destinations:")
@@ -528,6 +662,22 @@ def use_item(player, item_name, rooms, in_combat=False):
                         else:
                             return "That destination is locked."
                 return "Invalid destination."
+            elif item_name == "grenade":
+                # Assume in combat, deal damage to enemy
+                return "Grenade thrown! (Placeholder effect)"
+            elif item_name in ["keep key 1", "keep key 2", "keep key 3"]:
+                if player.current_room.name == "Black Keep Armory" and "north" in player.current_room.locked_exits:
+                    required_keys = ["keep key 1", "keep key 2", "keep key 3"]
+                    if all(key in [item.name for item in player.inventory] for key in required_keys):
+                        player.current_room.exits["north"] = player.current_room.locked_exits["north"]
+                        del player.current_room.locked_exits["north"]
+                        for key in required_keys:
+                            for inv_item in player.inventory[:]:
+                                if inv_item.name == key:
+                                    player.inventory.remove(inv_item)
+                        return "You used the three keys to unlock the lair door. They vanish."
+                    return "You need all three keys to unlock the lair."
+                return "You can't use the key here."
             return f"Used {item.name}."
     return "Can't use that."
 
@@ -564,6 +714,7 @@ def load_game(player, rooms):
         player.spells = data["player"]["spells"]
         player.inventory = [Item(**item_data) for item_data in data["player"]["inventory"]]
         player.unlocked_destinations = data["player"].get("unlocked_destinations", ["lokendar_se"])
+        player.corruption_monster_defeated = data["player"].get("corruption_monster_defeated", False)
         current_room_name = data["player"]["current_room_name"]
         # Reconstruct rooms
         for room_key, room_data in data["rooms"].items():

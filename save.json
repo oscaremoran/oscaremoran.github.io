@@ -1,9 +1,9 @@
 {
   "player": {
-    "health": 100,
+    "health": 77,
     "mana": 100,
-    "gold": 500,
-    "spells": ["firebolt", "icebolt", "heal"],
+    "gold": 1000,
+    "spells": [],
     "inventory": [
       {
         "name": "leather tunic",
@@ -42,9 +42,20 @@
         "price": 0
       }
     ],
-    "current_room_name": "Lokendar Dock",
-    "unlocked_destinations": ["dock", "lokendar_dock", "spring_of_courage", "whirlpool"],
-    "corruption_monster_defeated": true
+    "current_room_name": "The Junkyard",
+    "unlocked_destinations": [
+      "lokendar_se",
+      "dock",
+      "lokendar_dock",
+      "spring_of_courage",
+      "razukan_lair"
+    ],
+    "corruption_monster_defeated": true,
+    "defeated_bosses": [
+      "Dragon",
+      "Hydra",
+      "Corruption Monster"
+    ]
   },
   "rooms": {
     "castle_start": {
@@ -52,7 +63,9 @@
       "description": "You wake up in a dimly lit room lit by candles on the walls. There's a locked door ahead. You have no memory of how you got here.",
       "items": [],
       "enemies": [],
-      "exits": {"north": "castle_hall"},
+      "exits": {
+        "north": "castle_hall"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -62,7 +75,13 @@
       "description": "A grand hall with echoing footsteps. Paths lead to various rooms.",
       "items": [],
       "enemies": [],
-      "exits": {"south": "castle_start", "east": "castle_library", "west": "castle_armory", "north": "castle_kitchen", "chamber": "dragon_chamber"},
+      "exits": {
+        "south": "castle_start",
+        "east": "castle_library",
+        "west": "castle_armory",
+        "north": "castle_kitchen",
+        "chamber": "dragon_chamber"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -70,9 +89,18 @@
     "castle_library": {
       "name": "Castle Library",
       "description": "Shelves filled with ancient books. Maybe some clues here.",
-      "items": [],
+      "items": [
+        {
+          "name": "book on liches",
+          "description": "A book mentioning Razukan, a powerful lich defeated long ago.",
+          "usable": false,
+          "price": 0
+        }
+      ],
       "enemies": [],
-      "exits": {"west": "castle_hall"},
+      "exits": {
+        "west": "castle_hall"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -80,9 +108,18 @@
     "castle_armory": {
       "name": "Castle Armory",
       "description": "Weapons and armor racks. Some might be useful.",
-      "items": [],
+      "items": [
+        {
+          "name": "sword",
+          "description": "A sharp sword for fighting.",
+          "usable": true,
+          "price": 0
+        }
+      ],
       "enemies": [],
-      "exits": {"east": "castle_hall"},
+      "exits": {
+        "east": "castle_hall"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -90,9 +127,18 @@
     "castle_kitchen": {
       "name": "Castle Kitchen",
       "description": "Pots and pans, some food scraps. Nothing fancy.",
-      "items": [],
+      "items": [
+        {
+          "name": "health potion",
+          "description": "Restores health.",
+          "usable": true,
+          "price": 0
+        }
+      ],
       "enemies": [],
-      "exits": {"south": "castle_hall"},
+      "exits": {
+        "south": "castle_hall"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -102,7 +148,10 @@
       "description": "A massive chamber with ancient carvings. The dragon blocks the path to the outside.",
       "items": [],
       "enemies": [],
-      "exits": {"south": "castle_hall", "out": "town_square"},
+      "exits": {
+        "south": "castle_hall",
+        "out": "town_square"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -112,7 +161,13 @@
       "description": "A small town terrified by a nearby hydra. Villagers look scared.",
       "items": [],
       "enemies": [],
-      "exits": {"north": "forest", "east": "shrine", "west": "hydra_lair", "south": "shop", "dock": "dock"},
+      "exits": {
+        "north": "forest",
+        "east": "shrine",
+        "west": "hydra_lair",
+        "south": "shop",
+        "dock": "dock"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -122,7 +177,9 @@
       "description": "Dense woods with paths leading deeper.",
       "items": [],
       "enemies": [],
-      "exits": {"south": "town_square"},
+      "exits": {
+        "south": "town_square"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -130,20 +187,31 @@
     "shrine": {
       "name": "Shrine",
       "description": "An ancient shrine with mystical aura. A memorization puzzle guards the magic scroll.",
-      "items": [],
+      "items": [
+        {
+          "name": "magic scroll",
+          "description": "Allows learning spells.",
+          "usable": true,
+          "price": 0
+        }
+      ],
       "enemies": [],
-      "exits": {"west": "town_square"},
+      "exits": {
+        "west": "town_square"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": [],
-      "puzzle_solved": true
+      "puzzle_solved": false
     },
     "hydra_lair": {
-      "name": "Hydra’s Lair",
+      "name": "Hydra\u2019s Lair",
       "description": "A dark and eerie lair.",
       "items": [],
       "enemies": [],
-      "exits": {"east": "town_square"},
+      "exits": {
+        "east": "town_square"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -151,9 +219,24 @@
     "shop": {
       "name": "Town Shop",
       "description": "A shop where you can buy items.",
-      "items": [],
+      "items": [
+        {
+          "name": "health potion",
+          "description": "Restores health.",
+          "usable": true,
+          "price": 40
+        },
+        {
+          "name": "mana potion",
+          "description": "Restores mana.",
+          "usable": true,
+          "price": 40
+        }
+      ],
       "enemies": [],
-      "exits": {"north": "town_square"},
+      "exits": {
+        "north": "town_square"
+      },
       "is_shop": true,
       "locked_exits": {},
       "npcs": []
@@ -163,7 +246,9 @@
       "description": "A wooden dock extending into the sea. From here, you can sail to other islands if you have a boat.",
       "items": [],
       "enemies": [],
-      "exits": {"town": "town_square"},
+      "exits": {
+        "town": "town_square"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -173,7 +258,13 @@
       "description": "An area with suspicious officials.",
       "items": [],
       "enemies": [],
-      "exits": {"north": "lokendar_ne", "west": "lokendar_sw", "junkyard": "junkyard", "dock": "lokendar_dock", "gate": "black_keep_gate"},
+      "exits": {
+        "north": "lokendar_ne",
+        "west": "lokendar_sw",
+        "junkyard": "junkyard",
+        "dock": "lokendar_dock",
+        "gate": "black_keep_gate"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": [
@@ -188,7 +279,10 @@
       "description": "Government buildings loom here.",
       "items": [],
       "enemies": [],
-      "exits": {"east": "lokendar_se", "north": "lokendar_nw"},
+      "exits": {
+        "east": "lokendar_se",
+        "north": "lokendar_nw"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": [
@@ -203,7 +297,10 @@
       "description": "Shadows linger in this quadrant.",
       "items": [],
       "enemies": [],
-      "exits": {"south": "lokendar_se", "west": "lokendar_nw"},
+      "exits": {
+        "south": "lokendar_se",
+        "west": "lokendar_nw"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": [
@@ -218,7 +315,11 @@
       "description": "The capital's center.",
       "items": [],
       "enemies": [],
-      "exits": {"east": "lokendar_ne", "south": "lokendar_sw", "chamber": "central_chamber"},
+      "exits": {
+        "east": "lokendar_ne",
+        "south": "lokendar_sw",
+        "chamber": "central_chamber"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": [
@@ -233,17 +334,34 @@
       "description": "The central chamber of the capital.",
       "items": [],
       "enemies": [],
-      "exits": {"south": "lokendar_nw"},
+      "exits": {
+        "south": "lokendar_nw"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
     },
     "junkyard": {
       "name": "The Junkyard",
-      "description": "A desolate expanse filled with broken machinery and refuse.",
-      "items": [],
+      "description": "A desolate expanse filled with broken machinery and refuse. A merchant here sells rare items.",
+      "items": [
+        {
+          "name": "grenade",
+          "description": "A one-use explosive device that deals heavy damage.",
+          "usable": true,
+          "price": 60
+        },
+                {
+          "name": "airship",
+          "description": "Stuff",
+          "usable": true,
+          "price": 60
+        }
+      ],
       "enemies": [],
-      "exits": {"southeast": "lokendar_se"},
+      "exits": {
+        "southeast": "lokendar_se"
+      },
       "is_shop": true,
       "locked_exits": {},
       "npcs": []
@@ -251,9 +369,19 @@
     "black_keep_gate": {
       "name": "Black Keep Gate",
       "description": "The imposing gate of the Black Keep, a dark fortress shrouded in mist. Ancient runes pulse faintly on the stone.",
-      "items": [],
+      "items": [
+        {
+          "name": "keep key 1",
+          "description": "A heavy iron key, one of three needed to unlock the inner chamber.",
+          "usable": true,
+          "price": 0
+        }
+      ],
       "enemies": [],
-      "exits": {"southeast": "lokendar_se", "north": "black_keep_courtyard"},
+      "exits": {
+        "southeast": "lokendar_se",
+        "north": "black_keep_courtyard"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -262,8 +390,22 @@
       "name": "Black Keep Courtyard",
       "description": "A cracked stone courtyard surrounded by crumbling towers. Shadows move in the corners.",
       "items": [],
-      "enemies": [],
-      "exits": {"south": "black_keep_gate", "east": "black_keep_hall", "west": "black_keep_armory"},
+      "enemies": [
+        {
+          "name": "Spectral Knight",
+          "title": "",
+          "description": "",
+          "health": 60,
+          "damage": 25,
+          "info": null,
+          "gold_drop": 10
+        }
+      ],
+      "exits": {
+        "south": "black_keep_gate",
+        "east": "black_keep_hall",
+        "west": "black_keep_armory"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -271,9 +413,28 @@
     "black_keep_hall": {
       "name": "Black Keep Hall",
       "description": "A long hall lined with faded tapestries. The air feels heavy with dread.",
-      "items": [],
-      "enemies": [],
-      "exits": {"west": "black_keep_courtyard"},
+      "items": [
+        {
+          "name": "keep key 2",
+          "description": "A silver key etched with cryptic symbols, one of three needed to unlock the inner chamber.",
+          "usable": true,
+          "price": 0
+        }
+      ],
+      "enemies": [
+        {
+          "name": "Shadow Hound",
+          "title": "",
+          "description": "",
+          "health": 50,
+          "damage": 20,
+          "info": null,
+          "gold_drop": 10
+        }
+      ],
+      "exits": {
+        "west": "black_keep_courtyard"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
@@ -281,60 +442,66 @@
     "black_keep_armory": {
       "name": "Black Keep Armory",
       "description": "Rusted weapons and armor lie scattered, remnants of a forgotten garrison.",
-      "items": [],
-      "enemies": [],
-      "exits": {"east": "black_keep_courtyard", "north": "razukan_lair"},
+      "items": [
+        {
+          "name": "keep key 3",
+          "description": "A bronze key with a skull motif, one of three needed to unlock the inner chamber.",
+          "usable": true,
+          "price": 0
+        }
+      ],
+      "enemies": [
+        {
+          "name": "Cursed Sentinel",
+          "title": "",
+          "description": "",
+          "health": 70,
+          "damage": 30,
+          "info": null,
+          "gold_drop": 10
+        }
+      ],
+      "exits": {
+        "east": "black_keep_courtyard"
+      },
       "is_shop": false,
-      "locked_exits": {},
+      "locked_exits": {
+        "north": "razukan_lair"
+      },
       "npcs": []
     },
     "razukan_lair": {
       "name": "Razukan's Lair",
       "description": "A foreboding chamber pulsing with dark energy. Razukan stands here, his presence chilling the air.",
       "items": [],
-      "enemies": [],
-      "exits": {"south": "black_keep_armory"},
+      "enemies": [
+        {
+          "name": "Razukan",
+          "title": "Razukan, The Eternal Lich",
+          "description": "A skeletal figure cloaked in tattered robes, his eyes burning with unholy fire.",
+          "health": 1,
+          "damage": 0,
+          "info": null,
+          "gold_drop": 10
+        }
+      ],
+      "exits": {
+        "south": "black_keep_armory"
+      },
       "is_shop": false,
       "locked_exits": {},
       "npcs": []
     },
     "spring_of_courage": {
       "name": "Spring of Courage",
-      "description": "A sacred spring surrounded by ancient statues. Waves of enemies emerge to test your resolve!",
+      "description": "A sacred spring surrounded by ancient statues. A formidable guardian tests your courage!",
       "items": [],
       "enemies": [
         {
-          "name": "Guardian Warrior",
-          "title": "",
-          "description": "",
-          "health": 40,
-          "damage": 15,
-          "info": null,
-          "gold_drop": 10
-        },
-        {
-          "name": "Guardian Archer",
-          "title": "",
-          "description": "",
-          "health": 30,
-          "damage": 10,
-          "info": null,
-          "gold_drop": 10
-        },
-        {
-          "name": "Guardian Mage",
-          "title": "",
-          "description": "",
-          "health": 50,
-          "damage": 20,
-          "info": null,
-          "gold_drop": 10
-        },
-        {
-          "name": "Guardian Beast",
-          "title": "",
-          "description": "",
-          "health": 60,
+          "name": "Sacred Guardian",
+          "title": "Sacred Guardian, Protector of the Spring",
+          "description": "A towering figure clad in radiant armor, wielding a blade infused with holy light.",
+          "health": 150,
           "damage": 25,
           "info": null,
           "gold_drop": 10
@@ -354,8 +521,8 @@
           "name": "Kraken",
           "title": "Kraken, Terror of the Seas",
           "description": "A massive octopus-like beast with tentacles whipping through the waves, its beak snapping hungrily.",
-          "health": 200,
-          "damage": 35,
+          "health": 400,
+          "damage": 40,
           "info": null,
           "gold_drop": 10
         }
@@ -370,7 +537,19 @@
       "description": "A sturdy dock in Lokendar's harbor. From here, you can sail back to other islands if you have a boat.",
       "items": [],
       "enemies": [],
-      "exits": {"north": "lokendar_se"},
+      "exits": {
+        "north": "lokendar_se"
+      },
+      "is_shop": false,
+      "locked_exits": {},
+      "npcs": []
+    },
+    "sky_castle": {
+      "name": "Sky Castle",
+      "description": "A majestic fortress floating among the clouds. For now, it lies eerily empty.",
+      "items": [],
+      "enemies": [],
+      "exits": {},
       "is_shop": false,
       "locked_exits": {},
       "npcs": []

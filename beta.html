@@ -1,0 +1,551 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tales of Razukan - Beta Version</title>
+    <style>
+        body {
+            font-family: monospace;
+            background-color: #1a1a1a;
+            color: #e0e0e0;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        #game-container {
+            width: 80%;
+            max-width: 800px;
+        }
+        #output {
+            width: 100%;
+            height: 400px;
+            background-color: #2a2a2a;
+            border: 2px solid #444;
+            padding: 10px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            margin-bottom: 10px;
+        }
+        #input {
+            width: 100%;
+            padding: 8px;
+            font-size: 16px;
+            background-color: #333;
+            color: #e0e0e0;
+            border: 2px solid #444;
+        }
+        #input:disabled {
+            background-color: #555;
+        }
+        h1 {
+            color: #f0a500;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container">
+        <h1>Tales of Razukan - Beta Version</h1>
+        <textarea id="output" readonly></textarea>
+        <input id="input" type="text" placeholder="Enter command (type 'help' for commands)" autocomplete="off">
+    </div>
+
+    <script>
+        // Game Data Structures
+        class Room {
+            constructor(name, description, items = [], enemies = [], exits = {}, locked_exits = {}) {
+                this.name = name;
+                this.description = description;
+                this.items = items;
+                this.enemies = enemies;
+                this.exits = exits;
+                this.locked_exits = locked_exits;
+            }
+
+            toJSON() {
+                return {
+                    name: this.name,
+                    description: this.description,
+                    items: this.items.map(item => ({ ...item })),
+                    enemies: this.enemies.map(enemy => ({ ...enemy })),
+                    exits: { ...this.exits },
+                    locked_exits: { ...this.locked_exits }
+                };
+            }
+        }
+
+        class Item {
+            constructor(name, description, usable = false) {
+                this.name = name;
+                this.description = description;
+                this.usable = usable;
+            }
+        }
+
+        class Enemy {
+            constructor(name, title, description, health, damage, info = null, gold_drop = 10) {
+                this.name = name;
+                this.title = title;
+                this.description = description;
+                this.health = health;
+                this.damage = damage;
+                this.info = info;
+                this.gold_drop = gold_drop;
+            }
+        }
+
+        class Player {
+            constructor() {
+                this.health = 100;
+                this.mana = 100;
+                this.gold = 100;
+                this.spells = [];
+                this.inventory = [
+                    { name: "leather tunic", description: "Basic leather tunic for protection.", usable: false },
+                    { name: "old torn leather boots", description: "Worn boots for walking.", usable: false },
+                    { name: "leather helmet", description: "A simple helmet.", usable: false },
+                    { name: "strange symbol", description: "A circle inside another circle. It doesn't seem to do anything.", usable: true }
+                ];
+                this.current_room = null;
+            }
+
+            toJSON() {
+                return {
+                    health: this.health,
+                    mana: this.mana,
+                    gold: this.gold,
+                    spells: [...this.spells],
+                    inventory: this.inventory.map(item => ({ ...item })),
+                    current_room_name: this.current_room ? this.current_room.name : null
+                };
+            }
+        }
+
+        // Game World Setup
+        function setupWorld() {
+            const rooms = {
+                "castle_start": new Room(
+                    "Castle Starting Room",
+                    "You wake up in a dimly lit room lit by candles on the walls. There's a locked door ahead. You have no memory of how you got here.",
+                    [{ name: "key", description: "A rusty key to unlock doors.", usable: true }],
+                    [],
+                    {},
+                    { north: "castle_hall" }
+                ),
+                "castle_hall": new Room(
+                    "Castle Hall",
+                    "A grand hall with echoing footsteps. Paths lead to various rooms.",
+                    [],
+                    [],
+                    { south: "castle_start", east: "castle_library", west: "castle_armory", north: "castle_kitchen", chamber: "dragon_chamber" },
+                    {}
+                ),
+                "castle_library": new Room(
+                    "Castle Library",
+                    "Shelves filled with ancient books. Maybe some clues here.",
+                    [{ name: "book on liches", description: "A book mentioning Razukan, a powerful lich defeated long ago.", usable: false }],
+                    [],
+                    { west: "castle_hall" },
+                    {}
+                ),
+                "castle_armory": new Room(
+                    "Castle Armory",
+                    "Weapons and armor racks. Some might be useful.",
+                    [{ name: "sword", description: "A sharp sword for fighting.", usable: true }],
+                    [],
+                    { east: "castle_hall" },
+                    {}
+                ),
+                "castle_kitchen": new Room(
+                    "Castle Kitchen",
+                    "Pots and pans, some food scraps. Nothing fancy.",
+                    [{ name: "health potion", description: "Restores health.", usable: true }],
+                    [],
+                    { south: "castle_hall" },
+                    {}
+                ),
+                "dragon_chamber": new Room(
+                    "Dragon Chamber",
+                    "A massive chamber with ancient carvings. The dragon blocks the path to the outside.",
+                    [],
+                    [{
+                        name: "Dragon",
+                        title: "The Dragon, Flame-Wreathed Sovereign",
+                        description: "A colossal beast with scales of molten crimson, its eyes glowing like embers and wings casting ominous shadows.",
+                        health: 80,
+                        damage: 50,
+                        info: "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'",
+                        gold_drop: 10
+                    }],
+                    { south: "castle_hall" },
+                    {}
+                )
+            };
+            return [rooms, "castle_start"];
+        }
+
+        // Helper to get room info
+        function getRoomInfo(room) {
+            let info = room.description + "\n";
+            if (room.items.length) {
+                info += "Items here: " + room.items.map(item => item.name).join(", ") + "\n";
+            }
+            if (room.enemies.length) {
+                info += "Enemies here: " + room.enemies.map(enemy => enemy.name).join(", ") + "\n";
+            }
+            if (Object.keys(room.exits).length) {
+                info += "Available directions: " + Object.keys(room.exits).join(", ") + "\n";
+            }
+            if (Object.keys(room.locked_exits).length) {
+                info += "Locked directions: " + Object.keys(room.locked_exits).join(", ") + "\n";
+            }
+            return info;
+        }
+
+        // Game Functions
+        function parseCommand(command, player, rooms) {
+            const parts = command.toLowerCase().trim().split(/\s+/);
+            if (!parts.length) return "Unrecognizable command. Try 'help'.";
+
+            const action = parts[0];
+            const target = parts.slice(1).join(" ");
+
+            if (action === "get") return getItem(player, target);
+            if (action === "attack") return attackEnemy(player, target, rooms);
+            if (action === "cast") return castSpell(player, target);
+            if (action === "use") return useItem(player, target, rooms);
+            if (action === "save") return saveGame(player, rooms);
+            if (action === "load") return loadGame(player, rooms);
+            if (action === "look") return getRoomInfo(player.current_room);
+            if (action === "inventory") {
+                return "Inventory: " + (player.inventory.length ? player.inventory.map(item => item.name).join(", ") : "empty") +
+                    `\nGold: ${player.gold}\nMana: ${player.mana}\nSpells: ${player.spells.length ? player.spells.join(", ") : "none"}`;
+            }
+            if (action === "go") return goTo(player, target, rooms);
+            if (action === "examine") return examineItem(player, target);
+            if (action === "help") return "Commands: get [item], attack [enemy], cast [spell], use [item], save, load, look, inventory, go [direction], examine [item]";
+            return "Unknown command. Try 'help'.";
+        }
+
+        function getItem(player, itemName) {
+            const item = player.current_room.items.find(item => item.name.toLowerCase() === itemName);
+            if (item) {
+                player.inventory.push(item);
+                player.current_room.items = player.current_room.items.filter(i => i !== item);
+                return `You picked up ${item.name}.`;
+            }
+            return "No such item here.";
+        }
+
+        function examineItem(player, itemName) {
+            const inventoryItem = player.inventory.find(item => item.name.toLowerCase() === itemName);
+            if (inventoryItem) {
+                return `${inventoryItem.name}: ${inventoryItem.description}`;
+            }
+            const roomItem = player.current_room.items.find(item => item.name.toLowerCase() === itemName);
+            if (roomItem) {
+                return `${roomItem.name}: ${roomItem.description}`;
+            }
+            return "No such item in your inventory or in this room.";
+        }
+
+        async function attackEnemy(player, enemyName, rooms) {
+            const enemy = player.current_room.enemies.find(e => e.name.toLowerCase() === enemyName);
+            if (!enemy) return "No such enemy here.";
+
+            if (enemy.title && enemy.description) {
+                printOutput(`${enemy.title}: ${enemy.description}`);
+            }
+
+            let frozen = false;
+            while (enemy.health > 0 && player.health > 0) {
+                printOutput(`Combat with ${enemy.name}! Enemy health: ${enemy.health}, Your health: ${player.health}, Mana: ${player.mana}`);
+                printOutput("What do you do? (attack, cast [spell], use [item], flee)");
+                input.disabled = false; // Ensure input is enabled for combat action
+                input.focus();
+                const cmd = await getInput();
+                const parts = cmd.toLowerCase().trim().split(/\s+/);
+                const action = parts[0];
+                const target = parts.slice(1).join(" ");
+
+                if (action === "flee") {
+                    return "You fled the combat.";
+                } else if (action === "attack") {
+                    const damage = player.inventory.some(item => item.name === "sword") ? 30 : 20;
+                    enemy.health -= damage;
+                    if (enemy.health <= 0) break;
+                    printOutput(`You hit ${enemy.name}! Now health: ${enemy.health}`);
+                } else if (action === "cast" && target) {
+                    if (player.spells.includes(target) && player.mana >= 20) {
+                        player.mana -= 20;
+                        if (target === "heal") {
+                            player.health += 30;
+                            printOutput(`You cast ${target}! Health restored to ${player.health}`);
+                        } else if (target === "icebolt") {
+                            enemy.health -= 20;
+                            frozen = true;
+                            printOutput(`You cast ${target}! Enemy health: ${enemy.health}. The enemy is frozen for a turn!`);
+                            if (enemy.health <= 0) break;
+                        } else {
+                            enemy.health -= 20;
+                            if (enemy.health <= 0) break;
+                            printOutput(`You cast ${target}! Enemy health: ${enemy.health}`);
+                        }
+                    } else {
+                        printOutput("Can't cast that.");
+                        continue;
+                    }
+                } else if (action === "use" && target) {
+                    const res = useItem(player, target, rooms, true);
+                    printOutput(res);
+                } else {
+                    printOutput("Invalid action.");
+                    continue;
+                }
+
+                if (enemy.health > 0) {
+                    if (frozen) {
+                        printOutput("The enemy is frozen and skips its turn!");
+                        frozen = false;
+                        continue;
+                    }
+                    const attackTypes = ["light", "heavy", "special"];
+                    const attack = attackTypes[Math.floor(Math.random() * attackTypes.length)];
+                    let prompt, correct, timeLimit, dmg;
+                    if (attack === "light") {
+                        prompt = `Enemy light attack! Type 'jump' within 2 seconds!`;
+                        correct = ["jump"];
+                        timeLimit = 2000;
+                        dmg = Math.floor(Math.random() * (15 - 5 + 1)) + 5 + Math.floor(enemy.damage / 10);
+                    } else if (attack === "heavy") {
+                        prompt = `Enemy heavy attack! Type 'dodge' within 4 seconds!`;
+                        correct = ["dodge"];
+                        timeLimit = 4000;
+                        dmg = Math.floor(Math.random() * (20 - 10 + 1)) + 10 + Math.floor(enemy.damage / 10);
+                    } else {
+                        prompt = `Dragon breathes fire! Type 'roll' within 3 seconds!`;
+                        correct = ["roll"];
+                        timeLimit = 3000;
+                        dmg = 30 + Math.floor(enemy.damage / 10);
+                    }
+
+                    printOutput(prompt);
+                    const response = await getTimedInput(timeLimit);
+                    input.disabled = false; // Re-enable input after dodge
+                    input.focus();
+                    if (correct.includes(response.toLowerCase())) {
+                        printOutput("You dodged!");
+                    } else {
+                        player.health -= dmg;
+                        printOutput(`You took ${dmg} damage! Your health: ${player.health}`);
+                        if (player.health <= 0) {
+                            return "You died! Game over.";
+                        }
+                    }
+                }
+            }
+
+            if (player.health > 0) {
+                player.current_room.enemies = player.current_room.enemies.filter(e => e !== enemy);
+                player.gold += enemy.gold_drop;
+                const info = enemy.info || "";
+                if (enemy.name === "Dragon") {
+                    return `You defeated ${enemy.name}! ${info} Beta Version Complete!!`;
+                }
+                return `You defeated ${enemy.name}! ${info} Gained ${enemy.gold_drop} gold.`;
+            }
+            return "You died! Game over.";
+        }
+
+        function castSpell(player, target) {
+            return "Cast during combat.";
+        }
+
+        function useItem(player, itemName, rooms, inCombat = false) {
+            const item = player.inventory.find(item => item.name.toLowerCase() === itemName && item.usable);
+            if (!item) return "Can't use that.";
+
+            if (item.name === "key") {
+                if (player.current_room.name === "Castle Starting Room" && player.current_room.locked_exits.north) {
+                    player.current_room.exits.north = player.current_room.locked_exits.north;
+                    delete player.current_room.locked_exits.north;
+                    player.inventory = player.inventory.filter(i => i !== item);
+                    return "You used the key to unlock the door and it vanishes.";
+                }
+                return "Door already unlocked.";
+            } else if (item.name === "health potion") {
+                player.health += 50;
+                if (!inCombat) {
+                    player.inventory = player.inventory.filter(i => i !== item);
+                }
+                return "Health restored.";
+            } else if (item.name === "strange symbol") {
+                return "It doesn't seem to do anything.";
+            }
+            return `Used ${item.name}.`;
+        }
+
+        function saveGame(player, rooms) {
+            const data = {
+                player: player.toJSON(),
+                rooms: Object.fromEntries(Object.entries(rooms).map(([key, room]) => [key, room.toJSON()]))
+            };
+            localStorage.setItem("tales_of_razukan_beta", JSON.stringify(data));
+            return "Game saved.";
+        }
+
+        function loadGame(player, rooms) {
+            const savedData = localStorage.getItem("tales_of_razukan_beta");
+            if (!savedData) return "No save file found.";
+
+            try {
+                const data = JSON.parse(savedData);
+                const [newRooms, _] = setupWorld();
+                Object.assign(rooms, newRooms);
+                player.health = data.player.health || 100;
+                player.mana = data.player.mana || 100;
+                player.gold = data.player.gold || 100;
+                player.spells = data.player.spells || [];
+                player.inventory = data.player.inventory.map(item => ({ ...item }));
+                const currentRoomName = data.player.current_room_name || "castle_start";
+                for (const room of Object.values(rooms)) {
+                    if (room.name === currentRoomName) {
+                        player.current_room = room;
+                        break;
+                    }
+                }
+                if (!player.current_room) {
+                    player.current_room = rooms["castle_start"];
+                    printOutput("Warning: Saved room not found. Starting in Castle Starting Room.");
+                }
+                for (const [roomKey, roomData] of Object.entries(data.rooms)) {
+                    if (rooms[roomKey]) {
+                        rooms[roomKey].items = roomData.items.map(item => ({ ...item }));
+                        rooms[roomKey].enemies = roomData.enemies.map(enemy => ({ ...enemy }));
+                        rooms[roomKey].exits = { ...roomData.exits };
+                        rooms[roomKey].locked_exits = { ...roomData.locked_exits };
+                    }
+                }
+                return "Game loaded successfully.";
+            } catch (e) {
+                printOutput(`Error loading save: ${e}. Starting fresh.`);
+                const [newRooms, startKey] = setupWorld();
+                Object.assign(rooms, newRooms);
+                player.current_room = rooms[startKey];
+                player.health = 100;
+                player.mana = 100;
+                player.gold = 100;
+                player.spells = [];
+                player.inventory = [
+                    { name: "leather tunic", description: "Basic leather tunic for protection.", usable: false },
+                    { name: "old torn leather boots", description: "Worn boots for walking.", usable: false },
+                    { name: "leather helmet", description: "A simple helmet.", usable: false },
+                    { name: "strange symbol", description: "A circle inside another circle. It doesn't seem to do anything.", usable: true }
+                ];
+                return "Save file corrupted. Started new game.";
+            }
+        }
+
+        function goTo(player, direction, rooms) {
+            if (player.current_room.exits[direction]) {
+                const nextRoomKey = player.current_room.exits[direction];
+                player.current_room = rooms[nextRoomKey];
+                return `You go ${direction}. Now in ${player.current_room.name}. ` + getRoomInfo(player.current_room);
+            } else if (player.current_room.locked_exits[direction]) {
+                return `The ${direction} exit is locked.`;
+            }
+            return "Can't go there.";
+        }
+
+        // UI and Game Loop
+        const output = document.getElementById("output");
+        const input = document.getElementById("input");
+        let player, rooms;
+
+        function printOutput(text) {
+            output.value += text + "\n";
+            output.scrollTop = output.scrollHeight;
+        }
+
+        function getInput() {
+            return new Promise(resolve => {
+                input.disabled = false; // Ensure input is enabled
+                input.focus();
+                input.value = "";
+                const handler = () => {
+                    const cmd = input.value.trim();
+                    input.value = "";
+                    input.removeEventListener("change", handler);
+                    input.removeEventListener("keydown", keyHandler);
+                    resolve(cmd);
+                };
+                const keyHandler = e => {
+                    if (e.key === "Enter") {
+                        handler();
+                    }
+                };
+                input.addEventListener("change", handler);
+                input.addEventListener("keydown", keyHandler);
+            });
+        }
+
+        async function getTimedInput(timeLimit) {
+            input.disabled = false;
+            input.focus();
+            input.value = "";
+            return new Promise(resolve => {
+                let resolved = false;
+                const timeout = setTimeout(() => {
+                    if (!resolved) {
+                        resolved = true;
+                        input.disabled = true;
+                        resolve("");
+                    }
+                }, timeLimit);
+                const handler = () => {
+                    if (!resolved) {
+                        resolved = true;
+                        const cmd = input.value.trim();
+                        input.value = "";
+                        input.disabled = true;
+                        clearTimeout(timeout);
+                        input.removeEventListener("change", handler);
+                        input.removeEventListener("keydown", keyHandler);
+                        resolve(cmd);
+                    }
+                };
+                const keyHandler = e => {
+                    if (e.key === "Enter") {
+                        handler();
+                    }
+                };
+                input.addEventListener("change", handler);
+                input.addEventListener("keydown", keyHandler);
+            });
+        }
+
+        async function main() {
+            [rooms, startKey] = setupWorld();
+            player = new Player();
+            player.current_room = rooms[startKey];
+            printOutput("Tales of Razukan - Beta Version");
+            printOutput("Explore the Castle and defeat the Dragon to complete the beta!");
+            printOutput(getRoomInfo(player.current_room));
+
+            while (true) {
+                const command = await getInput();
+                if (command.toLowerCase() === "quit") break;
+                const response = await parseCommand(command, player, rooms);
+                printOutput(response);
+                if (response.includes("Beta Version Complete!!")) {
+                    printOutput("Thank you for playing the beta version!");
+                    break;
+                }
+            }
+        }
+
+        main();
+    </script>
+</body>
+</html>

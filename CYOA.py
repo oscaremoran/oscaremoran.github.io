@@ -48,14 +48,25 @@ class Item:
         }
 
 class Enemy:
-    def __init__(self, name, title, description, health, damage, info=None, gold_drop=10):
+    def __init__(self, name, title, description, health, damage, info=None, gold_drop=10, difficulty="normal"):
         self.name = name
         self.title = title
         self.description = description
-        self.health = health
-        self.damage = damage
+        self.base_health = health
+        self.base_damage = damage
         self.info = info
         self.gold_drop = gold_drop
+        self.health = self._apply_difficulty(health, difficulty, "health")
+        self.damage = self._apply_difficulty(damage, difficulty, "damage")
+
+    def _apply_difficulty(self, value, difficulty, attribute_type):
+        multipliers = {
+            "easy": {"health": 0.5, "damage": 0.5},
+            "normal": {"health": 1.0, "damage": 1.0},
+            "hard": {"health": 1.5, "damage": 1.5},
+            "expert": {"health": 2.0, "damage": 2.0}
+        }
+        return int(value * multipliers.get(difficulty.lower(), {"health": 1.0, "damage": 1.0})[attribute_type])
 
     def to_dict(self):
         return {
@@ -64,6 +75,8 @@ class Enemy:
             "description": self.description,
             "health": self.health,
             "damage": self.damage,
+            "base_health": self.base_health,
+            "base_damage": self.base_damage,
             "info": self.info,
             "gold_drop": self.gold_drop
         }
@@ -97,7 +110,8 @@ class Player:
         self.memory = "You don’t know what happened to yourself and you need to find out. I am in a strange castle and don’t know where I am. There is a locked door in the room I am in. The room is lit by candles on the walls. I want to get out of here to find out what happened."
         self.unlocked_destinations = ["lokendar_se"]
         self.corruption_monster_defeated = False
-        self.defeated_bosses = []  # Added to track defeated bosses
+        self.defeated_bosses = []
+        self.difficulty = "normal"
 
     def to_dict(self):
         return {
@@ -109,7 +123,8 @@ class Player:
             "current_room_name": self.current_room.name if self.current_room else None,
             "unlocked_destinations": self.unlocked_destinations,
             "corruption_monster_defeated": self.corruption_monster_defeated,
-            "defeated_bosses": self.defeated_bosses  # Save defeated bosses
+            "defeated_bosses": self.defeated_bosses,
+            "difficulty": self.difficulty
         }
 
 # Game World Setup
@@ -122,7 +137,7 @@ def setup_world():
         "You wake up in a dimly lit room lit by candles on the walls. There's a locked door ahead. You have no memory of how you got here.",
         items=[Item("key", "A rusty key to unlock doors.", usable=True)],
         exits={},
-        locked_exits={"north": "castle_hall"}  # Locked until key is used
+        locked_exits={"north": "castle_hall"}
     )
     rooms["castle_hall"] = Room(
         "Castle Hall",
@@ -158,7 +173,7 @@ def setup_world():
             "The dragon roars: 'Razukan the Lich has returned after a thousand years. He cursed you to sleep!'"
         )],
         exits={"south": "castle_hall"},
-        locked_exits={"out": "town_square"}  # Locked until dragon is defeated
+        locked_exits={"out": "town_square"}
     )
 
     # Town Areas
@@ -214,7 +229,7 @@ def setup_world():
         "An area with suspicious officials.",
         npcs=[NPC("Townsperson A", "Welcome to Lokendar, traveler. The city has seen better days.")],
         exits={"north": "lokendar_ne", "west": "lokendar_sw", "junkyard": "junkyard", "dock": "lokendar_dock"},
-        locked_exits={"gate": "black_keep_gate"}  # Locked until Corruption Monster is defeated
+        locked_exits={"gate": "black_keep_gate"}
     )
     rooms["lokendar_sw"] = Room(
         "Lokendar - Southwest Quadrant",
@@ -300,7 +315,7 @@ def setup_world():
             70, 30
         )],
         exits={"east": "black_keep_courtyard"},
-        locked_exits={"north": "razukan_lair"}  # Locked until three keys are used
+        locked_exits={"north": "razukan_lair"}
     )
     rooms["razukan_lair"] = Room(
         "Razukan's Lair",
@@ -309,7 +324,7 @@ def setup_world():
             "Razukan",
             "Razukan, The Eternal Lich",
             "A skeletal figure cloaked in tattered robes, his eyes burning with unholy fire.",
-            1, 0  # Not meant to be fought directly
+            1, 0
         )],
         exits={"south": "black_keep_armory"}
     )
@@ -406,9 +421,11 @@ def parse_command(command, player, rooms):
         return talk_npc(player, target, rooms)
     elif action == "memorize":
         return memorize_puzzle(player)
+    elif action == "set_difficulty":
+        return set_difficulty(player, rooms, target)
     elif action == "help":
-        help_text = "Commands: get [item], attack [enemy], cast [spell], use [item], buy [item], save, load, look, inventory, go [direction], talk [npc], memorize (at shrine)"
-        if "airship" in [item.name for item in player.inventory] and player.current_room.name in ["Razukan's Lair", "Sky Castle"]:
+        help_text = "Commands: get [item], attack [enemy], cast [spell], use [item], buy [item], save, load, look, inventory, go [direction], talk [npc], memorize (at shrine), set_difficulty [easy|normal|hard|expert]"
+        if "airship" in [item.name for item in player.inventory] and player.current_room.name in ["Razukan's Lair", "Sky Castle", "The Junkyard"]:
             help_text += ", use airship"
         return help_text
     else:
@@ -509,7 +526,7 @@ def attack_enemy(player, enemy_name, rooms):
                     "Crystal Mech",
                     "Crystal Mech, Guardian of Annihilation",
                     "A towering construct of shimmering crystals, its limbs crackling with destructive energy.",
-                    220, 40
+                    220, 40, difficulty=player.difficulty
                 )
                 player.current_room.enemies.append(crystal_mech)
                 return "The Crystal Mech activates! Prepare for battle."
@@ -529,7 +546,7 @@ def attack_enemy(player, enemy_name, rooms):
                 if action == "flee" and enemy.name != "Kraken":
                     return "You fled the combat."
                 elif action == "attack" and enemy.name != "Kraken":
-                    damage = 30 if any(item.name == "better sword" for item in player.inventory) else 20
+                    damage = 30 if any(item.name == "better sword" for item in player.inventory) else 20 if any(item.name == "sword" for item in player.inventory) else 10
                     enemy.health -= damage
                     if enemy.health <= 0:
                         break
@@ -552,19 +569,19 @@ def attack_enemy(player, enemy_name, rooms):
                     else:
                         print("You failed to fire the cannon in time!")
                 elif action == "cast" and target and enemy.name != "Kraken":
-                    if target in player.spells and player.mana >= 20:
-                        player.mana -= 20
+                    if target in player.spells and player.mana >= 25:
+                        player.mana -= 25
                         if target == "heal":
                             player.health += 30
                             print(f"You cast {target}! Health restored to {player.health}")
                         elif target == "icebolt":
-                            enemy.health -= 20
+                            enemy.health -= 15
                             frozen = True
                             print(f"You cast {target}! Enemy health: {enemy.health}. The enemy is frozen for a turn!")
                             if enemy.health <= 0:
                                 break
                         else:
-                            enemy.health -= 20
+                            enemy.health -= 40
                             if enemy.health <= 0:
                                 break
                             print(f"You cast {target}! Enemy health: {enemy.health}")
@@ -587,7 +604,7 @@ def attack_enemy(player, enemy_name, rooms):
                         print("The enemy is frozen and skips its turn!")
                         frozen = False
                         continue
-                    attack_count = 4 if enemy.name == "Sacred Guardian" else (2 if enemy.name == "Kraken" and enemy.health <= 200 else (2 if enemy.name == "Crystal Mech" and enemy.health <= 110 else 1))
+                    attack_count = 4 if enemy.name == "Sacred Guardian" else (2 if enemy.name == "Kraken" and enemy.health <= enemy._apply_difficulty(200, player.difficulty, "health") else (2 if enemy.name == "Crystal Mech" and enemy.health <= enemy._apply_difficulty(110, player.difficulty, "health") else 1))
                     for attack_num in range(attack_count):
                         if enemy.health <= 0 or player.health <= 0:
                             break
@@ -597,46 +614,45 @@ def attack_enemy(player, enemy_name, rooms):
                         if enemy.name in bosses:
                             attack_types.append("special")
                         attack = random.choice(attack_types)
+                        time_limits = {
+                            "easy": {"light": 3.0, "heavy": 4.0, "special": 3.5},
+                            "normal": {"light": 2.0, "heavy": 3.0, "special": 2.5},
+                            "hard": {"light": 1.5, "heavy": 2.5, "special": 2.0},
+                            "expert": {"light": 1.0, "heavy": 2.0, "special": 1.5}
+                        }
+                        time_limit = time_limits.get(player.difficulty.lower(), {"light": 2.0, "heavy": 3.0, "special": 2.5})[attack]
                         if attack == "light":
-                            prompt = f"Enemy light attack! Type 'jump' within 1.5 seconds!"
+                            prompt = f"Enemy light attack! Type 'jump' within {time_limit} seconds!"
                             correct = ["jump"]
-                            time_limit = 1.5
                             dmg = random.randint(10 + enemy.damage // 10, 20 + enemy.damage // 10)
                         elif attack == "heavy":
-                            prompt = f"Enemy heavy attack! Type 'dodge' within 2.5 seconds!"
+                            prompt = f"Enemy heavy attack! Type 'dodge' within {time_limit} seconds!"
                             correct = ["dodge"]
-                            time_limit = 2.5
                             dmg = random.randint(15 + enemy.damage // 10, 25 + enemy.damage // 10)
                         elif attack == "special":
                             if enemy.name == "Dragon":
-                                prompt = "Dragon breathes fire! Type 'roll' within 2 seconds!"
+                                prompt = f"Dragon breathes fire! Type 'roll' within {time_limit} seconds!"
                                 correct = ["roll"]
-                                time_limit = 2
                                 dmg = 35 + enemy.damage // 10
                             elif enemy.name == "Hydra":
-                                prompt = "Hydra spits poison! Type 'block' within 2 seconds!"
+                                prompt = f"Hydra spits poison! Type 'block' within {time_limit} seconds!"
                                 correct = ["block"]
-                                time_limit = 2
                                 dmg = 30 + enemy.damage // 10
                             elif enemy.name == "Corruption Monster":
-                                prompt = "Corruption Monster fires a corrupt beam! Type 'reflect' within 2 seconds!"
+                                prompt = f"Corruption Monster fires a corrupt beam! Type 'reflect' within {time_limit} seconds!"
                                 correct = ["reflect"]
-                                time_limit = 2
                                 dmg = 40 + enemy.damage // 10
                             elif enemy.name == "Crystal Mech":
-                                prompt = "Crystal Mech charges a laser! Type 'duck' within 2 seconds!"
+                                prompt = f"Crystal Mech charges a laser! Type 'duck' within {time_limit} seconds!"
                                 correct = ["duck"]
-                                time_limit = 2
                                 dmg = 45 + enemy.damage // 10
                             elif enemy.name == "Kraken":
-                                prompt = "Kraken unleashes a crushing tentacle slam! Type 'swerve' within 1.5 seconds!"
+                                prompt = f"Kraken unleashes a crushing tentacle slam! Type 'swerve' within {time_limit} seconds!"
                                 correct = ["swerve"]
-                                time_limit = 1.5
                                 dmg = 50 + enemy.damage // 10
                             elif enemy.name == "Sacred Guardian":
-                                prompt = "Sacred Guardian swings its holy blade! Type 'parry' within 2 seconds!"
+                                prompt = f"Sacred Guardian swings its holy blade! Type 'parry' within {time_limit} seconds!"
                                 correct = ["parry"]
-                                time_limit = 2
                                 dmg = 35 + enemy.damage // 10
                         print(prompt)
                         start_time = time.time()
@@ -658,7 +674,7 @@ def attack_enemy(player, enemy_name, rooms):
                 player.current_room.enemies.remove(enemy)
                 player.gold += enemy.gold_drop
                 if enemy.name in bosses:
-                    player.defeated_bosses.append(enemy.name)  # Track defeated boss
+                    player.defeated_bosses.append(enemy.name)
                 info = enemy.info if enemy.info else ""
                 if enemy.name == "Hydra":
                     if "boat" not in [item.name for item in player.inventory]:
@@ -805,13 +821,25 @@ def buy_item(player, item_name):
                 return "Not enough gold."
     return "No such item for sale."
 
+def set_difficulty(player, rooms, difficulty):
+    valid_difficulties = ["easy", "normal", "hard", "expert"]
+    if difficulty.lower() not in valid_difficulties:
+        return f"Invalid difficulty. Choose from: {', '.join(valid_difficulties)}"
+    player.difficulty = difficulty.lower()
+    # Update all enemies in all rooms based on new difficulty
+    for room in rooms.values():
+        for enemy in room.enemies:
+            enemy.health = enemy._apply_difficulty(enemy.base_health, player.difficulty, "health")
+            enemy.damage = enemy._apply_difficulty(enemy.base_damage, player.difficulty, "damage")
+    return f"Difficulty set to {player.difficulty.capitalize()}."
+
 def save_game(player, rooms):
     data = {
         "player": player.to_dict(),
         "rooms": {key: room.to_dict() for key, room in rooms.items()}
     }
     with open("save.json", "w") as f:
-        json.dump(data, f, indent=2)  # indent for readability
+        json.dump(data, f, indent=2)
     return "Game saved."
 
 def load_game(player, rooms):
@@ -820,28 +848,31 @@ def load_game(player, rooms):
     try:
         with open("save.json", "r") as f:
             data = json.load(f)
-        # Initialize new rooms to ensure clean state
         new_rooms, _ = setup_world()
         rooms.clear()
-        # Update rooms with saved data
         for room_key, room_data in data["rooms"].items():
             room = new_rooms.get(room_key)
             if room:
-                # Update items
                 room.items = [Item(**item_data) for item_data in room_data.get("items", [])]
-                # Update enemies, excluding defeated bosses
                 room.enemies = [
-                    Enemy(**enemy_data) for enemy_data in room_data.get("enemies", [])
+                    Enemy(
+                        name=enemy_data["name"],
+                        title=enemy_data["title"],
+                        description=enemy_data["description"],
+                        health=enemy_data.get("base_health", enemy_data["health"]),
+                        damage=enemy_data.get("base_damage", enemy_data["damage"]),
+                        info=enemy_data.get("info"),
+                        gold_drop=enemy_data.get("gold_drop", 10),
+                        difficulty=data["player"].get("difficulty", "normal")
+                    ) for enemy_data in room_data.get("enemies", [])
                     if "defeated_bosses" not in data["player"] or enemy_data["name"] not in data["player"].get("defeated_bosses", [])
                 ]
-                # Update exits and locked_exits
                 room.exits = room_data.get("exits", {})
                 room.locked_exits = room_data.get("locked_exits", {})
                 room.npcs = [NPC(**npc_data) for npc_data in room_data.get("npcs", [])]
                 if "puzzle_solved" in room_data:
                     room.puzzle_solved = room_data["puzzle_solved"]
                 rooms[room_key] = room
-        # Load player data
         player.health = data["player"].get("health", 100)
         player.mana = data["player"].get("mana", 100)
         player.gold = data["player"].get("gold", 100)
@@ -849,7 +880,8 @@ def load_game(player, rooms):
         player.inventory = [Item(**item_data) for item_data in data["player"].get("inventory", [])]
         player.unlocked_destinations = data["player"].get("unlocked_destinations", ["lokendar_se"])
         player.corruption_monster_defeated = data["player"].get("corruption_monster_defeated", False)
-        player.defeated_bosses = data["player"].get("defeated_bosses", [])  # Load defeated bosses
+        player.defeated_bosses = data["player"].get("defeated_bosses", [])
+        player.difficulty = data["player"].get("difficulty", "normal")
         current_room_name = data["player"].get("current_room_name", "castle_start")
         for room in rooms.values():
             if room.name == current_room_name:
@@ -858,7 +890,6 @@ def load_game(player, rooms):
         else:
             player.current_room = rooms["castle_start"]
             print("Warning: Saved room not found. Starting in Castle Starting Room.")
-        # Ensure Corruption Monster state is consistent
         if player.corruption_monster_defeated:
             rooms["lokendar_se"].exits["gate"] = rooms["lokendar_se"].locked_exits.get("gate", "black_keep_gate")
             if "gate" in rooms["lokendar_se"].locked_exits:
@@ -886,6 +917,7 @@ def load_game(player, rooms):
         player.unlocked_destinations = ["lokendar_se"]
         player.corruption_monster_defeated = False
         player.defeated_bosses = []
+        player.difficulty = "normal"
         return "Save file corrupted. Started new game."
 
 def go_to(player, direction, rooms):
@@ -904,6 +936,13 @@ def main():
     player = Player()
     player.current_room = rooms[start_key]
     print("Tales of Razukan")
+    print("Choose difficulty: easy, normal, hard, expert")
+    while True:
+        difficulty = input("> ").lower()
+        response = set_difficulty(player, rooms, difficulty)
+        print(response)
+        if "Difficulty set" in response:
+            break
     print(get_room_info(player.current_room))
     while True:
         command = input("> ")

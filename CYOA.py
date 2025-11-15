@@ -164,7 +164,7 @@ def setup_world():
     )
     rooms["dragon_chamber"] = Room(
         "Dragon Chamber",
-        "A massive chamber with ancient carvings. The dragon blocks the path to the outside.",
+        "A massive chamber with ancient carvings.",
         enemies=[Enemy(
             "Dragon",
             "The Dragon, Flame-Wreathed Sovereign",
@@ -319,7 +319,7 @@ def setup_world():
     )
     rooms["razukan_lair"] = Room(
         "Razukan's Lair",
-        "A foreboding chamber pulsing with dark energy. Razukan stands here, his presence chilling the air.",
+        "A foreboding chamber pulsing with dark energy.",
         enemies=[Enemy(
             "Razukan",
             "Razukan, The Eternal Lich",
@@ -347,7 +347,7 @@ def setup_world():
     # Whirlpool
     rooms["whirlpool"] = Room(
         "Whirlpool",
-        "A swirling vortex of water. The Kraken rises from the depths, attacking your boat!",
+        "A swirling vortex of water.",
         enemies=[Enemy(
             "Kraken",
             "Kraken, Terror of the Seas",
@@ -364,13 +364,43 @@ def setup_world():
         exits={"north": "lokendar_se"}
     )
 
-    # Sky Castle
-    rooms["sky_castle"] = Room(
-        "Sky Castle",
-        "A majestic fortress floating among the clouds. For now, it lies eerily empty.",
-        exits={}
+    # Sky Castle Entry
+    rooms["sky_castle_entry"] = Room(
+        "Sky Castle Entry",
+        "The entrance to a huge, floating castle among the clouds.",
+        exits={"north": "sky_castle_courtyard"}
     )
-
+    rooms["sky_castle_courtyard"] = Room(
+        "Sky Castle Courtyard",
+        "A huge room in the center of the magnificent Sky Castle, with an engraving on a wall saying 'Bring me riches!'",
+        enemies=[Enemy(
+            "Sky Giant",
+            "Sky Giant, Defender of the Castle",
+            "A huge giant with a massive spiked club.",
+            180, 35    
+        )],
+        exits={"south": "sky_castle_entry", "east": "sky_castle_secret"},
+        locked_exits={"north": "sky_castle_arena"}
+    )
+    # Modify the "treasure" item in sky_castle_secret to make it usable
+    rooms["sky_castle_secret"] = Room(
+    "Sky Castle Treasure Room",
+    "A hidden room in the Sky Castle, filled with treasure.",
+    items=[Item("treasure", "Gleaming gold coins. Perhaps they can be used to unlock something sacred.", usable=True)],
+    exits={"west": "sky_castle_courtyard"},
+    )
+    rooms["sky_castle_arena"] = Room(
+    "Sky Castle Arena",
+    "A vast, ethereal arena floating among the clouds. The air hums with ancient power.",
+    enemies=[Enemy(
+        "Remnant",
+        "The Remnant, Fragment of Razukan's Soul",
+        "A black skeleton with rifts in the air around it, a servant of Razukan's will.",
+        230, 45,
+        "The Remnant breaks into black bones that dissipate before your eyes.",
+    )],
+    exits={"south": "sky_castle_courtyard", "north": "sky_castle_arena_two"}
+    )
     return rooms, "castle_start"
 
 # Helper to get room info
@@ -425,7 +455,7 @@ def parse_command(command, player, rooms):
         return set_difficulty(player, rooms, target)
     elif action == "help":
         help_text = "Commands: get [item], attack [enemy], cast [spell], use [item], buy [item], save, load, look, inventory, go [direction], talk [npc], memorize (at shrine), set_difficulty [easy|normal|hard|expert]"
-        if "airship" in [item.name for item in player.inventory] and player.current_room.name in ["Razukan's Lair", "Sky Castle", "The Junkyard"]:
+        if "airship" in [item.name for item in player.inventory] and player.current_room.name in ["Razukan's Lair", "Sky Castle Entry", "The Junkyard"]:
             help_text += ", use airship"
         return help_text
     else:
@@ -757,13 +787,13 @@ def use_item(player, item_name, rooms, in_combat=False):
                     return "Grenade thrown! It deals 50 damage to the enemy."
                 return "Grenades can only be used in combat."
             elif item_name == "airship":
-                if player.current_room.name not in ["Razukan's Lair", "Sky Castle", "The Junkyard"]:
-                    return "You can only use the airship in Razukan's Lair, Sky Castle, or The Junkyard."
+                if player.current_room.name not in ["Razukan's Lair", "Sky Castle Entry", "The Junkyard"]:
+                    return "You can only use the airship in Razukan's Lair, Sky Castle Entry, or The Junkyard."
                 destinations = {
                     "razukan_lair": "Razukan's Lair",
-                    "sky_castle": "Sky Castle"
+                    "sky_castle_entry": "Sky Castle Entry"
                 }
-                unlocked = [k for k in destinations.keys() if k in player.unlocked_destinations or k == "sky_castle" or "north" in rooms["black_keep_armory"].exits or "Crystal Mech" in player.defeated_bosses]
+                unlocked = [k for k in destinations.keys() if k in player.unlocked_destinations or k == "sky_castle_entry" or "north" in rooms["black_keep_armory"].exits or "Crystal Mech" in player.defeated_bosses]
                 print("Available destinations:")
                 for key in destinations:
                     name = destinations[key] if key in unlocked else "???"
@@ -795,6 +825,19 @@ def use_item(player, item_name, rooms, in_combat=False):
                         return "You used the three keys to unlock the lair door. They vanish."
                     return "You need all three keys to unlock the lair."
                 return "You can't use the key here."
+
+                # Add this block inside the use_item() function, under the existing elif chains for specific items
+            elif item_name == "treasure":
+                if player.current_room.name == "Sky Castle Courtyard":
+                    if "north" in player.current_room.locked_exits:
+                        player.current_room.exits["north"] = player.current_room.locked_exits["north"]
+                        del player.current_room.locked_exits["north"]
+                        player.inventory.remove(item)  # Consume the treasure as an offering
+                        if "sky_castle_arena" not in player.unlocked_destinations:
+                            player.unlocked_destinations.append("sky_castle_arena")
+                            return "You offer the gleaming gold coins to an ancient altar in the courtyard. The ground trembles as a hidden path to the north opens, revealing the Sky Castle Arena!"
+                        return "The path is already unlocked."
+                    return "The treasure doesn't seem useful here."
             return f"Used {item.name}."
     return "Can't use that."
 

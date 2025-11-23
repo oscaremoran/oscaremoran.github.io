@@ -212,11 +212,14 @@ def setup_world():
         items=[
             Item("health potion", "Restores health.", usable=True, price=40),
             Item("mana potion", "Restores mana.", usable=True, price=40),
-            Item("better sword", "A better sword.", usable=True, price=50)
+            Item("better sword", "A better sword.", usable=True, price=40)
         ],
         exits={"north": "town_square"},
         is_shop=True
     )
+    #stuff
+    rooms["shop"].original_items = rooms["shop"].items[:]   # ← PASTE THIS LINE
+    #stuff
     rooms["dock"] = Room(
         "Dock",
         "A wooden dock extending into the sea. From here, you can sail to other islands if you have a boat.",
@@ -267,13 +270,15 @@ def setup_world():
         "The Junkyard",
         "A desolate expanse filled with broken machinery and refuse. A merchant here sells rare items.",
         items=[
-            Item("grenade", "A one-use explosive device that deals heavy damage.", usable=True, price=60),
-            Item("airship", "A magnificent airship to fly to the Sky Castle.", usable=True, price=80)
+            Item("grenade", "A one-use explosive device that deals heavy damage.", usable=True, price=40),
+            Item("airship", "A magnificent airship to fly to the Sky Castle.", usable=True, price=50)
         ],
         exits={"southeast": "lokendar_se"},
         is_shop=True
     )
-
+    #stuff
+    rooms["junkyard"].original_items = rooms["junkyard"].items[:]   # ← PASTE THIS LINE
+    #stuff
     # Black Keep
     rooms["black_keep_gate"] = Room(
         "Black Keep Gate",
@@ -399,7 +404,21 @@ def setup_world():
         230, 45,
         "The Remnant breaks into black bones that dissipate before your eyes.",
     )],
-    exits={"south": "sky_castle_courtyard", "north": "sky_castle_arena_two"}
+    exits={"south": "sky_castle_courtyard"},
+    locked_exits={"north": "sky_castle_arena_two"}
+    )
+    rooms["sky_castle_arena_two"] = Room(
+    "Sky Castle Throne Room",
+    "A huge throne room with a steel throne.", 
+    enemies=[Enemy(
+        "Skeletal Razukan",
+        "Razukan, Destroyer of Mankind",
+        "The evil sorcerer of legend, poised to destroy the world.",
+        250, 50,
+        "Razukan groans and falls back. Then, strangely, he begins to laugh. He begins talking: 'You haven't gotten close to stopping me! All you've done is slow me down!' Razukan grabs his staff and begins to chant, in a low voice: 'Thanatos... Awaken... FOREVERMORE!' A huge shape bursts out of the ground, destroying the castle. Razukan teleports away, laughing manaically."
+
+    )],
+    exits={"south": "sky_castle_arena"}
     )
     return rooms, "castle_start"
 
@@ -544,7 +563,7 @@ def memorize_puzzle(player):
         return "Invalid input."
 
 def attack_enemy(player, enemy_name, rooms):
-    bosses = ["Dragon", "Hydra", "Corruption Monster", "Crystal Mech", "Kraken", "Sacred Guardian"]
+    bosses = ["Dragon", "Hydra", "Corruption Monster", "Crystal Mech", "Kraken", "Sacred Guardian", "Remnant", "Skeletal Razukan", "Thanatos"]
     for enemy in player.current_room.enemies:
         if enemy.name.lower() == enemy_name:
             if enemy.name == "Razukan":
@@ -634,7 +653,7 @@ def attack_enemy(player, enemy_name, rooms):
                         print("The enemy is frozen and skips its turn!")
                         frozen = False
                         continue
-                    attack_count = 4 if enemy.name == "Sacred Guardian" else (2 if enemy.name == "Kraken" and enemy.health <= enemy._apply_difficulty(200, player.difficulty, "health") else (2 if enemy.name == "Crystal Mech" and enemy.health <= enemy._apply_difficulty(110, player.difficulty, "health") else 1))
+                    attack_count = 4 if enemy.name == "Sacred Guardian" else 2 if enemy.name == "Kraken" and enemy.health <= enemy._apply_difficulty(200, player.difficulty, "health") else 2 if enemy.name == "Crystal Mech" and enemy.health <= enemy._apply_difficulty(110, player.difficulty, "health") else 5 if enemy.name == "Remnant" else 6 if enemy.name == "Skeletal Razukan" else 5 if enemy.name == "Thanatos" else 1
                     for attack_num in range(attack_count):
                         if enemy.health <= 0 or player.health <= 0:
                             break
@@ -684,6 +703,18 @@ def attack_enemy(player, enemy_name, rooms):
                                 prompt = f"Sacred Guardian swings its holy blade! Type 'parry' within {time_limit} seconds!"
                                 correct = ["parry"]
                                 dmg = 35 + enemy.damage // 10
+                            elif enemy.name == "Remnant":
+                                prompt = f"Remnant attempts to rip your soul! Type 'thrust' within {time_limit} seconds!"
+                                correct = ["thrust"]
+                                dmg = 50 + enemy.damage // 10
+                            elif enemy.name == "Skeletal Razukan":
+                                prompt = f"Skeletal Razukan blasts you with an Obliteration spell! Type 'deflect' within {time_limit} seconds!"
+                                correct = ["deflect"]
+                                dmg = 50 + enemy.damage // 10
+                            elif enemy.name == "Thanatos":
+                                prompt = f"Thanatos slams you with his scythe! Type 'dive' within {time_limit} seconds!"
+                                correct = ["dive"]
+                                dmg = 50 + enemy.damage // 10
                         print(prompt)
                         start_time = time.time()
                         inp = ""
@@ -702,6 +733,7 @@ def attack_enemy(player, enemy_name, rooms):
                                 sys.exit()
             if player.health > 0:
                 player.current_room.enemies.remove(enemy)
+                player.mana = 100
                 player.gold += enemy.gold_drop
                 if enemy.name in bosses:
                     player.defeated_bosses.append(enemy.name)
@@ -728,7 +760,14 @@ def attack_enemy(player, enemy_name, rooms):
                 if enemy.name == "Crystal Mech":
                     player.unlocked_destinations.append("whirlpool")
                     info += " Whirlpool unlocked for sailing."
-                return f"You defeated {enemy.name}! {info} Gained {enemy.gold_drop} gold."
+                if enemy.name == "Remnant" and player.current_room.name == "Sky Castle Arena":
+                    if "north" not in player.current_room.exits:
+                        player.current_room.exits["north"] = player.current_room.locked_exits["north"]
+                        del player.current_room.locked_exits["north"]
+                        player.unlocked_destinations.append("sky_castle_arena_two")
+                if enemy.name == "Skeletal Razukan":
+                    player.current_room = Room("The Void", "Absolute nothingness. Thanatos has destroyed everything but you. Stop him before it's too late!", enemies=[Enemy("Thanatos", "Thanatos, Bringer of Death", "A colossal titan summoned by Razukan as his last gambit to destroy the world.", 400, 55, "Thanatos collapses and vanishes in a blur of black light. The world is saved! Made by Oscar with the help of xAI. Special thanks go to: Our playtesters on Recess, and anyone who played this game. Thank you, and get ready to play TALES OF RAZUKAN II, coming in 2026!")], exits={})
+                return f"You defeated {enemy.name}! {info} Gained {enemy.gold_drop} gold. Refilled mana to full."
     return "No such enemy here."
 
 def cast_spell(player, target):
@@ -940,6 +979,20 @@ def load_game(player, rooms):
             rooms["central_chamber"].enemies = [
                 enemy for enemy in rooms["central_chamber"].enemies if enemy.name != "Corruption Monster"
             ]
+
+        # Rebuild original shop inventories from the fresh world template
+        fresh_rooms, _ = setup_world()  # create a clean copy of the world
+        for room_key, room in rooms.items():
+            if room.is_shop and hasattr(fresh_rooms[room_key], "original_items"):
+                # Deep-copy the original items so buying removes them again
+                room.items = [Item(
+                    name=i.name,
+                    description=i.description,
+                    usable=i.usable,
+                    price=i.price
+                ) for i in fresh_rooms[room_key].original_items]
+
+
         return "Game loaded successfully."
     except (json.JSONDecodeError, KeyError, TypeError) as e:
         print(f"Error loading save file: {e}. Starting fresh.")

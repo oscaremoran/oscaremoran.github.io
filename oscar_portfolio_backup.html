@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Oscar's Portfolio</title>
+    <button id="darkModeToggle" class="download-btn" style="position:fixed; top:20px; right:20px; z-index:100; padding:12px 20px;">
+    Dark Mode
+</button>
+
+	<style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #ffd3b6;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+            color: #3fff0;
+        }
+        h1 {
+            color: #333333;
+            font-size: 3em;
+        }
+        h2 {
+            color: #061627;
+        }
+        p {
+            font-size: 1.4em;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .highlight {
+            background-color: #ffe700;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-block;
+            margin-top: 30px;
+        }
+        #snakeCanvas {
+            border: 4px solid #061627;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            background: #f8f9fa;
+            display: block;
+            margin: 20px auto;
+        }
+        .game-info {
+            font-size: 1.3em;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 100px;
+            font-size: 1.1em;
+            color: #061627;
+        }
+        @media (max-width: 768px) {
+            #snakeCanvas { width: 300px; height: 300px; }
+        }
+        .dark-mode {
+        --bg: #0f172a;           /* Deep navy background */
+        --accent: #ffd700;        /* Keep bright yellow pop */
+        --dark: #ffd700;          /* Yellow for dark elements */
+        --text: #e2e8f0;          /* Light text */
+        background: var(--bg);
+        color: var(--text);
+    }
+    .dark-mode header { background: rgba(15,23,42,0.95); }
+    .dark-mode .card, .dark-mode .highlight { 
+        background: #1e293b; 
+        color: #e2e8f0; 
+    }
+    .dark-mode nav { background: rgba(15,23,42,0.95); }
+    .dark-mode nav a { color: #ffd700; }
+    .dark-mode .download-btn { 
+        background: #ffd700; 
+        color: #0f172a; 
+    }
+    .dark-mode h1, .dark-mode h2 { color: #ffd700; }
+    .dark-mode #snakeCanvas { 
+        background: #1e293b; 
+        border-color: #ffd700; 
+    }
+    .dark-mode footer { 
+        background: #1e293b; 
+        color: #ffd700; 
+    }
+    @keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.1); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+#milestonePopup.fade-out {
+    animation: fadeOut 0.5s ease-in forwards;
+}
+@keyframes fadeOut {
+    to { opacity: 0; transform: translate(-50%, -50%) scale(0.8); }
+}
+
+/* Dark mode adaptation */
+.dark-mode #milestonePopup {
+    background: #ffd700;
+    color: #0f172a;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 40px rgba(255,215,0,0.3);
+    </style>
+</head>
+<body>
+
+	<h2> My Mile Times </h2>
+	<div class="highlight">
+	<p>My best mile time: <strong>7:04</strong> </p>
+    </div>
+    <h2> My Factorio Achievements </h2>
+    <p> I have completed:
+    	<li>Eco Unfriendly</li>
+    	<li>Getting on track</li>
+    	<li>It stinks and they don't like it</li>
+    	<li>Watch your step</li>
+    	<li>Automate this!</li>
+    	<li>Pest control</li>
+    	<li>Research with automation</li>
+    	<li>Research with logistics</li>
+    	<li>Solar power</li>
+    	<li>Steam power</li>
+
+    	and am currently getting Blue Science produced
+    	</p>
+    <img src="icon.png" alt="Description of the image">
+    <h2> My Mindustry Achievements </h2>
+    <p> I have completed:
+    	<li>A Grave Mistake (75.0%)</li>
+    	<li>Heresy (63.0%)</li>
+    	<li>Direct Assault (43.6%)</li>
+    	<li>Efficiency (43.3%)</li>
+    	<li>Slayer (42.3%)</li>
+    	<li>Create (37.8%)</li>
+    	<li>Scrapper (37.6%)</li>
+    	<li>Material I (37.6%)</li>
+    	<li>Production I (32.8%)</li>
+    	<li>Mending (31.7%)</li>
+    	<li>Blitz (30.5%)</li>
+    	<li>Cleanup (30.1%)</li>
+    	<li>It Begins (29.8%)</li>
+    	<li>Where's The Manual? (28.2%)</li>
+    	<li>Head Start (27.9%)</li>
+    	<li>Overload (27.5%)</li>
+    	<li>Raze (26.2%)</li>
+    	<li>Terrain Boost (25.8%)</li>
+    	<li>Material II (25.0%)</li>
+    	<li>You Should've Listened (23.9%)</li>
+    	<li>Incinerate (22.7%)</li>
+    	<li>Direct Control (20.3%)</li>
+    	<li>Liftoff (19.3%)</li>
+    	<li>Legions (18.6%)</li>
+    	<li>Flock (18.0%)</li>
+    	<li>Hovercraft (17.0%)</li>
+    	<li>Small Empire (16.2%)</li>
+    	<li>Classic Mode (15.3%)</li>
+    	<li>Core Rain (14.1%)</li>
+    	<li>A Spectacular Disaster (13.2%)</li>
+    	<li>Modified (12.5%)</li>
+    	<li>High Capacity (12.4%)</li>
+    	<li>The Ultimate Form (11.6%)</li>
+    	<li>Conqueror (10.9%)</li>
+    	<li>Lone Guardian (9.7%)</li>
+    	<li>Overdrive (8.1%)</li>
+    	<li>The Full Experience (7.7%)</li>
+    	<li>Airborne (6.3%)</li>
+    	<li>Kamikaze (6.1%)</li>
+    	<li>Architect (5.8%)</li>
+    	<li>Loadout (4.8%)</li>
+    	<li>Collector (4.1%)</li>
+    	<li>The Spiral (3.9%)</li>
+    	<li>Inefficiency (3.5%)</li>
+    	<li>Bad Idea (2.8%)</li>
+    	<li>Mapper (1.4%)</li>
+    	<li>Creator (1.4%)</li>
+    	<li>Crowd (0.8%)</li>
+    	<li>Champion (0.7%)</li>
+    	<h2>Play Snake!</h2>
+    <div class="highlight">
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+        <div id="milestonePopup" style="
+    position: fixed;
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    background: #ffe700;
+    color: #061627;
+    padding: 30px 40px;
+    border-radius: 25px;
+    font-size: 2.2em;
+    font-weight: bold;
+    font-family: 'Oswald', sans-serif;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+    display: none;
+    z-index: 999;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    min-width: 300px;
+    text-align: center;
+    animation: popIn 0.5s ease-out;
+">
+    <div id="popupText"></div>
+</div>
+        <div class="game-info">
+            <strong>Use WASD</strong> to move. Eat yellow food! Avoid walls & yourself.<br>
+        </div>
+        <!-- Add download for high score save? Fun! -->
+    </div>
+    <script>
+        (function() {
+            var canvas = document.getElementById('snakeCanvas');
+            var context = canvas.getContext('2d');
+            var grid = 16;
+            var count = 0;
+            var score = 0;
+            var milestone = 0;
+var messages = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+];
+            var highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+            var snake = {
+                x: 160,
+                y: 160,
+                dx: grid,
+                dy: 0,
+                cells: [],
+                maxCells: 4
+            };
+            var foods = [];
+
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+            function spawnFood() {
+                var newFood;
+                do {
+                    newFood = {
+                        x: getRandomInt(0, 25) * grid,
+                        y: getRandomInt(0, 25) * grid
+                    };
+                } while (snake.cells.some(cell => cell.x === newFood.x && cell.y === newFood.y));
+                foods.push(newFood);
+                }
+
+            function reset() {
+                if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('snakeHighScore', highScore);
+}
+                snake.x = 160;
+                snake.y = 160;
+                snake.cells = [];
+                foods = [];
+                for (let i = 0; i < 4; i++) {
+                    spawnFood();
+                }
+                snake.maxCells = 4;
+                snake.dx = grid;
+                snake.dy = 0;
+                score = 0;
+            }
+
+            function loop() {
+                requestAnimationFrame(loop);
+
+                if (++count < 10) return;
+                count = 0;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Move
+                snake.x += snake.dx;
+                snake.y += snake.dy;
+
+                // Wall collision
+                if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+                    reset();
+                    return;
+                }
+
+                // Update cells
+                snake.cells.unshift({x: snake.x, y: snake.y});
+                if (snake.cells.length > snake.maxCells) {
+                    snake.cells.pop();
+                }
+                var head = snake.cells[0];
+for (let i = foods.length - 1; i >= 0; i--) {
+    if (head.x === foods[i].x && head.y === foods[i].y) {
+        foods.splice(i, 1);
+        score++;
+        snake.maxCells++;
+        spawnFood();
+        if (score % 10 === 0 && score > milestone) {
+        milestone = score;
+        showMilestonePopup();
+    }
+        break;
+    }
+}
+                foods.forEach(function(f) {
+    context.fillStyle = '#ffe700';
+    context.fillRect(f.x, f.y, grid-1, grid-1);
+});
+
+                // Draw snake & logic
+                context.fillStyle = '#061627';
+                snake.cells.forEach(function(cell, index) {
+                    context.fillRect(cell.x, cell.y, grid-1, grid-1);
+
+                    // Eat food
+
+                    // Self collision
+                    for (var i = index + 1; i < snake.cells.length; i++) {
+                        if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                            reset();
+                            return;
+                        }
+                    }
+                });
+
+                // Draw score
+                context.fillStyle = '#333';
+                context.font = 'bold 28px Roboto, Arial';
+                context.textAlign = 'left';
+                context.fillText('Score: ' + score, 20, 40);
+                context.fillStyle = '#666';
+context.font = 'bold 28px Roboto, Arial';
+context.textAlign = 'right';
+context.fillText('High: ' + highScore, canvas.width - 20, 40);
+context.textAlign = 'left'; // Reset alignment
+context.fillStyle = '#333'; // Reset color
+            }
+
+            // Controls
+            document.addEventListener('keydown', function(e) {
+                if (e.which === 65 && snake.dx === 0) { // Left
+                    snake.dx = -grid; snake.dy = 0;
+                } else if (e.which === 87 && snake.dy === 0) { // Up
+                    snake.dy = -grid; snake.dx = 0;
+                } else if (e.which === 68 && snake.dx === 0) { // Right
+                    snake.dx = grid; snake.dy = 0;
+                } else if (e.which === 83 && snake.dy === 0) { // Down
+                    snake.dy = grid; snake.dx = 0;
+                }
+            });
+            function showMilestonePopup() {
+    const popup = document.getElementById('milestonePopup');
+    const text = document.getElementById('popupText');
+    const msg = messages[Math.floor(Math.random() * messages.length)]; // Unique random every time!
+    text.innerHTML = msg;
+    popup.style.display = 'block';
+    popup.classList.remove('fade-out');
+    
+    setTimeout(() => {
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+            popup.style.display = 'none';
+            popup.classList.remove('fade-out');
+        }, 500);
+    }, 2500); // Shows for 2.5 seconds
+}
+
+            requestAnimationFrame(loop);
+        })();
+    </script>
+    <script>
+    const toggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    // Check for saved preference or system preference
+    if (localStorage.getItem('darkMode') === 'enabled' || 
+        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        body.classList.add('dark-mode');
+        toggle.textContent = ' Light Mode';
+    }
+
+    toggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            toggle.textContent = ' Light Mode';
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            toggle.textContent = ' Dark Mode';
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    });
+</script>
+<div style="text-align: center; margin: 20px 0;">
+    <h3>Download My Custom Game! (50KB)</h3>
+    <p>Play my fun game!</p>
+    <a href="game.zip" download="game.py" class="download-btn">
+        Download Game Now!
+    </a>
+    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+        File size: ~50KB
+    </p>
+</div>
+</body>
+</html>

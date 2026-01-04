@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create Bracket - FIFA World Cup 2026</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: white;
+            font-family: Arial, Helvetica, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .back-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #ccc;
+            color: black;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .back-button:hover {
+            background-color: #aaa;
+        }
+
+        .knockout-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        .knockout-button:hover {
+            background-color: #0050a3;
+        }
+
+        h1 {
+            color: black;
+            font-size: 2.5rem;
+            margin: 0;
+        }
+
+        h2 {
+            margin-top: 0;
+            margin-bottom: 40px;
+        }
+
+        .group-list {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            max-width: 1200px;
+            width: 100%;
+        }
+
+        .group-button {
+            padding: 20px;
+            font-size: 1.5rem;
+            background-color: #e6f2ff;
+            color: #0066cc;
+            border: 2px solid #0066cc;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .group-button:hover {
+            background-color: #0066cc;
+            color: white;
+        }
+
+        #ranking-section {
+            margin-top: 60px;
+            padding: 30px;
+            background-color: #f9f9f9;
+            border: 2px solid #ccc;
+            border-radius: 10px;
+            max-width: 600px;
+            width: 100%;
+            display: none;
+        }
+
+        #ranking-section h2 {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .ranking-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .ranking-item {
+            display: flex;
+            align-items: center;
+            padding: 15px;
+            margin-bottom: 10px;
+            background-color: #ffffff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            cursor: move;
+            font-size: 1.4rem;
+            user-select: none;
+        }
+
+        .ranking-item.dragging {
+            opacity: 0.5;
+        }
+
+        .ranking-item.third-place {
+            background-color: #d4edda !important;
+            border-color: #28a745;
+        }
+
+        .position {
+            font-weight: bold;
+            font-size: 1.6rem;
+            margin-right: 20px;
+            width: 40px;
+            text-align: center;
+        }
+
+        .clear-button {
+    padding: 10px 20px;
+    font-size: 1rem;
+    background-color: #dc3545;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+.clear-button:hover {
+    background-color: #c82333;
+}
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f8f9fa url('https://static.vecteezy.com/system/resources/previews/020/940/565/large_2x/abstract-green-grass-football-field-of-artificial-grass-background-texture-soccer-playing-field-of-football-betting-and-competition-white-lines-that-delimit-the-areas-football-field-top-view-photo.JPG') center/cover no-repeat fixed;
+    min-height: 100vh;
+}
+
+.header {
+    background: rgba(0, 0, 0, 0.7);
+    padding: 20px;
+    text-align: center;
+    color: white;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: 2.8rem;
+}
+
+.main-content {
+    max-width: 1400px;
+    margin: 40px auto;
+    padding: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    border-radius: 16px;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
+}
+
+button {
+    padding: 12px 24px;
+    font-size: 1.1rem;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+.group-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 20px;
+}
+
+.group-button {
+    padding: 30px;
+    font-size: 1.8rem;
+    background: linear-gradient(135deg, #0066cc, #004999);
+    color: white;
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2);
+    transition: transform 0.3s;
+}
+
+.group-button:hover {
+    transform: translateY(-10px);
+}
+
+#ranking-section {
+    margin-top: 60px;
+    padding: 40px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+}
+
+.ranking-item {
+    background: #f8f9fa;
+    border-left: 6px solid #28a745;
+    transition: all 0.3s;
+}
+
+.ranking-item.third-place {
+    background: #d4edda;
+    border-left-color: #218838;
+}
+
+.ranking-item:hover {
+    transform: translateX(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.back-button { background: #6c757d; color: white; }
+.back-button:hover { background: #5a6268; }
+
+.clear-button { background: #dc3545; color: white; }
+.clear-button:hover { background: #c82333; }
+
+.save-pdf-button, .knockout-button { background: #28a745; color: white; }
+.save-pdf-button:hover, .knockout-button:hover { background: #218838; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="window.location.href='index.html'">← Back to Home</button>
+        <h1>Create Your Bracket</h1>
+        <button class="knockout-button" id="enterKnockoutBtn">Save and enter Knockout Phase</button>
+        <button class="clear-button" id="clearBtn">Clear Bracket</button>
+    </div>
+
+    <div class="group-list" id="groupList"></div>
+
+    <div id="ranking-section">
+        <h2 id="selected-group-title"></h2>
+        <ol class="ranking-list" id="ranking-list"></ol>
+        <p style="text-align: center; color: #666; margin-top: 20px;">
+            Drag and drop to predict standings.<br>
+            Click the <strong>3rd place</strong> team to select/deselect it as one of the 8 best third-place teams advancing (green = selected).
+        </p>
+    </div>
+
+    <script>
+        // Official 2026 World Cup groups (draw from Dec 2025; playoffs pending March 2026)
+        const groups = {
+            'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
+            'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
+            'C': ['Brazil', 'Australia', 'Paraguay', 'New Zealand'],
+            'D': ['United States', 'Morocco', 'Norway', 'Ghana'],
+            'E': ['Portugal', 'Japan', 'Egypt', 'Curaçao'],
+            'F': ['Netherlands', 'Senegal', 'Tunisia', 'Haiti'],
+            'G': ['Belgium', 'Uruguay', 'Algeria', 'Jordan'],
+            'H': ['Spain', 'Colombia', 'Ivory Coast', 'Cabo Verde'],
+            'I': ['France', 'Croatia', 'Panama', 'Intercontinental Play-off Winner 2'],
+            'J': ['Argentina', 'Iran', 'Saudi Arabia', 'Uzbekistan'],
+            'K': ['Germany', 'Austria', 'Scotland', 'Intercontinental Play-off Winner 1'],
+            'L': ['England', 'Ecuador', 'Chile', 'UEFA Play-off C Winner']
+        };
+
+        const groupList = document.getElementById('groupList');
+        const rankingSection = document.getElementById('ranking-section');
+        const selectedGroupTitle = document.getElementById('selected-group-title');
+        const rankingList = document.getElementById('ranking-list');
+
+        // Load saved data from localStorage
+        const savedData = JSON.parse(localStorage.getItem('worldCupBracketData') || '{"rankings": {}, "thirdPlaces": []}');
+        const savedRankings = savedData.rankings;
+        let selectedThirdPlaces = savedData.thirdPlaces; // array like "GroupA-TeamName"
+
+        let currentGroup = '';
+
+        // Create group buttons
+        Object.keys(groups).sort().forEach(group => {
+            const button = document.createElement('button');
+            button.className = 'group-button';
+            button.textContent = `Group ${group}`;
+            button.addEventListener('click', () => showGroupRanking(group));
+            groupList.appendChild(button);
+        });
+
+        function showGroupRanking(group) {
+            currentGroup = group;
+            selectedGroupTitle.textContent = `Predict Group ${group} Standings`;
+            rankingList.innerHTML = '';
+
+            let teamOrder = savedRankings[group] || groups[group];
+
+            teamOrder.forEach((team, index) => {
+                const li = document.createElement('li');
+                li.className = 'ranking-item';
+                li.draggable = true;
+                li.dataset.team = team;
+                li.dataset.index = index;
+
+                const pos = document.createElement('span');
+                pos.className = 'position';
+                pos.textContent = `${index + 1}.`;
+
+                const teamName = document.createElement('span');
+                teamName.textContent = team;
+
+                li.appendChild(pos);
+                li.appendChild(teamName);
+                rankingList.appendChild(li);
+
+                // Make 3rd place clickable for selection
+                if (index === 2) {
+                    const key = `Group${group}-${team}`;
+                    if (selectedThirdPlaces.includes(key)) {
+                        li.classList.add('third-place');
+                    }
+                    li.addEventListener('click', toggleThirdPlace);
+                }
+            });
+
+            rankingSection.style.display = 'block';
+            rankingSection.scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function toggleThirdPlace(e) {
+            const item = e.currentTarget;
+            if (parseInt(item.dataset.index) !== 2) return;
+
+            const team = item.dataset.team;
+            const key = `Group${currentGroup}-${team}`;
+
+            if (item.classList.contains('third-place')) {
+                item.classList.remove('third-place');
+                selectedThirdPlaces = selectedThirdPlaces.filter(k => k !== key);
+            } else {
+                if (selectedThirdPlaces.length >= 8) {
+                    alert('You can only select 8 third-place teams to advance!');
+                    return;
+                }
+                item.classList.add('third-place');
+                selectedThirdPlaces.push(key);
+            }
+
+            saveAllData();
+        }
+
+        // Drag and drop logic
+        rankingList.addEventListener('dragstart', (e) => {
+            if (e.target.classList.contains('ranking-item')) {
+                e.target.classList.add('dragging');
+            }
+        });
+
+        rankingList.addEventListener('dragend', (e) => {
+            if (e.target.classList.contains('ranking-item')) {
+                e.target.classList.remove('dragging');
+                updateAfterDrag();
+            }
+        });
+
+        rankingList.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            const dragging = document.querySelector('.dragging');
+            const afterElement = getDragAfterElement(rankingList, e.clientY);
+            if (afterElement == null) {
+                rankingList.appendChild(dragging);
+            } else {
+                rankingList.insertBefore(dragging, afterElement);
+            }
+            updatePositions();
+        });
+
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
+
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) {
+                    return { offset: offset, element: child };
+                } else {
+                    return closest;
+                }
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
+        }
+
+        function updatePositions() {
+            const items = rankingList.querySelectorAll('.ranking-item');
+            items.forEach((item, index) => {
+                item.querySelector('.position').textContent = `${index + 1}.`;
+                item.dataset.index = index;
+            });
+        }
+
+        function updateAfterDrag() {
+            updatePositions();
+
+            // If 3rd place changed, deselect old if necessary
+            const items = rankingList.querySelectorAll('.ranking-item');
+            const thirdItem = items[2];
+            if (thirdItem && thirdItem.classList.contains('third-place')) {
+                const oldKey = selectedThirdPlaces.find(k => k.startsWith(`Group${currentGroup}-`));
+                const newTeam = thirdItem.dataset.team;
+                const newKey = `Group${currentGroup}-${newTeam}`;
+                if (oldKey && oldKey !== newKey) {
+                    thirdItem.classList.remove('third-place');
+                    selectedThirdPlaces = selectedThirdPlaces.filter(k => k !== oldKey);
+                }
+            }
+
+            saveCurrentRanking();
+        }
+
+        function saveCurrentRanking() {
+            const orderedTeams = [...rankingList.querySelectorAll('.ranking-item')].map(item => item.dataset.team);
+            savedRankings[currentGroup] = orderedTeams;
+            saveAllData();
+        }
+
+        function saveAllData() {
+            localStorage.setItem('worldCupBracketData', JSON.stringify({
+                rankings: savedRankings,
+                thirdPlaces: selectedThirdPlaces
+            }));
+        }
+
+        // Enter knockout phase button
+        document.getElementById('enterKnockoutBtn').addEventListener('click', () => {
+            saveAllData(); // Ensure latest changes are saved
+            window.location.href = 'knockout.html';
+        });
+    </script>
+    <script>
+    document.getElementById('clearBtn').addEventListener('click', () => {
+        if (confirm('Are you sure you want to clear all your predictions? This cannot be undone.')) {
+            localStorage.removeItem('worldCupBracketData');
+            location.reload();
+        }
+    });
+</script>
+</body>
+</html>

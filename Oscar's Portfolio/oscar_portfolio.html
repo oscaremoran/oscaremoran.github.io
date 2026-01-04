@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html>
+<nav style="text-align:center; margin:20px 0;">
+    <a href="oscar_portfolio.html" class="download-btn">Home</a>
+    <a href="games.html" class="download-btn">Games</a>
+    <a href="index.html" class="download-btn">FIFA World Cup Bracket Maker</a>
+</nav>
+<head>
+    <title>Oscar's Portfolio</title>
+    <button id="darkModeToggle" class="download-btn" style="position:fixed; top:20px; right:20px; z-index:100; padding:12px 20px;">
+    Dark Mode
+</button>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #ffd3b6;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+            color: #3fff0;
+        }
+        h1 {
+            color: #333333;
+            font-size: 3em;
+        }
+        h2 {
+            color: #061627;
+        }
+        p {
+            font-size: 1.4em;
+            max-width: 600px;
+            margin: 20px auto;
+        }
+        .highlight {
+            background-color: #ffe700;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            display: inline-block;
+            margin-top: 30px;
+        }
+        .download-btn {
+    background: linear-gradient(to bottom, #061627, #0a2a47); /* Dark blue gradient */
+    color: #ffe700; /* Bright yellow text */
+    padding: 16px 36px;
+    border-radius: 50px; /* Pill shape */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.3em;
+    display: inline-block;
+    margin: 20px 10px;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3); /* Deep shadow */
+    transition: all 0.3s ease; /* Smooth hover */
+    border: 3px solid #ffe700; /* Yellow border glow */
+}
+
+.download-btn:hover {
+    background: linear-gradient(to bottom, #0a2a47, #061627);
+    transform: translateY(-5px) scale(1.05); /* Lift + grow */
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    color: white;
+}
+        #snakeCanvas {
+            border: 4px solid #061627;
+            border-radius: 12px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            background: #f8f9fa;
+            display: block;
+            margin: 20px auto;
+        }
+        .game-info {
+            font-size: 1.3em;
+            margin-top: 20px;
+        }
+        footer {
+            margin-top: 100px;
+            font-size: 1.1em;
+            color: #061627;
+        }
+        @media (max-width: 768px) {
+            #snakeCanvas { width: 300px; height: 300px; }
+        }
+        .dark-mode {
+        --bg: #0f172a;           /* Deep navy background */
+        --accent: #ffd700;        /* Keep bright yellow pop */
+        --dark: #ffd700;          /* Yellow for dark elements */
+        --text: #e2e8f0;          /* Light text */
+        background: var(--bg);
+        color: var(--text);
+    }
+    .dark-mode header { background: rgba(15,23,42,0.95); }
+    .dark-mode .card, .dark-mode .highlight { 
+        background: #1e293b; 
+        color: #e2e8f0; 
+    }
+    .dark-mode nav { background: rgba(15,23,42,0.95); }
+    .dark-mode nav a { color: #ffd700; }
+    .dark-mode .download-btn { 
+        background: #ffd700; 
+        color: #0f172a; 
+    }
+    .dark-mode h1, .dark-mode h2 { color: #ffd700; }
+    .dark-mode #snakeCanvas { 
+        background: #1e293b; 
+        border-color: #ffd700; 
+    }
+    .dark-mode footer { 
+        background: #1e293b; 
+        color: #ffd700; 
+    }
+@keyframes popIn {
+    0% { 
+        opacity: 0; 
+        transform: translateX(-50%) scale(0.6); 
+    }
+    70% { 
+        opacity: 1; 
+        transform: translateX(-50%) scale(1.1); 
+    }
+    100% { 
+        transform: translateX(-50%) scale(1); 
+    }
+}
+#milestonePopup {
+    position: fixed;
+    bottom: 15%;                 /* Below canvas – change to top:20px; right:20px; for corner */
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ffe700;         /* Solid yellow */
+    color: #061627;              /* Dark blue text – HIGH contrast */
+    padding: 30px 50px;
+    border-radius: 25px;
+    font-size: 2.2em;
+    font-weight: bold;
+    text-align: center;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    z-index: 9999;
+    display: none;               /* Hidden until triggered */
+    min-width: 320px;
+    max-width: 90%;
+    pointer-events: none;        /* Doesn't block snake controls */
+    animation: popIn 0.6s ease-out;
+    transform-origin: bottom center; /* Anchors shrink to bottom – less upward feel */
+}
+#popupText {                     /* ← Specific styles for text */
+    margin: 0;
+    text-shadow: 2px 2px 6px rgba(255,255,255,0.6); /* Glow for readability */
+}
+@keyframes popIn {
+    0% { opacity: 0; transform: translateX(-50%) scale(0.5); }
+    70% { opacity: 1; transform: translateX(-50%) scale(1.15); }
+    100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes fadeOut {
+    to { 
+        opacity: 0; 
+        
+    }
+}
+
+/* Dark mode adaptation */
+.dark-mode #milestonePopup {
+    background: #ffd700;
+    color: #0f172a;
+    text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    box-shadow: 0 20px 40px rgba(255,215,0,0.3);
+    </style>
+</head>
+<body>
+    <h1>Oscar's Portfolio </h1>
+
+    <h2> My Mile Times </h2>
+    <div class="highlight">
+    <p>My best mile time: <strong>7:04</strong> </p>
+    </div>
+        <h2>Play Snake!</h2>
+    <div class="highlight">
+        <canvas id="snakeCanvas" width="400" height="400"></canvas>
+        <div id="milestonePopup" style="
+    position: fixed;
+    top: 20%;
+    left: 20%;
+    transform: translate(-50%, -50%);
+    background: #ffe700;
+    color: #061627;
+    padding: 30px 40px;
+    border-radius: 25px;
+    font-size: 2.2em;
+    font-weight: bold;
+    font-family: 'Oswald', sans-serif;
+    text-shadow: 2px 2px 4px rgba(255,255,255,0.5);
+    display: none;
+    z-index: 999;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+    min-width: 300px;
+    text-align: center;
+    animation: popIn 0.5s ease-out;
+">
+    <div id="popupText"></div>
+</div>
+        <div class="game-info">
+            <strong>Use WASD</strong> to move. Eat yellow food! Avoid walls & yourself.<br>
+        </div>
+        <!-- Add download for high score save? Fun! -->
+    </div>
+    <script>
+        (function() {
+            var canvas = document.getElementById('snakeCanvas');
+            var context = canvas.getContext('2d');
+            var grid = 16;
+            var count = 0;
+            var score = 0;
+            var milestone = 0;
+var messages = [
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    "",
+    ""
+];
+            var highScore = parseInt(localStorage.getItem('snakeHighScore')) || 0;
+            var snake = {
+                x: 160,
+                y: 160,
+                dx: grid,
+                dy: 0,
+                cells: [],
+                maxCells: 4
+            };
+            var foods = [];
+
+            function getRandomInt(min, max) {
+                return Math.floor(Math.random() * (max - min)) + min;
+            }
+            function spawnFood() {
+                var newFood;
+                do {
+                    newFood = {
+                        x: getRandomInt(0, 25) * grid,
+                        y: getRandomInt(0, 25) * grid
+                    };
+                } while (snake.cells.some(cell => cell.x === newFood.x && cell.y === newFood.y));
+                foods.push(newFood);
+                }
+
+            function reset() {
+                if (score > highScore) {
+    highScore = score;
+    localStorage.setItem('snakeHighScore', highScore);
+}
+                snake.x = 160;
+                snake.y = 160;
+                snake.cells = [];
+                foods = [];
+                for (let i = 0; i < 4; i++) {
+                    spawnFood();
+                }
+                snake.maxCells = 4;
+                snake.dx = grid;
+                snake.dy = 0;
+                score = 0;
+            }
+
+            function loop() {
+                requestAnimationFrame(loop);
+
+                if (++count < 10) return;
+                count = 0;
+                context.clearRect(0, 0, canvas.width, canvas.height);
+
+                // Move
+                snake.x += snake.dx;
+                snake.y += snake.dy;
+
+                // Wall collision
+                if (snake.x < 0 || snake.x >= canvas.width || snake.y < 0 || snake.y >= canvas.height) {
+                    reset();
+                    return;
+                }
+
+                // Update cells
+                snake.cells.unshift({x: snake.x, y: snake.y});
+                if (snake.cells.length > snake.maxCells) {
+                    snake.cells.pop();
+                }
+                var head = snake.cells[0];
+for (let i = foods.length - 1; i >= 0; i--) {
+    if (head.x === foods[i].x && head.y === foods[i].y) {
+        foods.splice(i, 1);
+        score++;
+        snake.maxCells++;
+        spawnFood();
+        if (score % 10 === 0 && score > milestone) {
+        milestone = score;
+        showMilestonePopup();
+    }
+        break;
+    }
+}
+                foods.forEach(function(f) {
+    context.fillStyle = '#ffe700';
+    context.fillRect(f.x, f.y, grid-1, grid-1);
+});
+
+                // Draw snake & logic
+                context.fillStyle = '#061627';
+                snake.cells.forEach(function(cell, index) {
+                    context.fillRect(cell.x, cell.y, grid-1, grid-1);
+
+                    // Eat food
+
+                    // Self collision
+                    for (var i = index + 1; i < snake.cells.length; i++) {
+                        if (cell.x === snake.cells[i].x && cell.y === snake.cells[i].y) {
+                            reset();
+                            return;
+                        }
+                    }
+                });
+
+                // Draw score
+                context.fillStyle = '#333';
+                context.font = 'bold 28px Roboto, Arial';
+                context.textAlign = 'left';
+                context.fillText('Score: ' + score, 20, 40);
+                context.fillStyle = '#666';
+context.font = 'bold 28px Roboto, Arial';
+context.textAlign = 'right';
+context.fillText('High: ' + highScore, canvas.width - 20, 40);
+context.textAlign = 'left'; // Reset alignment
+context.fillStyle = '#333'; // Reset color
+            }
+
+            // Controls
+            document.addEventListener('keydown', function(e) {
+                if (e.which === 65 && snake.dx === 0) { // Left
+                    snake.dx = -grid; snake.dy = 0;
+                } else if (e.which === 87 && snake.dy === 0) { // Up
+                    snake.dy = -grid; snake.dx = 0;
+                } else if (e.which === 68 && snake.dx === 0) { // Right
+                    snake.dx = grid; snake.dy = 0;
+                } else if (e.which === 83 && snake.dy === 0) { // Down
+                    snake.dy = grid; snake.dx = 0;
+                }
+            });
+function showMilestonePopup() {
+    const popup = document.getElementById('milestonePopup');
+    const text = document.getElementById('popupText');
+    if (!popup || !text) return; // Safety if DOM missing
+    
+    const msg = messages[Math.floor(score / 10) - 1] || "Nice work, keep going!";
+    text.innerHTML = msg;                // ← This fills the text
+    popup.style.display = 'block';       // Show popup
+    popup.classList.remove('fade-out');
+    
+    setTimeout(() => {
+        popup.classList.add('fade-out');
+        setTimeout(() => {
+            popup.style.display = 'none';
+            popup.classList.remove('fade-out');
+        }, 600);
+    }, 2500);
+}
+
+            requestAnimationFrame(loop);
+        })();
+    </script>
+    <script>
+    const toggle = document.getElementById('darkModeToggle');
+    const body = document.body;
+
+    // Check for saved preference or system preference
+    if (localStorage.getItem('darkMode') === 'enabled' || 
+        (!localStorage.getItem('darkMode') && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        body.classList.add('dark-mode');
+        toggle.textContent = ' Light Mode';
+    }
+
+    toggle.addEventListener('click', () => {
+        body.classList.toggle('dark-mode');
+        
+        if (body.classList.contains('dark-mode')) {
+            toggle.textContent = ' Light Mode';
+            localStorage.setItem('darkMode', 'enabled');
+        } else {
+            toggle.textContent = ' Dark Mode';
+            localStorage.setItem('darkMode', 'disabled');
+        }
+    });
+</script>
+<p>Contact Oscar at oscaremoran20@gmail.com</p>
+</body>
+</html>

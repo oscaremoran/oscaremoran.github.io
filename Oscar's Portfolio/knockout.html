@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knockout Phase - FIFA World Cup 2026</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 20px;
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .header {
+            width: 100%;
+            max-width: 1400px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+        }
+        .round-title {
+    background: linear-gradient(135deg, #0066cc, #004999);
+    color: white;
+    padding: 15px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+}
+
+.matchup {
+    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
+    border: 2px solid #ddd;
+    transition: all 0.3s;
+}
+
+.matchup:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
+}
+
+.team.selected {
+    background: linear-gradient(135deg, #28a745, #218838);
+}
+
+        .back-button, .clear-button, .save-pdf-button {
+            padding: 10px 20px;
+            font-size: 1rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .back-button {
+            background-color: #6c757d;
+            color: white;
+        }
+
+        .back-button:hover { background-color: #5a6268; }
+
+        .clear-button {
+            background-color: #dc3545;
+            color: white;
+        }
+
+        .clear-button:hover { background-color: #c82333; }
+
+        .save-pdf-button {
+            background-color: #28a745;
+            color: white;
+        }
+
+        .save-pdf-button:hover { background-color: #218838; }
+
+        h1 {
+            font-size: 2.8rem;
+            margin: 0;
+            color: #343a40;
+        }
+
+        .bracket-container {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            overflow-x: auto;
+            padding: 40px 0;
+            width: 100%;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 900px;
+            margin: 0 80px;
+            position: relative;
+        }
+
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #495057;
+            background: white;
+            padding: 8px 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+
+        .matchup {
+            background: white;
+            border-radius: 12px;
+            width: 240px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            overflow: hidden;
+            margin: 12px 0;
+        }
+
+        .team {
+            padding: 14px;
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+            border-bottom: 1px solid #eee;
+        }
+
+        .team:last-child {
+            border-bottom: none;
+        }
+
+        .team:hover:not(.placeholder):not(.selected) {
+            background-color: #e9f7ef;
+        }
+
+        .team.selected {
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+        }
+
+        .team.placeholder {
+            color: #aaa;
+            font-style: italic;
+            cursor: default;
+        }
+
+        /* Connectors */
+        .connector {
+            position: absolute;
+            background-color: #adb5bd;
+            z-index: 1;
+            pointer-events: none;
+        }
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f8f9fa url('https://a57.foxsports.com/statics.foxsports.com/www.foxsports.com/content/uploads/2023/05/1408/814/IMG_6227.png?ve=1&tl=1') center/cover no-repeat fixed;
+    min-height: 100vh;
+} 
+
+        .warning {
+            color: #dc3545;
+            font-weight: bold;
+            text-align: center;
+            margin: 20px 0;
+            max-width: 800px;
+            background: #f8d7da;
+            padding: 12px;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <button class="back-button" onclick="window.location.href='bracket.html'">← Back to Groups</button>
+        <h1>Knockout Phase</h1>
+        <div>
+            <button class="clear-button" id="clearBtn">Clear Bracket</button>
+            <button class="save-pdf-button" id="savePdfBtn">Save PDF</button>
+        </div>
+    </div>
+
+    <div id="warning" class="warning" style="display:none;"></div>
+
+    <div class="bracket-container" id="bracket"></div>
+
+    <script>
+        const groups = {
+            'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
+            'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
+            'C': ['Brazil', 'Australia', 'Paraguay', 'New Zealand'],
+            'D': ['United States', 'Morocco', 'Norway', 'Ghana'],
+            'E': ['Portugal', 'Japan', 'Egypt', 'Curaçao'],
+            'F': ['Netherlands', 'Senegal', 'Tunisia', 'Haiti'],
+            'G': ['Belgium', 'Uruguay', 'Algeria', 'Jordan'],
+            'H': ['Spain', 'Colombia', 'Ivory Coast', 'Cabo Verde'],
+            'I': ['France', 'Croatia', 'Panama', 'Intercontinental Play-off 2 Winner'],
+            'J': ['Argentina', 'Iran', 'Saudi Arabia', 'Uzbekistan'],
+            'K': ['Germany', 'Austria', 'Scotland', 'Intercontinental Play-off 1 Winner'],
+            'L': ['England', 'Ecuador', 'Chile', 'UEFA Play-off C Winner']
+        };
+
+        const savedData = JSON.parse(localStorage.getItem('worldCupBracketData') || '{"rankings": {}, "thirdPlaces": [], "knockoutPicks": {}}');
+        const rankings = savedData.rankings;
+        const thirdPlaces = savedData.thirdPlaces || [];
+        const knockoutPicks = savedData.knockoutPicks || {};
+
+        function getAdvancers() {
+            const first = {}, second = {}, thirds = [];
+
+            Object.keys(groups).forEach(group => {
+                const order = rankings[group] || groups[group];
+                first[group] = order[0] || 'TBD';
+                second[group] = order[1] || 'TBD';
+                const thirdTeam = order[2];
+                if (thirdTeam) {
+                    const key = `Group${group}-${thirdTeam}`;
+                    if (thirdPlaces.includes(key)) {
+                        thirds.push(thirdTeam);
+                    }
+                }
+            });
+
+            while (thirds.length < 8) {
+                thirds.push(`3rd Place #${thirds.length + 1}`);
+            }
+
+            return { first, second, thirds };
+        }
+
+        const adv = getAdvancers();
+
+        if (thirdPlaces.length !== 8) {
+            document.getElementById('warning').innerHTML = `
+                <strong>Note:</strong> You have selected ${thirdPlaces.length}/8 third-place teams.<br>
+                Placeholders are used for missing teams. Return to Groups to select more!
+            `;
+            document.getElementById('warning').style.display = 'block';
+        }
+
+        // Fixed balanced bracket seeding
+        const roundOf32Matchups = [
+            adv.first['A'], adv.second['B'],
+            adv.first['C'], adv.second['D'],
+            adv.first['E'], adv.second['F'],
+            adv.first['G'], adv.second['H'],
+            adv.first['I'], adv.second['J'],
+            adv.first['K'], adv.second['L'],
+            adv.thirds[0], adv.thirds[1],
+            adv.thirds[2], adv.thirds[3],
+            adv.first['B'], adv.second['A'],
+            adv.first['D'], adv.second['C'],
+            adv.first['F'], adv.second['E'],
+            adv.first['H'], adv.second['G'],
+            adv.first['J'], adv.second['I'],
+            adv.first['L'], adv.second['K'],
+            adv.thirds[4], adv.thirds[5],
+            adv.thirds[6], adv.thirds[7]
+        ];
+
+        const rounds = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Final'];
+        const matchesPerRound = [16, 8, 4, 2, 1];
+
+        let allMatchups = []; // Will store arrays of matchup elements per round
+
+        function createBracket() {
+            const container = document.getElementById('bracket');
+            container.innerHTML = '';
+
+            // Remove old connectors
+            document.querySelectorAll('.connector').forEach(el => el.remove());
+
+            allMatchups = [];
+
+            let teamsForNextRound = roundOf32Matchups.slice();
+
+            rounds.forEach((roundName, roundIdx) => {
+                const roundDiv = document.createElement('div');
+                roundDiv.className = 'round';
+
+                const title = document.createElement('div');
+                title.className = 'round-title';
+                title.textContent = roundName;
+                roundDiv.appendChild(title);
+
+                const numMatches = matchesPerRound[roundIdx];
+                const thisRoundMatchups = [];
+
+                for (let m = 0; m < numMatches; m++) {
+                    const matchup = document.createElement('div');
+                    matchup.className = 'matchup';
+
+                    const team1Text = teamsForNextRound[m * 2] || 'TBD';
+                    const team2Text = teamsForNextRound[m * 2 + 1] || 'TBD';
+
+                    const team1 = document.createElement('div');
+                    team1.className = 'team';
+                    team1.textContent = team1Text;
+                    if (team1Text.includes('#') || team1Text === 'TBD') team1.classList.add('placeholder');
+
+                    const team2 = document.createElement('div');
+                    team2.className = 'team';
+                    team2.textContent = team2Text;
+                    if (team2Text.includes('#') || team2Text === 'TBD') team2.classList.add('placeholder');
+
+                    const matchKey = roundIdx * 100 + m;
+
+                    const savedWinner = knockoutPicks[matchKey];
+                    if (savedWinner === team1Text) team1.classList.add('selected');
+                    if (savedWinner === team2Text) team2.classList.add('selected');
+
+                    team1.addEventListener('click', () => selectWinner(matchKey, team1Text, team1, team2));
+                    team2.addEventListener('click', () => selectWinner(matchKey, team2Text, team2, team1));
+
+                    matchup.appendChild(team1);
+                    matchup.appendChild(team2);
+                    roundDiv.appendChild(matchup);
+                    thisRoundMatchups.push(matchup);
+                }
+
+                allMatchups.push(thisRoundMatchups);
+                container.appendChild(roundDiv);
+
+                // Prepare next round
+                const nextTeams = [];
+                for (let m = 0; m < numMatches; m++) {
+                    const key = roundIdx * 100 + m;
+                    nextTeams.push(knockoutPicks[key] || 'Winner TBD');
+                }
+                teamsForNextRound = nextTeams;
+            });
+
+            // Draw connectors after layout is complete
+            requestAnimationFrame(drawConnectors);
+        }
+
+        function drawConnectors() {
+            const containerRect = document.getElementById('bracket').getBoundingClientRect();
+
+            for (let r = 0; r < allMatchups.length - 1; r++) {
+                const currentRound = allMatchups[r];
+                const nextRound = allMatchups[r + 1];
+
+                currentRound.forEach((matchup, i) => {
+                    const matchupRect = matchup.getBoundingClientRect();
+                    const centerY = matchupRect.top + matchupRect.height / 2 - containerRect.top;
+                    const startX = matchupRect.right - containerRect.left + 20; // offset from right of card
+
+                    // Determine which next matchup this feeds into
+                    const nextMatchIndex = Math.floor(i / 2);
+                    const nextMatchup = nextRound[nextMatchIndex];
+                    const nextRect = nextMatchup.getBoundingClientRect();
+                    const endX = nextRect.left - containerRect.left - 20;
+                    const endY = nextRect.top + nextRect.height / 2 - containerRect.top;
+
+                    // Horizontal line from matchup
+                    const hLine = document.createElement('div');
+                    hLine.className = 'connector';
+                    hLine.style.left = `${startX}px`;
+                    hLine.style.top = `${centerY}px`;
+                    hLine.style.width = `${endX - startX}px`;
+                    hLine.style.height = '2px';
+                    container.appendChild(hLine);
+
+                    // Vertical line to connect to correct height if needed
+                    if (Math.abs(centerY - endY) > 2) {
+                        const vLine = document.createElement('div');
+                        vLine.className = 'connector';
+                        vLine.style.left = `${endX}px`;
+                        vLine.style.top = `${Math.min(centerY, endY)}px`;
+                        vLine.style.height = `${Math.abs(centerY - endY)}px`;
+                        vLine.style.width = '2px';
+                        container.appendChild(vLine);
+                    }
+                });
+            }
+        }
+
+        function selectWinner(key, winnerName, selectedEl, otherEl) {
+            if (winnerName.includes('TBD') || winnerName.includes('#')) return;
+
+            knockoutPicks[key] = winnerName;
+            selectedEl.classList.add('selected');
+            otherEl.classList.remove('selected');
+
+            localStorage.setItem('worldCupBracketData', JSON.stringify({ ...savedData, knockoutPicks }));
+            createBracket();
+        }
+
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear ALL predictions (groups + knockout)?')) {
+                localStorage.removeItem('worldCupBracketData');
+                location.reload();
+            }
+        });
+
+        document.getElementById('savePdfBtn').addEventListener('click', () => {
+            alert('Full bracket PDF export coming soon!');
+        });
+
+        createBracket();
+    </script>
+</body>
+</html>

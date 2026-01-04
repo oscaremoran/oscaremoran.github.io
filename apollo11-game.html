@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apollo 11: To The Moon</title>
+    <style>
+        body {
+            background: black;
+            color: white;
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        canvas {
+            border: 2px solid #444;
+            background: black;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <canvas id="game" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('game');
+        const ctx = canvas.getContext('2d');
+
+        let gameState = 'resource';
+        let resources = { fuel: 18, food: 18, heat: 18 };
+        let turn = 0;
+        let allocation = { fuel: 0, food: 0, heat: 0 };
+        let totalAlloc = 0;
+        let ship = { x: 400, y: 300, vx: 0, vy: 0 };
+        let asteroids = [];
+        let astTimer = 0;
+        let lander = { x: 400, y: 100, vx: 0, vy: 0 };
+        let landerFuel = 0;
+        let distanceKm = 0;
+        let traveled = 0;
+        const cruiseSpeed = 1.0;
+        const pixelsPerKm = 300;
+        const shipR = 18;
+        const surfaceY = 545;
+        let stars = [];
+
+        // Initialize stars
+        for (let i = 0; i < 200; i++) {
+            stars.push({ x: Math.random() * 800, y: Math.random() * 600 });
+        }
+
+        const keys = {};
+
+        function reset() {
+            resources = { fuel: 18, food: 18, heat: 18 };
+            turn = 0;
+            allocation = { fuel: 0, food: 0, heat: 0 };
+            totalAlloc = 0;
+            gameState = 'resource';
+            ship = { x: 400, y: 300, vx: 0, vy: 0 };
+            asteroids = [];
+            astTimer = 0;
+            lander = { x: 400, y: 100, vx: 0, vy: 0 };
+            landerFuel = 0;
+            distanceKm = 0;
+            traveled = 0;
+        }
+
+        function allocate() {
+            resources.fuel += allocation.fuel;
+            resources.food += allocation.food;
+            resources.heat += allocation.heat;
+            allocation = { fuel: 0, food: 0, heat: 0 };
+            totalAlloc = 0;
+
+            // Decay
+            resources.fuel -= Math.floor(Math.random() * 3) + 1;
+            resources.food -= Math.floor(Math.random() * 3) + 1;
+            resources.heat -= Math.floor(Math.random() * 3) + 1;
+
+            if (resources.fuel <= 0 || resources.food <= 0 || resources.heat <= 0) {
+                gameState = 'lose';
+            } else {
+                turn++;
+                if (turn >= 5) {
+                    gameState = 'ship';
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space') e.preventDefault();
+            keys[e.code] = true;
+
+            if (gameState === 'resource') {
+                if (e.code === 'KeyF' && totalAlloc < 5) {
+                    allocation.fuel++;
+                    totalAlloc++;
+                    e.preventDefault();
+                }
+                if (e.code === 'KeyO' && totalAlloc < 5) {
+                    allocation.food++;
+                    totalAlloc++;
+                    e.preventDefault();
+                }
+                if (e.code === 'KeyH' && totalAlloc < 5) {
+                    allocation.heat++;
+                    totalAlloc++;
+                    e.preventDefault();
+                }
+                if (e.code === 'Enter' && totalAlloc === 5) {
+                    allocate();
+                    e.preventDefault();
+                }
+            }
+            if ((gameState === 'win' || gameState === 'lose') && e.code === 'KeyR') {
+                reset();
+                e.preventDefault();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        function drawStars() {
+            ctx.fillStyle = '#BBB';
+            for (let s of stars) {
+                ctx.fillRect(s.x, s.y, 1.2, 1.2);
+            }
+        }
+
+        function drawResourceBar(x, y, label, value, maxv, color) {
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 22px Arial';
+            ctx.textAlign = 'left';
+            ctx.fillText(label, x, y - 8);
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x + 130, y - 18, 220, 28);
+            ctx.fillStyle = color;
+            ctx.fillRect(x + 130, y - 18, (value / maxv) * 220, 28);
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x + 130, y - 18, 220, 28);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`${value}`, x + 370, y + 8);
+        }
+
+        function drawAllocBar(x, y, val, maxv, color, key) {
+            ctx.fillStyle = color;
+            ctx.font = 'bold 24px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(key, x + 50, y - 12);
+            ctx.textAlign = 'left';
+            ctx.fillStyle = '#333';
+            ctx.fillRect(x, y, 100, 24);
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, (val / maxv) * 100, 24);
+            ctx.strokeStyle = '#666';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(x, y, 100, 24);
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(val, x + 50, y + 16);
+            ctx.textAlign = 'left';
+        }
+
+        function drawShip() {
+            ctx.save();
+            ctx.translate(ship.x, ship.y);
+            ctx.fillStyle = '#C0C0C0';
+            ctx.beginPath();
+            ctx.moveTo(0, -15);
+            ctx.lineTo(-10, 10);
+            ctx.lineTo(-4, 15);
+            ctx.lineTo(4, 15);
+            ctx.lineTo(10, 10);
+            ctx.closePath();
+            ctx.fill();
+            ctx.fillStyle = '#A0A0A0';
+            ctx.fillRect(-5, 0, 10, 8);
+            ctx.restore();
+        }
+
+        function drawAsteroid(a) {
+            ctx.save();
+            ctx.translate(a.x, a.y);
+            ctx.fillStyle = '#555';
+            ctx.beginPath();
+            ctx.arc(0, 0, a.r, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#777';
+            for (let i = 0; i < 4; i++) {
+                ctx.beginPath();
+                ctx.arc(Math.cos(i * Math.PI / 2) * a.r * 0.3, Math.sin(i * Math.PI / 2) * a.r * 0.3, a.r * 0.4, 0, Math.PI * 2);
+                ctx.fill();
+            }
+            ctx.strokeStyle = '#444';
+            ctx.lineWidth = 2;
+            ctx.beginPath();
+            ctx.arc(0, 0, a.r, 0, Math.PI * 2);
+            ctx.stroke();
+            ctx.restore();
+        }
+
+        function drawLander() {
+            ctx.save();
+            ctx.translate(lander.x, lander.y);
+            // Body
+            ctx.fillStyle = '#C0C0C0';
+            ctx.fillRect(-12, -20, 24, 20);
+            // Nose
+            ctx.beginPath();
+            ctx.moveTo(-12, -20);
+            ctx.lineTo(0, -32);
+            ctx.lineTo(12, -20);
+            ctx.fill();
+            // Legs
+            ctx.strokeStyle = '#B0B0B0';
+            ctx.lineWidth = 4;
+            ctx.lineCap = 'round';
+            ctx.beginPath();
+            ctx.moveTo(-10, 0);
+            ctx.lineTo(-20, 16);
+            ctx.moveTo(10, 0);
+            ctx.lineTo(20, 16);
+            ctx.stroke();
+            // Thruster
+            if (keys['Space'] && landerFuel > 0) {
+                const flicker = Math.random() * 8;
+                ctx.fillStyle = `rgba(255, 170, 0, 0.8)`;
+                ctx.beginPath();
+                ctx.moveTo(-7 + flicker * 0.2, 0);
+                ctx.lineTo(0, 28 + flicker);
+                ctx.lineTo(7 - flicker * 0.2, 0);
+                ctx.fill();
+                ctx.fillStyle = `rgba(255, 100, 0, 0.9)`;
+                ctx.beginPath();
+                ctx.moveTo(-3, 6);
+                ctx.lineTo(0, 22);
+                ctx.lineTo(3, 6);
+                ctx.fill();
+            }
+            ctx.restore();
+        }
+
+        function update() {
+            if (gameState === 'resource') {
+                // Turn-based, no continuous update
+            } else if (gameState === 'ship') {
+                // Auto cruise + maneuver
+                ship.vx *= 0.985;
+                ship.vy *= 0.985;
+                // Thrust
+                if (keys['ArrowLeft']) ship.vx -= 0.42;
+                if (keys['ArrowRight']) ship.vx += 0.42;
+                if (keys['ArrowUp']) ship.vy -= 0.42;
+                if (keys['ArrowDown']) ship.vy += 0.42;
+                // Position
+                traveled += cruiseSpeed;
+                distanceKm = Math.floor(traveled / pixelsPerKm);
+                ship.x += cruiseSpeed + ship.vx;
+                ship.y += ship.vy;
+                // Bounds
+                if (ship.y < 30 || ship.y > 570 || ship.x < 0) {
+                    gameState = 'lose';
+                    return;
+                }
+                // Spawn asteroids
+                astTimer++;
+                let spawnInt = Math.max(35, 130 - distanceKm * 7);
+                if (astTimer > spawnInt) {
+                    astTimer = 0;
+                    let r = 12 + Math.random() * 18;
+                    asteroids.push({
+                        x: 850 + Math.random() * 120,
+                        y: 40 + Math.random() * 520,
+                        vx: -(cruiseSpeed + 3.5 + Math.random() * 2.5),
+                        vy: (Math.random() - 0.5) * 4.2,
+                        r: r
+                    });
+                }
+                // Update asteroids
+                for (let i = asteroids.length - 1; i >= 0; i--) {
+                    let a = asteroids[i];
+                    a.x += a.vx;
+                    a.y += a.vy;
+                    if (a.x + a.r < 0 || a.y + a.r < 0 || a.y - a.r > 600) {
+                        asteroids.splice(i, 1);
+                        continue;
+                    }
+                    let dx = ship.x - a.x;
+                    let dy = ship.y - a.y;
+                    if (dx * dx + dy * dy < (shipR + a.r) * (shipR + a.r)) {
+                        gameState = 'lose';
+                        return;
+                    }
+                }
+                // Progress
+                if (distanceKm >= 10) {
+                    gameState = 'lander';
+                    lander.x = 750;
+                    lander.y = 150;
+                    lander.vx = -2.2;
+                    lander.vy = 1.1;
+                    landerFuel = 110;
+                }
+            } else if (gameState === 'lander') {
+                // Side friction & thrust
+                lander.vx *= 0.975;
+                if (keys['ArrowLeft']) lander.vx -= 0.16;
+                if (keys['ArrowRight']) lander.vx += 0.16;
+                // Slight wind
+                lander.vx += (Math.random() - 0.5) * 0.018;
+                // Gravity
+                lander.vy += 0.035;
+                // Thrust
+                if (keys['Space'] && landerFuel > 0) {
+                    lander.vy -= 0.42;
+                    landerFuel--;
+                }
+                // Position
+                lander.x += lander.vx;
+                lander.y += lander.vy;
+                // Side bounds
+                if (lander.x < 30 || lander.x > 770) {
+                    gameState = 'lose';
+                    return;
+                }
+                // Landing check
+                if (lander.y >= surfaceY) {
+                    if (Math.abs(lander.vy) <= 2.1 && Math.abs(lander.vx) <= 1.2 && Math.abs(lander.x - 400) <= 40) {
+                        gameState = 'win';
+                    } else {
+                        gameState = 'lose';
+                    }
+                }
+            }
+
+            // Update stars
+            if (gameState === 'ship') {
+                const scrollSpeed = cruiseSpeed * 2.3;
+                for (let s of stars) {
+                    s.x -= scrollSpeed;
+                    if (s.x < 0) {
+                        s.x = 850 + Math.random() * 150;
+                        s.y = 30 + Math.random() * 540;
+                    }
+                }
+            } else if (gameState === 'lander') {
+                const fallSpeed = 2.4;
+                for (let s of stars) {
+                    s.y += fallSpeed;
+                    if (s.y > 620) {
+                        s.y = -30;
+                        s.x = Math.random() * 810;
+                    }
+                }
+            } else if (gameState === 'resource') {
+                for (let s of stars) {
+                    s.x -= 0.4;
+                    if (s.x < 0) s.x = 800;
+                }
+            }
+        }
+
+        function draw() {
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, 800, 600);
+            drawStars();
+
+            ctx.textAlign = 'left';
+            ctx.shadowColor = 'white';
+            ctx.shadowBlur = 0;
+
+            if (gameState === 'resource') {
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 48px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Apollo 11: To The Moon', 400, 75);
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 34px Arial';
+                ctx.fillText('Resource Management', 80, 145);
+                ctx.font = 'bold 26px Arial';
+                ctx.fillText(`Turn ${turn + 1} of 5`, 80, 178);
+                // Resource bars
+                drawResourceBar(60, 210, 'Fuel', resources.fuel, 35, '#FFD700');
+                drawResourceBar(60, 265, 'Food', resources.food, 35, '#90EE90');
+                drawResourceBar(60, 320, 'Heat Shields', resources.heat, 35, '#FF6961');
+                // Allocation
+                ctx.font = 'bold 28px Arial';
+                ctx.fillStyle = 'white';
+                ctx.fillText('Allocate 5 Points:', 60, 375);
+                drawAllocBar(60, 395, allocation.fuel, 5, '#FFD700', 'F');
+                drawAllocBar(185, 395, allocation.food, 5, '#90EE90', 'O');
+                drawAllocBar(310, 395, allocation.heat, 5, '#FF6961', 'H');
+                ctx.font = 'bold 24px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText(`Total: ${totalAlloc}/5`, 500, 415);
+                ctx.textAlign = 'left';
+                ctx.font = 'bold 22px Arial';
+                ctx.fillText('Press F, O, H keys | ENTER to confirm', 60, 465);
+            } else if (gameState === 'ship') {
+                ctx.fillStyle = '#00FF88';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('SHIP MODE', 50, 55);
+                ctx.fillStyle = 'white';
+                ctx.font = '24px Arial';
+                ctx.fillText(`Distance: ${distanceKm} km`, 50, 92);
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Arrow Keys: Maneuver • Dodge Asteroids • Survive to Lunar Orbit!', 400, 575);
+                ctx.textAlign = 'left';
+                drawShip();
+                for (let a of asteroids) {
+                    drawAsteroid(a);
+                }
+            } else if (gameState === 'lander') {
+                ctx.fillStyle = '#FFD700';
+                ctx.font = 'bold 36px Arial';
+                ctx.textAlign = 'left';
+                ctx.fillText('LANDER MODE', 50, 55);
+                ctx.fillStyle = 'white';
+                ctx.font = '24px Arial';
+                let alt = Math.max(0, surfaceY - Math.floor(lander.y));
+                ctx.fillText(`Altitude: ${alt}m`, 50, 92);
+                ctx.fillText(`Fuel: ${landerFuel}`, 50, 122);
+                ctx.fillText(`Vert V: ${lander.vy.toFixed(1)}m/s`, 50, 152);
+                ctx.fillText(`Horiz V: ${lander.vx.toFixed(1)}m/s`, 50, 182);
+                ctx.font = 'bold 20px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('Left/Right: Adjust | SPACE: Thrust (Fuel Limited) • Soft Land on Pad!', 400, 575);
+                ctx.textAlign = 'left';
+                // Moon surface
+                ctx.fillStyle = '#555555';
+                ctx.fillRect(0, surfaceY, 800, 600 - surfaceY);
+                ctx.fillStyle = '#777777';
+                ctx.fillRect(0, surfaceY, 800, 8);
+                // Landing pad
+                ctx.fillStyle = '#A0A0A0';
+                ctx.fillRect(360, surfaceY - 12, 80, 12);
+                ctx.strokeStyle = '#FFFFFF';
+                ctx.lineWidth = 2;
+                ctx.strokeRect(360, surfaceY - 12, 80, 12);
+                // Craters
+                ctx.fillStyle = '#444444';
+                ctx.beginPath();
+                ctx.arc(180, surfaceY + 12, 18, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(520, surfaceY + 22, 22, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(680, surfaceY + 9, 14, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(320, surfaceY + 15, 16, 0, Math.PI * 2);
+                ctx.fill();
+                drawLander();
+            } else if (gameState === 'win') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.92)';
+                ctx.fillRect(0, 0, 800, 600);
+                ctx.fillStyle = '#00FF88';
+                ctx.font = 'bold 56px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('SUCCESS!', 400, 220);
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText('Eagle has landed!', 400, 285);
+                ctx.font = '28px Arial';
+                ctx.fillText('One small step for man,', 400, 340);
+                ctx.fillText('one giant leap for mankind.', 400, 375);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 26px Arial';
+                ctx.fillText('Press R to Replay', 400, 450);
+                ctx.textAlign = 'left';
+            } else if (gameState === 'lose') {
+                ctx.fillStyle = 'rgba(0, 0, 0, 0.92)';
+                ctx.fillRect(0, 0, 800, 600);
+                ctx.fillStyle = '#FF4444';
+                ctx.font = 'bold 56px Arial';
+                ctx.textAlign = 'center';
+                ctx.fillText('FAILED', 400, 240);
+                ctx.font = 'bold 32px Arial';
+                ctx.fillText('Houston, we have a problem...', 400, 310);
+                ctx.fillStyle = 'white';
+                ctx.font = 'bold 28px Arial';
+                ctx.fillText('Press R to Retry', 400, 420);
+                ctx.textAlign = 'left';
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        reset();
+        gameLoop();
+    </script>
+</body>
+</html>

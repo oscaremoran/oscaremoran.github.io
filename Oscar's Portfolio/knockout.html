@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knockout Phase - FIFA World Cup 2026</title>
@@ -23,6 +24,18 @@
             align-items: center;
             margin-bottom: 40px;
         }
+.export-png-button {
+    padding: 16px 32px;    /* Makes it taller and wider */
+    font-size: 1.3rem;     /* Bigger text */
+    font-weight: bold;     /* Bolder text for emphasis */
+    border-radius: 12px;   /* Slightly more rounded */
+    box-shadow: 0 6px 16px rgba(0,0,0,0.2); /* Deeper shadow for pop */
+}
+
+.export-png-button:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 10px 24px rgba(0,0,0,0.3);
+}
         .round-title {
     background: linear-gradient(135deg, #0066cc, #004999);
     color: white;
@@ -178,21 +191,25 @@ body {
             border-radius: 8px;
         }
     </style>
+
 </head>
 <body>
     <div class="header">
         <button class="back-button" onclick="window.location.href='bracket.html'">← Back to Groups</button>
         <h1>Knockout Phase</h1>
-        <div>
-            <button class="clear-button" id="clearBtn">Clear Bracket</button>
-            <button class="save-pdf-button" id="savePdfBtn">Save PDF</button>
-        </div>
+<div>
+    <button class="clear-button" id="clearBtn">Clear Bracket</button>
+    <button class="clear-button" id="exportPngBtn">Save PNG</button>
+    <button class="clear-button" onclick="shareBracket()">Share My Bracket</button>
+    <a href="https://docs.google.com/forms/d/e/1FAIpQLScDPn9Ab2xOJc8-glv1YyRIC4AK4MbSyJCnJOfr4hTq3vIEiw/viewform?usp=header" class="clear-button">Publish My Bracket</a> 
+</div>
     </div>
 
     <div id="warning" class="warning" style="display:none;"></div>
+    <div id="fullBracketCapture">
 
     <div class="bracket-container" id="bracket"></div>
-
+    </div>
     <script>
         const groups = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
@@ -403,11 +420,64 @@ body {
             }
         });
 
-        document.getElementById('savePdfBtn').addEventListener('click', () => {
-            alert('Full bracket PDF export coming soon!');
+        document.getElementById('exportPngBtn').addEventListener('click', async () => {
+            const element = document.getElementById('fullBracketCapture');
+            
+            try {
+                const canvas = await html2canvas(element, {
+                    scale: 2,               // Higher resolution
+                    useCORS: true,          // Allows external images if you add flags later
+                    backgroundColor: '#ffffff',
+                    logging: false,
+                    width: element.scrollWidth,
+                    height: element.scrollHeight
+                });
+                
+                const link = document.createElement('a');
+                link.download = 'My-2026-World-Cup-Knockout-Bracket.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            } catch (err) {
+                alert('PNG export failed. Try scrolling to ensure full bracket is visible.');
+                console.error(err);
+            }
         });
 
         createBracket();
     </script>
+<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+
+<script>
+    function shareBracket() {
+        const data = localStorage.getItem('worldCupBracketData');
+        if (!data) {
+            alert('Save your bracket first!');
+            return;
+        }
+        const compressed = LZString.compressToEncodedURIComponent(data);
+        const shareUrl = window.location.origin + window.location.pathname + '#bracket=' + compressed;
+        
+        // Copy to clipboard
+        navigator.clipboard.writeText(shareUrl).then(() => {
+            alert('Bracket link copied! Share it with friends:\n\n' + shareUrl);
+        });
+    }
+
+    // On page load, check for shared data
+    window.addEventListener('load', () => {
+        const hash = window.location.hash;
+        if (hash.startsWith('#bracket=')) {
+            const compressed = hash.slice(9);
+            const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
+            if (decompressed && confirm('Load shared bracket?')) {
+                localStorage.setItem('worldCupBracketData', decompressed);
+                location.reload();
+            }
+        }
+    });
+</script>
+
+<!-- Add button in header -->
+
 </body>
 </html>

@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #ffd3b6;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+            color: #333333;
+            min-height: 100vh;
+        }
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .back-btn {
+    display: inline-block;
+    background: #061627;              /* Dark blue */
+    color: #ffe700;                   /* Bright yellow text */
+    padding: 14px 32px;
+    border-radius: 50px;              /* Pill shape */
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 30px 0;
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    border: 3px solid #ffe700;        /* Yellow glow border */
+}
+
+.back-btn:hover {
+    background: #0a2a47;
+    transform: translateY(-5px);
+    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+    color: white;
+}
+        h1 {
+            font-size: 3.5em;
+            color: #061627;
+            margin-bottom: 20px;
+        }
+        .section {
+            background: #ffe700;
+            padding: 30px;
+            border-radius: 20px;
+            margin: 40px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.15);
+        }
+        ul {
+            text-align: left;
+            max-width: 600px;
+            margin: 20px auto;
+            padding-left: 40px;
+        }
+        li {
+            margin: 10px 0;
+            font-size: 1.2em;
+        }
+        .download-btn {
+            background: #061627;
+            color: #ffe700;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        .back-link {
+            display: block;
+            margin: 30px 0;
+            font-size: 1.3em;
+        }
+    </style>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <a href="oscar_portfolio.html" class="back-btn">
+    ← Back to Home
+</a>
+    <title>Oscar's Games</title>
+    <link rel="stylesheet" href="styles.css"> <!-- If you have separate CSS -->
+</head>
+<body>
+    <div class="center-box">
+        <h1>Games I Make</h1>
+    <p>I like working with AI such as Grok to make fun small arcade-style games. Recently, I've worked on a large Choose your own Adventure-style game below. To play it, unzip the file, open your Iterm or Terminal window and enter "python3 game.py" to play. If that doesn't work, or if you're on Windows, try "python game.py" instead.
+    <h3>Download My Fun Game! (50KB .zip file)</h3>
+    <p>Play my fun game!</p>
+    <a href="game.zip" download="game.py" class="download-btn">
+        Download Game Now!
+    </a>
+    <p style="font-size: 0.9em; color: #666; margin-top: 10px;">
+        File size: ~50KB
+    </p>
+</div>
+
+</body>
+</html>

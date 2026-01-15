@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+<head>
 <style>
 
 
@@ -28,6 +29,7 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 16px;
+    text-align: left;
     max-width: 380px;
     margin: 40px 0 80px 60px;     /* adjust left spacing here */
 }
@@ -40,28 +42,36 @@
         margin: 10px 8px;
     }
 }
-        .back-btn {
-    display: inline-block;
-    background: #061627;              /* Dark blue */
-    color: #ffe700;                   /* Bright yellow text */
+.back-btn {
+    display: inline-flex;          /* better for centering arrow + text horizontally */
+    align-items: center;           /* vertically centers arrow with text */
+    justify-content: center;
+    background: #061627;
+    color: #ffe700;
     padding: 14px 32px;
-    border-radius: 50px;              /* Pill shape */
+    border-radius: 50px;
     text-decoration: none;
     font-weight: bold;
     font-size: 1.3em;
-    margin: 30px 0;
+    margin: 20px 0 40px 40px;      /* inset from left, top/bottom spacing */
     box-shadow: 0 8px 16px rgba(0,0,0,0.3);
     transition: all 0.3s ease;
-    border: 3px solid #ffe700;        /* Yellow glow border */
+    border: 3px solid #ffe700;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+    background: #0a2b4a;           /* subtle darken on hover */
 }
 
 
 
 </style>
-
-
-    <a href="index.html" class="back-btn" style="float: left;">
-    ← Back to Home
+</head>
+<body>
+<a href="index.html" class="download-btn" style="float: left;">
+    &larr; Back to Home   <!-- or &#8592; for the same arrow -->
 </a>
 <p>I like writing short stories as a hobby sometimes. A few are listed below.</p>
     <nav class="main-nav">
@@ -78,6 +88,6 @@
         <p>This is the finale to The Lunars, featuring the return of Jack Michaels in a climactic, high-stakes battle against the Lunars.</p>
         <a href="https://docs.google.com/document/d/1nXqSJE6lhK2NAVR4tjtblgRd6ObZm3e7OpAgO8cY-JY/edit?tab=t.0" class="download-btn">The Lunars: Extermination - Part Two - finished November 2025</a>
     </nav>
-
+</body>
 
 </html>

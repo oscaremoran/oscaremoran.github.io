@@ -1,14 +1,11 @@
 <!DOCTYPE html>
 <html>
-<nav style="text-align:center; margin:20px 0;">
-    <a href="about.html" class="download-btn">About Me</a>
-    <a href="games-play.html" class="download-btn">Games I Play</a>
-    <a href="home.html" class="download-btn">FIFA World Cup Bracket Maker</a>
-    <a href="stories.html" class="download-btn">Oscar's Short Stories</a>
-    <a href="https://docs.google.com/document/d/1o0j4rO8vfjzstYpVdxGyfvObNwLpabqlPO8Qo8b0ego/edit?tab=t.0" class="download-btn">Oscar's Book Reviews</a>
-</nav>
+
+
+
 <head>
     <title>Oscar's Portfolio</title>
+
     <button id="darkModeToggle" class="download-btn" style="position:fixed; top:20px; right:20px; z-index:100; padding:12px 20px;">
     Dark Mode
 </button>
@@ -29,6 +26,23 @@
         h2 {
             color: #061627;
         }
+.main-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    max-width: 380px;
+    margin: 40px 0 80px 60px;     /* adjust left spacing here */
+}
+.main-nav .download-btn {
+    margin: 12px 16px 12px 0;       /* more space between buttons, no left margin on first */
+}
+
+    .main-nav .download-btn {
+        display: inline-block;
+        margin: 10px 8px;
+    }
+}
         p {
             font-size: 1.4em;
             max-width: 600px;
@@ -172,8 +186,15 @@
 </head>
 <body>
     <h1>Oscar's Portfolio </h1>
+    <nav class="main-nav">
+        <a href="about.html" class="download-btn">About Me</a>
+        <a href="games-play.html" class="download-btn">Games I Play</a>
+        <a href="home.html" class="download-btn">FIFA World Cup Bracket Maker</a>
+        <a href="stories.html" class="download-btn">Oscar's Short Stories</a>
+        <a href="https://docs.google.com/document/d/1o0j4rO8vfjzstYpVdxGyfvObNwLpabqlPO8Qo8b0ego/edit?tab=t.0" class="download-btn">Oscar's Book Reviews</a>
+        <a href="games-make.html" class="download-btn">Games I Make</a>
+    </nav>
 
-    <h2> My Mile Times </h2>
     <div class="highlight">
     <p>My best mile time: <strong>7:04</strong> </p>
     </div>

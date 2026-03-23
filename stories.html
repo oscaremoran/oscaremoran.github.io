@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+
+
+	        body {
+            font-family: Arial, sans-serif;
+            background: #ADD8E6;
+            margin: 0;
+            padding: 40px;
+            text-align: center;
+            color: #010048;
+            min-height: 100vh;
+        }
+        .download-btn {
+            background: #061627;
+            color: #ffe700;
+            padding: 15px 30px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            display: inline-block;
+            margin: 20px;
+            box-shadow: 0 6px 12px rgba(0,0,0,0.2);
+        }
+        .main-nav {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    text-align: left;
+    max-width: 380px;
+    margin: 40px 0 80px 60px;     /* adjust left spacing here */
+}
+.main-nav .download-btn {
+    margin: 12px 16px 12px 0;       /* more space between buttons, no left margin on first */
+}
+
+    .main-nav .download-btn {
+        display: inline-block;
+        margin: 10px 8px;
+    }
+}
+.back-btn {
+    display: inline-flex;          /* better for centering arrow + text horizontally */
+    align-items: center;           /* vertically centers arrow with text */
+    justify-content: center;
+    background: #061627;
+    color: #ffe700;
+    padding: 14px 32px;
+    border-radius: 50px;
+    text-decoration: none;
+    font-weight: bold;
+    font-size: 1.3em;
+    margin: 20px 0 40px 40px;      /* inset from left, top/bottom spacing */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+    transition: all 0.3s ease;
+    border: 3px solid #ffe700;
+}
+
+.back-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 12px 24px rgba(0,0,0,0.4);
+    background: #0a2b4a;           /* subtle darken on hover */
+}
+
+
+
+</style>
+</head>
+<body>
+<a href="index.html" class="download-btn" style="float: left;">
+    &larr; Back to Home   <!-- or &#8592; for the same arrow -->
+</a>
+<p>I like writing short stories as a hobby sometimes. A few are listed below.</p>
+    <nav class="main-nav">
+        <p>This is the first short story I wrote, and it is a fantasy series about four companions battling a deadly knight.</p>
+        <a href="https://docs.google.com/document/d/1m7aPo7Sr1C-7xsO4uSVrsgunKzxGnLR25mn0H4U2Eig/edit?tab=t.0" class="download-btn">The Adventures of Yogi - finished December 2024</a>
+        <p>This is the sequel to Adventures of Yogi, and introduces a new villain and a whole new realm.</p>
+        <a href="https://docs.google.com/document/d/1Tb6KD-sYQOA6L8aXAVSR5LL5FlnZIOHYUU9ucWVVELA/edit?tab=t.0" class="download-btn">The Adventures of Yogi: The Gatekeeper - finished December 2024</a>
+        <p>This is the finale to Adventures of Yogi, and has a huge climax against a hybrid of the first two villains.</p>
+        <a href="https://docs.google.com/document/d/1y64rHtBLnzaHWtQR_V5Im7TZ_QfhJ9N78jg_Rgp7_6g/edit?tab=t.0" class="download-btn">The Adventures of Yogi: Hybrid Rising - finished January 2025</a>
+        <p>This is my first sci-fi story, and it is about an alternate reality Apollo 11, called Phobos 1, where aliens are encountered on the moon.</p>
+        <a href="https://docs.google.com/document/d/1BvYW_DgqbaAM5v9qmcuiknC8f-o5ucCbP3t8acTMtAU/edit?tab=t.0" class="download-btn">The Lunars - finished January 2025</a>
+        <p>This is the sequel to The Lunars, where the aliens come to Earth using a stolen satellite and wreak havoc.</p>
+        <a href="https://docs.google.com/document/d/1e3uMIqZCQI3qHRwsunjgeDtqLqHdXPUR0nQ3rW3vgug/edit?tab=t.0" class="download-btn">The Lunars - Extermination - Part One - finished June 2025</a>
+        <p>This is the finale to The Lunars, featuring the return of Jack Michaels in a climactic, high-stakes battle against the Lunars.</p>
+        <a href="https://docs.google.com/document/d/1nXqSJE6lhK2NAVR4tjtblgRd6ObZm3e7OpAgO8cY-JY/edit?tab=t.0" class="download-btn">The Lunars: Extermination - Part Two - finished November 2025</a>
+    </nav>
+</body>
+
+</html>

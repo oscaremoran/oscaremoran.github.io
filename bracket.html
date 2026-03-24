@@ -84,11 +84,11 @@
             transform: translateY(-2px);
         }
 
-        /* ── Two-Column Layout ── */
+        /* ── Stacked Layout ── */
         .main-layout {
             display: flex;
-            gap: 28px;
-            max-width: 1400px;
+            flex-direction: column;
+            max-width: 1600px;
             width: 100%;
             margin: 24px auto 0;
             padding: 0 24px;
@@ -96,31 +96,27 @@
         }
 
         .left-panel {
-            flex: 1;
-            min-width: 0;
+            width: 100%;
+            max-width: 700px;
         }
 
         .right-panel {
-            width: 420px;
-            flex-shrink: 0;
-            position: sticky;
-            top: 90px;
-            max-height: calc(100vh - 110px);
-            overflow-y: auto;
+            width: 100%;
+            margin-top: 28px;
         }
 
         /* ── Group Grid ── */
         .group-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            grid-template-columns: repeat(4, 1fr);
             gap: 16px;
             width: 100%;
             margin-top: 20px;
         }
 
         .group-button {
-            padding: 32px 16px;
-            font-size: 1.5rem;
+            padding: 22px 14px;
+            font-size: 1.3rem;
             font-weight: 700;
             background: linear-gradient(135deg, rgba(0,102,204,0.95), rgba(0,60,150,0.98));
             color: white;
@@ -155,9 +151,20 @@
         #ranking-section h2 {
             font-size: 1.7rem;
             font-weight: 700;
-            margin-bottom: 28px;
-            text-align: center;
+            margin-bottom: 20px;
+            text-align: left;
             color: #0a0e1a;
+        }
+
+        .ranking-inner {
+            display: flex;
+            gap: 32px;
+            align-items: flex-start;
+        }
+
+        .ranking-col {
+            flex: 1;
+            min-width: 0;
         }
 
         .ranking-list {
@@ -278,9 +285,9 @@
 
         /* ── Group Schedule ── */
         .schedule-info {
-            margin-top: 28px;
-            padding-top: 24px;
-            border-top: 1px solid #e0e3e8;
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
         }
 
         .schedule-info h3 {
@@ -335,14 +342,8 @@
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
-            .main-layout {
-                flex-direction: column;
-            }
-            .right-panel {
-                width: 100%;
-                position: static;
-                max-height: none;
-            }
+            .left-panel { max-width: 100%; }
+            .ranking-inner { flex-direction: column; }
         }
 
         @media (max-width: 600px) {
@@ -385,14 +386,20 @@
         <div class="right-panel">
             <div id="ranking-section">
                 <h2 id="selected-group-title"></h2>
-                <ol class="ranking-list" id="ranking-list"></ol>
-                <p style="text-align: center; margin-top: 20px;">
-                    Drag and drop to predict standings.<br>
-                    Click the <strong>3rd place</strong> team to select/deselect it as one of the 8 best third-place teams advancing (green = selected).
-                </p>
-                <div class="schedule-info" id="schedule-info" style="display:none;">
-                    <h3 id="schedule-title"></h3>
-                    <div class="match-list" id="match-list"></div>
+                <div class="ranking-inner">
+                    <div class="ranking-col">
+                        <ol class="ranking-list" id="ranking-list"></ol>
+                        <p style="text-align: center; margin-top: 16px; font-size: 0.9rem;">
+                            Drag and drop to predict standings.<br>
+                            Click <strong>3rd place</strong> to select/deselect as advancing (green = selected).
+                        </p>
+                    </div>
+                    <div class="ranking-col">
+                        <div class="schedule-info" id="schedule-info" style="display:none;">
+                            <h3 id="schedule-title"></h3>
+                            <div class="match-list" id="match-list"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

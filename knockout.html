@@ -1,106 +1,120 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Knockout Phase - FIFA World Cup 2026</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
-            padding: 20px;
-            background-color: #f8f9fa;
-            font-family: 'Segoe UI', Arial, sans-serif;
+            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
+            background: #0a0e1a url('https://a57.foxsports.com/statics.foxsports.com/www.foxsports.com/content/uploads/2023/05/1408/814/IMG_6227.png?ve=1&tl=1') center/cover no-repeat fixed;
+            min-height: 100vh;
+            color: #fff;
             display: flex;
             flex-direction: column;
             align-items: center;
+            padding-bottom: 40px;
         }
 
+        /* ── Header ── */
         .header {
             width: 100%;
-            max-width: 1400px;
+            max-width: 1500px;
+            background: linear-gradient(135deg, rgba(6,10,30,0.92), rgba(0,30,70,0.88));
+            backdrop-filter: blur(12px);
+            padding: 18px 28px;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 40px;
+            flex-wrap: wrap;
+            gap: 12px;
+            border-bottom: 3px solid #ffd700;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+            border-radius: 0 0 20px 20px;
+            margin-bottom: 20px;
         }
-.export-png-button {
-    padding: 16px 32px;    /* Makes it taller and wider */
-    font-size: 1.3rem;     /* Bigger text */
-    font-weight: bold;     /* Bolder text for emphasis */
-    border-radius: 12px;   /* Slightly more rounded */
-    box-shadow: 0 6px 16px rgba(0,0,0,0.2); /* Deeper shadow for pop */
-}
 
-.export-png-button:hover {
-    transform: translateY(-3px); /* Slight lift on hover */
-    box-shadow: 0 10px 24px rgba(0,0,0,0.3);
-}
-        .round-title {
-    background: linear-gradient(135deg, #0066cc, #004999);
-    color: white;
-    padding: 15px;
-    border-radius: 12px;
-    box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-}
+        h1 {
+            font-size: 2.2rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #fff 30%, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
 
-.matchup {
-    background: linear-gradient(to bottom, #ffffff, #f0f0f0);
-    border: 2px solid #ddd;
-    transition: all 0.3s;
-}
-
-.matchup:hover {
-    transform: scale(1.05);
-    box-shadow: 0 12px 24px rgba(0,0,0,0.2);
-}
-
-.team.selected {
-    background: linear-gradient(135deg, #28a745, #218838);
-}
-
-        .back-button, .clear-button, .save-pdf-button {
-            padding: 10px 20px;
-            font-size: 1rem;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
+        /* ── Buttons ── */
+        button, a.header-btn {
+            font-family: 'Outfit', sans-serif;
+            padding: 11px 22px;
+            font-size: 0.95rem;
             font-weight: 600;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
         }
 
         .back-button {
-            background-color: #6c757d;
+            background: rgba(255,255,255,0.1);
             color: white;
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .back-button:hover {
+            background: rgba(255,255,255,0.2);
+            transform: translateY(-2px);
         }
 
-        .back-button:hover { background-color: #5a6268; }
-
-        .clear-button {
-            background-color: #dc3545;
-            color: white;
+        .action-btn {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e1a;
+            font-weight: 700;
+            box-shadow: 0 4px 16px rgba(255,215,0,0.25);
+        }
+        .action-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 24px rgba(255,215,0,0.4);
         }
 
-        .clear-button:hover { background-color: #c82333; }
-
-        .save-pdf-button {
-            background-color: #28a745;
-            color: white;
+        .danger-btn {
+            background: rgba(220,53,69,0.15);
+            color: #ff6b7a;
+            border: 1px solid rgba(220,53,69,0.3);
+        }
+        .danger-btn:hover {
+            background: rgba(220,53,69,0.3);
+            transform: translateY(-2px);
         }
 
-        .save-pdf-button:hover { background-color: #218838; }
-
-        h1 {
-            font-size: 2.8rem;
-            margin: 0;
-            color: #343a40;
+        .share-btn {
+            background: rgba(0,102,204,0.2);
+            color: #6cb4ff;
+            border: 1px solid rgba(0,102,204,0.3);
+        }
+        .share-btn:hover {
+            background: rgba(0,102,204,0.35);
+            transform: translateY(-2px);
         }
 
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        /* ── Bracket ── */
         .bracket-container {
             position: relative;
             display: flex;
             justify-content: center;
             overflow-x: auto;
-            padding: 40px 0;
+            padding: 40px 20px;
             width: 100%;
         }
 
@@ -110,39 +124,49 @@
             justify-content: center;
             align-items: center;
             min-height: 900px;
-            margin: 0 80px;
+            margin: 0 70px;
             position: relative;
         }
 
         .round-title {
             text-align: center;
-            font-weight: bold;
-            font-size: 1.5rem;
-            margin-bottom: 30px;
-            color: #495057;
-            background: white;
-            padding: 8px 20px;
-            border-radius: 8px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            font-weight: 700;
+            font-size: 1.2rem;
+            margin-bottom: 24px;
+            color: white;
+            background: linear-gradient(135deg, #0066cc, #004999);
+            padding: 12px 24px;
+            border-radius: 12px;
+            box-shadow: 0 4px 16px rgba(0,50,130,0.4);
+            letter-spacing: 0.5px;
         }
 
         .matchup {
-            background: white;
-            border-radius: 12px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0.95), rgba(240,243,248,0.95));
+            border-radius: 14px;
             width: 240px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             overflow: hidden;
-            margin: 12px 0;
+            margin: 10px 0;
+            border: 1px solid rgba(255,255,255,0.15);
+            transition: all 0.3s ease;
+        }
+
+        .matchup:hover {
+            transform: scale(1.04);
+            box-shadow: 0 8px 28px rgba(0,0,0,0.3);
+            border-color: rgba(255,215,0,0.3);
         }
 
         .team {
-            padding: 14px;
+            padding: 14px 16px;
             text-align: center;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             font-weight: 500;
             cursor: pointer;
-            transition: all 0.2s;
-            border-bottom: 1px solid #eee;
+            transition: all 0.2s ease;
+            border-bottom: 1px solid rgba(0,0,0,0.06);
+            color: #1a1a2e;
         }
 
         .team:last-child {
@@ -150,13 +174,13 @@
         }
 
         .team:hover:not(.placeholder):not(.selected) {
-            background-color: #e9f7ef;
+            background: #e8f4ee;
         }
 
         .team.selected {
-            background-color: #28a745;
+            background: linear-gradient(135deg, #28a745, #1e8e3e);
             color: white;
-            font-weight: bold;
+            font-weight: 700;
         }
 
         .team.placeholder {
@@ -165,65 +189,68 @@
             cursor: default;
         }
 
-        /* Connectors */
+        /* ── Connectors ── */
         .connector {
             position: absolute;
-            background-color: #adb5bd;
+            background-color: rgba(255,215,0,0.4);
             z-index: 1;
             pointer-events: none;
         }
-body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f8f9fa url('https://a57.foxsports.com/statics.foxsports.com/www.foxsports.com/content/uploads/2023/05/1408/814/IMG_6227.png?ve=1&tl=1') center/cover no-repeat fixed;
-    min-height: 100vh;
-} 
 
+        /* ── Warning ── */
         .warning {
-            color: #dc3545;
-            font-weight: bold;
+            color: #ffd700;
+            font-weight: 600;
             text-align: center;
-            margin: 20px 0;
+            margin: 0 auto 20px;
             max-width: 800px;
-            background: #f8d7da;
-            padding: 12px;
-            border-radius: 8px;
+            background: rgba(255,215,0,0.1);
+            border: 1px solid rgba(255,215,0,0.25);
+            padding: 14px 24px;
+            border-radius: 12px;
+            backdrop-filter: blur(6px);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            .header { padding: 14px 16px; }
+            h1 { font-size: 1.6rem; }
+            .round { margin: 0 30px; }
+            .matchup { width: 180px; }
+            .team { font-size: 0.9rem; padding: 10px; }
         }
     </style>
-
 </head>
 <body>
     <div class="header">
-        <button class="back-button" onclick="window.location.href='bracket.html'">← Back to Groups</button>
+        <button class="back-button" onclick="window.location.href='bracket.html'">&larr; Back to Groups</button>
         <h1>Knockout Phase</h1>
-<div>
-    <button class="clear-button" id="clearBtn">Clear Bracket</button>
-    <button class="clear-button" id="exportPngBtn">Save PNG</button>
-    <button class="clear-button" onclick="shareBracket()">Share My Bracket</button>
-    <a href="https://docs.google.com/forms/d/e/1FAIpQLScDPn9Ab2xOJc8-glv1YyRIC4AK4MbSyJCnJOfr4hTq3vIEiw/viewform?usp=header" class="clear-button">Publish My Bracket</a> 
-</div>
+        <div class="btn-group">
+            <button class="danger-btn" id="clearBtn">Clear Bracket</button>
+            <button class="action-btn" id="exportPngBtn">Save PNG</button>
+            <button class="share-btn" onclick="shareBracket()">Share My Bracket</button>
+        </div>
     </div>
 
     <div id="warning" class="warning" style="display:none;"></div>
     <div id="fullBracketCapture">
-
-    <div class="bracket-container" id="bracket"></div>
+        <div class="bracket-container" id="bracket"></div>
     </div>
+
     <script>
         const groups = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
             'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
-            'C': ['Brazil', 'Australia', 'Paraguay', 'New Zealand'],
-            'D': ['United States', 'Morocco', 'Norway', 'Ghana'],
-            'E': ['Portugal', 'Japan', 'Egypt', 'Curaçao'],
-            'F': ['Netherlands', 'Senegal', 'Tunisia', 'Haiti'],
-            'G': ['Belgium', 'Uruguay', 'Algeria', 'Jordan'],
-            'H': ['Spain', 'Colombia', 'Ivory Coast', 'Cabo Verde'],
-            'I': ['France', 'Croatia', 'Panama', 'Intercontinental Play-off 2 Winner'],
-            'J': ['Argentina', 'Iran', 'Saudi Arabia', 'Uzbekistan'],
-            'K': ['Germany', 'Austria', 'Scotland', 'Intercontinental Play-off 1 Winner'],
-            'L': ['England', 'Ecuador', 'Chile', 'UEFA Play-off C Winner']
+            'C': ['Brazil', 'Morocco', 'Haiti', 'Scotland'],
+            'D': ['United States', 'Paraguay', 'Australia', 'UEFA Play-off C Winner'],
+            'E': ['Germany', 'Cura\u00e7ao', 'Ivory Coast', 'Ecuador'],
+            'F': ['Netherlands', 'Japan', 'UEFA Play-off B Winner', 'Tunisia'],
+            'G': ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
+            'H': ['Spain', 'Cabo Verde', 'Saudi Arabia', 'Uruguay'],
+            'I': ['France', 'Senegal', 'Intercontinental Play-off Winner 2', 'Norway'],
+            'J': ['Argentina', 'Algeria', 'Austria', 'Jordan'],
+            'K': ['Portugal', 'Intercontinental Play-off Winner 1', 'Uzbekistan', 'Colombia'],
+            'L': ['England', 'Croatia', 'Ghana', 'Panama']
         };
 
         const savedData = JSON.parse(localStorage.getItem('worldCupBracketData') || '{"rankings": {}, "thirdPlaces": [], "knockoutPicks": {}}');
@@ -258,13 +285,12 @@ body {
 
         if (thirdPlaces.length !== 8) {
             document.getElementById('warning').innerHTML = `
-                <strong>Note:</strong> You have selected ${thirdPlaces.length}/8 third-place teams.<br>
+                <strong>Note:</strong> You have selected ${thirdPlaces.length}/8 third-place teams.
                 Placeholders are used for missing teams. Return to Groups to select more!
             `;
             document.getElementById('warning').style.display = 'block';
         }
 
-        // Fixed balanced bracket seeding
         const roundOf32Matchups = [
             adv.first['A'], adv.second['B'],
             adv.first['C'], adv.second['D'],
@@ -287,15 +313,12 @@ body {
         const rounds = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Final'];
         const matchesPerRound = [16, 8, 4, 2, 1];
 
-        let allMatchups = []; // Will store arrays of matchup elements per round
+        let allMatchups = [];
 
         function createBracket() {
             const container = document.getElementById('bracket');
             container.innerHTML = '';
-
-            // Remove old connectors
             document.querySelectorAll('.connector').forEach(el => el.remove());
-
             allMatchups = [];
 
             let teamsForNextRound = roundOf32Matchups.slice();
@@ -347,7 +370,6 @@ body {
                 allMatchups.push(thisRoundMatchups);
                 container.appendChild(roundDiv);
 
-                // Prepare next round
                 const nextTeams = [];
                 for (let m = 0; m < numMatches; m++) {
                     const key = roundIdx * 100 + m;
@@ -356,7 +378,6 @@ body {
                 teamsForNextRound = nextTeams;
             });
 
-            // Draw connectors after layout is complete
             requestAnimationFrame(drawConnectors);
         }
 
@@ -370,16 +391,14 @@ body {
                 currentRound.forEach((matchup, i) => {
                     const matchupRect = matchup.getBoundingClientRect();
                     const centerY = matchupRect.top + matchupRect.height / 2 - containerRect.top;
-                    const startX = matchupRect.right - containerRect.left + 20; // offset from right of card
+                    const startX = matchupRect.right - containerRect.left + 20;
 
-                    // Determine which next matchup this feeds into
                     const nextMatchIndex = Math.floor(i / 2);
                     const nextMatchup = nextRound[nextMatchIndex];
                     const nextRect = nextMatchup.getBoundingClientRect();
                     const endX = nextRect.left - containerRect.left - 20;
                     const endY = nextRect.top + nextRect.height / 2 - containerRect.top;
 
-                    // Horizontal line from matchup
                     const hLine = document.createElement('div');
                     hLine.className = 'connector';
                     hLine.style.left = `${startX}px`;
@@ -388,7 +407,6 @@ body {
                     hLine.style.height = '2px';
                     container.appendChild(hLine);
 
-                    // Vertical line to connect to correct height if needed
                     if (Math.abs(centerY - endY) > 2) {
                         const vLine = document.createElement('div');
                         vLine.className = 'connector';
@@ -422,17 +440,17 @@ body {
 
         document.getElementById('exportPngBtn').addEventListener('click', async () => {
             const element = document.getElementById('fullBracketCapture');
-            
+
             try {
                 const canvas = await html2canvas(element, {
-                    scale: 2,               // Higher resolution
-                    useCORS: true,          // Allows external images if you add flags later
-                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    backgroundColor: '#0a0e1a',
                     logging: false,
                     width: element.scrollWidth,
                     height: element.scrollHeight
                 });
-                
+
                 const link = document.createElement('a');
                 link.download = 'My-2026-World-Cup-Knockout-Bracket.png';
                 link.href = canvas.toDataURL('image/png');
@@ -445,39 +463,34 @@ body {
 
         createBracket();
     </script>
-<script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
 
-<script>
-    function shareBracket() {
-        const data = localStorage.getItem('worldCupBracketData');
-        if (!data) {
-            alert('Save your bracket first!');
-            return;
-        }
-        const compressed = LZString.compressToEncodedURIComponent(data);
-        const shareUrl = window.location.origin + window.location.pathname + '#bracket=' + compressed;
-        
-        // Copy to clipboard
-        navigator.clipboard.writeText(shareUrl).then(() => {
-            alert('Bracket link copied! Share it with friends:\n\n' + shareUrl);
-        });
-    }
-
-    // On page load, check for shared data
-    window.addEventListener('load', () => {
-        const hash = window.location.hash;
-        if (hash.startsWith('#bracket=')) {
-            const compressed = hash.slice(9);
-            const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
-            if (decompressed && confirm('Load shared bracket?')) {
-                localStorage.setItem('worldCupBracketData', decompressed);
-                location.reload();
+    <script src="https://cdn.jsdelivr.net/npm/lz-string@1.5.0/libs/lz-string.min.js"></script>
+    <script>
+        function shareBracket() {
+            const data = localStorage.getItem('worldCupBracketData');
+            if (!data) {
+                alert('Save your bracket first!');
+                return;
             }
+            const compressed = LZString.compressToEncodedURIComponent(data);
+            const shareUrl = window.location.origin + window.location.pathname + '#bracket=' + compressed;
+
+            navigator.clipboard.writeText(shareUrl).then(() => {
+                alert('Bracket link copied! Share it with friends:\n\n' + shareUrl);
+            });
         }
-    });
-</script>
 
-<!-- Add button in header -->
-
+        window.addEventListener('load', () => {
+            const hash = window.location.hash;
+            if (hash.startsWith('#bracket=')) {
+                const compressed = hash.slice(9);
+                const decompressed = LZString.decompressFromEncodedURIComponent(compressed);
+                if (decompressed && confirm('Load shared bracket?')) {
+                    localStorage.setItem('worldCupBracketData', decompressed);
+                    location.reload();
+                }
+            }
+        });
+    </script>
 </body>
 </html>

@@ -1,48 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FIFA World Cup 2026 Bracket Maker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            margin: 0;
-            padding: 0;
-            font-family: 'Segoe UI', Arial, sans-serif;
-            color: #333;
-            background: linear-gradient(to bottom, #001f3f, #003366);
+            font-family: 'Outfit', 'Segoe UI', Arial, sans-serif;
+            color: #fff;
+            background: #0a0e1a;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
-        .back-btn {
-    display: inline-block;
-    background: #061627;              /* Dark blue */
-    color: #ffe700;                   /* Bright yellow text */
-    padding: 14px 32px;
-    border-radius: 50px;              /* Pill shape */
-    text-decoration: none;
-    font-weight: bold;
-    font-size: 1.3em;
-    margin: 30px 0;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.3);
-    transition: all 0.3s ease;
-    border: 3px solid #ffe700;        /* Yellow glow border */
-}
 
-.back-btn:hover {
-    background: #0a2a47;
-    transform: translateY(-5px);
-    box-shadow: 0 15px 30px rgba(0,0,0,0.4);
-    color: white;
-}
-
+        /* ── Hero ── */
         .hero {
             width: 100%;
-            height: 100vh;
+            min-height: 100vh;
             background: url('https://thumbs.dreamstime.com/b/massive-stadium-filled-cheering-fans-night-high-angle-shot-packed-enthusiastic-soccer-380773342.jpg') center/cover no-repeat;
             display: flex;
             flex-direction: column;
@@ -55,138 +31,273 @@
         .hero::before {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0, 0, 0, 0.6);
+            inset: 0;
+            background: linear-gradient(180deg, rgba(6,10,30,0.75) 0%, rgba(0,30,70,0.65) 100%);
         }
 
         .hero-content {
             position: relative;
             z-index: 2;
-            color: white;
             max-width: 900px;
-            padding: 20px;
+            padding: 40px 20px;
         }
 
         .logo {
-            width: 300px;
-            margin-bottom: 20px;
+            width: 260px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 4px 20px rgba(0,0,0,0.6));
         }
-
-        .trophy {
-            width: 200px;
-            margin: 20px 0;
-        }
-        body {
-    margin: 0;
-    padding: 0;
-    font-family: 'Segoe UI', Arial, sans-serif;
-    background: #f8f9fa url('https://media.istockphoto.com/id/104187079/photo/football-crowd-in-stadium.jpg?s=612x612&w=0&k=20&c=ev6d94uLMXkESk01yw2NHzSW5v4x5V9z6YRVi3MiEiU=') center/cover no-repeat fixed;
-    min-height: 100vh;
-}
-
-.header {
-    background: rgba(0, 0, 0, 0.7);
-    padding: 20px;
-    text-align: center;
-    color: white;
-}
-
-.header h1 {
-    margin: 0;
-    font-size: 2.8rem;
-}
-
-.main-content {
-    max-width: 1400px;
-    margin: 40px auto;
-    padding: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    border-radius: 16px;
-    box-shadow: 0 8px 32px rgba(0,0,0,0.3);
-}
-
-button {
-    padding: 12px 24px;
-    font-size: 1.1rem;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.3s;
-}
-
-.back-button { background: #6c757d; color: white; }
-.back-button:hover { background: #5a6268; }
-
-.clear-button { background: #dc3545; color: white; }
-.clear-button:hover { background: #c82333; }
-
-.save-pdf-button, .knockout-button { background: #28a745; color: white; }
-.save-pdf-button:hover, .knockout-button:hover { background: #218838; }
 
         h1 {
-            font-size: 4rem;
-            margin: 20px 0;
-            text-shadow: 2px 2px 8px rgba(0,0,0,0.8);
+            font-size: 3.6rem;
+            font-weight: 800;
+            margin: 16px 0;
+            background: linear-gradient(135deg, #fff 30%, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            text-shadow: none;
         }
 
         .tagline {
-            font-size: 1.8rem;
-            margin-bottom: 40px;
+            font-size: 1.4rem;
+            font-weight: 400;
+            color: rgba(255,255,255,0.85);
+            margin-bottom: 32px;
+            letter-spacing: 0.5px;
         }
 
-        .create-btn {
-            padding: 20px 50px;
-            font-size: 1.8rem;
-            background-color: #28a745;
-            color: white;
-            border: none;
+        .trophy {
+            width: 180px;
+            margin: 24px 0;
+            filter: drop-shadow(0 8px 24px rgba(255,215,0,0.3));
             border-radius: 12px;
-            cursor: pointer;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
-            transition: all 0.3s;
-        }
-
-        .create-btn:hover {
-            background-color: #218838;
-            transform: translateY(-5px);
         }
 
         .countdown {
-            font-size: 2rem;
-            margin: 40px 0;
-            background: rgba(0,0,0,0.5);
-            padding: 20px;
-            border-radius: 12px;
+            font-size: 1.6rem;
+            font-weight: 700;
+            margin: 32px 0;
+            background: rgba(255,215,0,0.12);
+            border: 1px solid rgba(255,215,0,0.3);
+            padding: 18px 32px;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
+            color: #ffd700;
+            letter-spacing: 1px;
         }
 
+        .create-btn {
+            display: inline-block;
+            padding: 20px 56px;
+            font-family: 'Outfit', sans-serif;
+            font-size: 1.6rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e1a;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255,215,0,0.35);
+            transition: all 0.3s ease;
+            text-decoration: none;
+            letter-spacing: 0.5px;
+        }
+
+        .create-btn:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(255,215,0,0.5);
+            background: linear-gradient(135deg, #ffe44d, #ffbb33);
+        }
+
+        /* ── Content Section ── */
         .content {
             width: 100%;
-            max-width: 1200px;
-            padding: 60px 20px;
-            background: white;
+            max-width: 1100px;
+            margin: 0 auto;
+            padding: 80px 24px;
+            color: #e0e6ed;
             text-align: center;
         }
 
+        .content h2 {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #fff;
+            margin-bottom: 12px;
+        }
+
+        .content > p {
+            font-size: 1.15rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 16px;
+        }
+
+        /* ── Odds Grid ── */
         .odds-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
             margin: 40px 0;
         }
 
         .odd-card {
-            background: #f8f9fa;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            background: linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02));
+            border: 1px solid rgba(255,255,255,0.1);
+            padding: 28px 16px;
+            border-radius: 16px;
+            backdrop-filter: blur(6px);
+            transition: all 0.3s ease;
         }
 
+        .odd-card:hover {
+            transform: translateY(-6px);
+            border-color: #ffd700;
+            box-shadow: 0 8px 30px rgba(255,215,0,0.15);
+        }
+
+        .odd-card strong {
+            display: block;
+            font-size: 1.2rem;
+            color: #ffd700;
+            margin-bottom: 8px;
+        }
+
+        /* ── Buttons ── */
+        .back-btn {
+            display: inline-block;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e1a;
+            padding: 14px 36px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.1rem;
+            box-shadow: 0 6px 20px rgba(255,215,0,0.25);
+            transition: all 0.3s ease;
+            border: none;
+        }
+
+        .back-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 10px 30px rgba(255,215,0,0.4);
+        }
+
+        /* ── Stadiums ── */
         .stadiums-img {
             width: 100%;
             max-width: 800px;
-            border-radius: 12px;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+            border-radius: 20px;
+            box-shadow: 0 12px 40px rgba(0,0,0,0.5);
             margin: 40px 0;
+            border: 1px solid rgba(255,255,255,0.08);
+        }
+
+        /* ── Schedule ── */
+        .schedule-section {
+            margin-top: 80px;
+        }
+
+        .schedule-section h2 {
+            font-size: 2.2rem;
+            margin-bottom: 12px;
+        }
+
+        .schedule-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 16px;
+            max-width: 1000px;
+            margin: 40px auto 0;
+        }
+
+        .schedule-card {
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.08);
+            padding: 28px 20px;
+            border-radius: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .schedule-card:hover {
+            border-color: rgba(255,215,0,0.3);
+            transform: translateY(-4px);
+        }
+
+        .schedule-card strong {
+            color: #ffd700;
+            display: block;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+
+        .schedule-link {
+            display: inline-block;
+            margin-top: 40px;
+            padding: 16px 36px;
+            background: linear-gradient(135deg, #0066cc, #0044aa);
+            color: white;
+            text-decoration: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .schedule-link:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0,102,204,0.4);
+        }
+
+        /* ── Footer ── */
+        .footer {
+            margin-top: 80px;
+            padding-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.08);
+            color: rgba(255,255,255,0.5);
+            font-size: 0.95rem;
+        }
+
+        .footer p { margin-bottom: 12px; }
+
+        /* ── Bouncing Ball ── */
+        #bouncingBall {
+            position: fixed;
+            width: 50px;
+            height: 50px;
+            bottom: 20px;
+            right: 20px;
+            pointer-events: none;
+            z-index: 9999;
+            animation: bounce 8s infinite linear;
+            filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.5));
+        }
+
+        #bouncingBall img {
+            width: 100%;
+            height: 100%;
+            animation: roll 2s infinite linear;
+        }
+
+        @keyframes bounce {
+            0% { bottom: 20px; right: 20px; }
+            25% { bottom: 20px; right: calc(100% - 70px); }
+            50% { bottom: calc(100% - 70px); right: calc(100% - 70px); }
+            75% { bottom: calc(100% - 70px); right: 20px; }
+            100% { bottom: 20px; right: 20px; }
+        }
+
+        @keyframes roll {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 600px) {
+            h1 { font-size: 2.2rem; }
+            .tagline { font-size: 1.1rem; }
+            .countdown { font-size: 1.2rem; padding: 14px 20px; }
+            .create-btn { font-size: 1.3rem; padding: 16px 40px; }
+            .content { padding: 40px 16px; }
         }
     </style>
 </head>
@@ -195,14 +306,14 @@ button {
         <div class="hero-content">
             <img class="logo" src="https://a57.foxsports.com/statics.foxsports.com/www.foxsports.com/content/uploads/2023/05/1280/960/IMG_6227.png?ve=1&tl=1" alt="FIFA World Cup 2026 Logo">
             <h1>FIFA World Cup 2026 Bracket Maker</h1>
-            <p class="tagline">Predict the Champion • 48 Teams • 3 Host Countries</p>
-            
+            <p class="tagline">Predict the Champion &bull; 48 Teams &bull; 3 Host Countries</p>
+
             <div class="countdown" id="countdown">
                 Counting down to kickoff...
             </div>
-            
+
             <img class="trophy" src="https://media.nbcsportsphiladelphia.com/2023/05/getty-fifa-world-cup-trophy_11.jpg?quality=85&strip=all&resize=1200%2C675" alt="World Cup Trophy">
-            
+
             <button class="create-btn" onclick="window.location.href='bracket.html'">Create Your Bracket</button>
         </div>
     </div>
@@ -210,79 +321,76 @@ button {
     <div class="content">
         <h2>Current Betting Favorites (as of January 2026)</h2>
         <p>Spain lead after their strong form and favorable group. Can anyone stop them?</p>
-        
+
         <div class="odds-grid">
-            <div class="odd-card"><strong>Spain</strong><br>+450</div>
-            <div class="odd-card"><strong>England</strong><br>+550 to +700</div>
-            <div class="odd-card"><strong>France</strong><br>+650 to +750</div>
-            <div class="odd-card"><strong>Brazil</strong><br>+700 to +800</div>
-            <div class="odd-card"><strong>Argentina</strong><br>+800</div>
-            <div class="odd-card"><strong>Portugal</strong><br>+1000 to +1400</div>
+            <div class="odd-card"><strong>Spain</strong>+450</div>
+            <div class="odd-card"><strong>England</strong>+550 to +700</div>
+            <div class="odd-card"><strong>France</strong>+650 to +750</div>
+            <div class="odd-card"><strong>Brazil</strong>+700 to +800</div>
+            <div class="odd-card"><strong>Argentina</strong>+800</div>
+            <div class="odd-card"><strong>Portugal</strong>+1000 to +1400</div>
         </div>
-        
+
         <p>Think you know better? Build your bracket and prove it!</p>
-        <p>View ALL BRACKETS here!</p> 
-        <a href="https://docs.google.com/spreadsheets/d/1BXBH7XiuWSzuQEw8OGeb7Wd0GF1zqV9EoeWYfKU7Tj8/edit?resourcekey=&gid=1463094864#gid=1463094864" class="back-btn">ALL BRACKETS!</a>      
-        <p>A sampling of the various stadiums this year.</p>
+        <p style="margin-top: 40px;">A sampling of the various stadiums this year.</p>
         <img class="stadiums-img" src="https://images.adsttc.com/media/images/639e/7c2b/a452/0802/91ad/503a/large_jpg/explore-the-full-list-of-football-stadiums-for-the-2026-fifa-world-cup-in-united-states-mexico-and-canada_17.jpg?1671330869" alt="2026 World Cup Host Stadiums">
 
-        <div class="schedule-section" style="margin-top: 60px; text-align: center;">
-    <h2 style="font-size: 2.5rem; margin-bottom: 20px;">2026 World Cup Schedule Overview</h2>
-    <p style="font-size: 1.2rem; margin-bottom: 40px;">104 matches from June 11 to July 19, 2026</p>
-    
-    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; max-width: 1000px; margin: 0 auto;">
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Opening Match</strong><br>
-            June 11, 2026<br>
-            Mexico vs South Africa<br>
-            Estadio Azteca, Mexico City
+        <div class="schedule-section">
+            <h2>2026 World Cup Schedule Overview</h2>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 32px;">104 matches from June 11 to July 19, 2026</p>
+
+            <div class="schedule-grid">
+                <div class="schedule-card">
+                    <strong>Opening Match</strong>
+                    June 11, 2026<br>
+                    Mexico vs South Africa<br>
+                    Estadio Azteca, Mexico City
+                </div>
+                <div class="schedule-card">
+                    <strong>Group Stage</strong>
+                    June 11 &ndash; June 27, 2026<br>
+                    72 matches across 12 groups
+                </div>
+                <div class="schedule-card">
+                    <strong>Round of 32</strong>
+                    June 28 &ndash; July 3, 2026
+                </div>
+                <div class="schedule-card">
+                    <strong>Round of 16</strong>
+                    July 4 &ndash; July 7, 2026
+                </div>
+                <div class="schedule-card">
+                    <strong>Quarterfinals</strong>
+                    July 9 &ndash; July 11, 2026
+                </div>
+                <div class="schedule-card">
+                    <strong>Semifinals</strong>
+                    July 14 &ndash; July 15, 2026
+                </div>
+                <div class="schedule-card">
+                    <strong>Third-Place Match</strong>
+                    July 18, 2026
+                </div>
+                <div class="schedule-card">
+                    <strong>Final</strong>
+                    July 19, 2026<br>
+                    MetLife Stadium, New York/New Jersey
+                </div>
+            </div>
+
+            <a href="https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf" target="_blank" class="schedule-link">
+                Download Full Official Schedule PDF
+            </a>
         </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Group Stage</strong><br>
-            June 11 – June 27, 2026<br>
-            72 matches across 12 groups
+
+        <div class="footer">
+            <p>Made by Oscar</p>
+            <p>Contact Oscar at oscaremoran20@gmail.com</p>
+            <p><a href="index.html" class="back-btn">To Oscar's Portfolio</a></p>
         </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Round of 32</strong><br>
-            June 28 – July 3, 2026
-        </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Round of 16</strong><br>
-            July 4 – July 7, 2026
-        </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Quarterfinals</strong><br>
-            July 9 – July 11, 2026
-        </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Semifinals</strong><br>
-            July 14 – July 15, 2026
-        </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Third-Place Match</strong><br>
-            July 18, 2026
-        </div>
-        <div style="background: #fff; padding: 30px; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);">
-            <strong>Final</strong><br>
-            July 19, 2026<br>
-            MetLife Stadium, New York/New Jersey
-        </div>
-    </div>
-    
-    <p style="margin-top: 40px;">
-        <a href="https://digitalhub.fifa.com/m/1be9ce37eb98fcc5/original/FWC26-Match-Schedule_English.pdf" target="_blank" 
-           style="padding: 15px 30px; background: #0066cc; color: white; text-decoration: none; border-radius: 8px; font-size: 1.2rem;">
-            Download Full Official Schedule PDF
-        </a>
-    </p>
-</div>
-        <p>Made by Oscar</p>
-        <p>Contact Oscar at oscaremoran20@gmail.com</p>
-        <p>Go to his Portfolio here:     <a href="index.html" class="back-btn">To Oscar's Portfolio</a> </p>
     </div>
 
     <script>
-        // Countdown to June 11, 2026
         const countdownDate = new Date('2026-06-11T00:00:00').getTime();
 
         function updateCountdown() {
@@ -294,7 +402,7 @@ button {
             const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
             const seconds = Math.floor((distance % (1000 * 60)) / 1000);
 
-            document.getElementById('countdown').innerHTML = 
+            document.getElementById('countdown').innerHTML =
                 `${days} days ${hours}h ${minutes}m ${seconds}s until kickoff!`;
 
             if (distance < 0) {
@@ -305,46 +413,9 @@ button {
         setInterval(updateCountdown, 1000);
         updateCountdown();
     </script>
-<div id="bouncingBall">
-    <img src="https://www.freeiconspng.com/thumbs/ball-icon-png/soccer-ball-icon-png-28.png" alt="Soccer Ball">
-</div>
 
-<style>
-    #bouncingBall {
-        position: fixed;
-        width: 60px;
-        height: 60px;
-        bottom: 20px;
-        right: 20px;
-        pointer-events: none; /* Doesn't block clicks */
-        z-index: 9999;
-        animation: bounce 8s infinite linear;
-        filter: drop-shadow(3px 3px 6px rgba(0,0,0,0.4));
-    }
-
-    #bouncingBall img {
-        width: 100%;
-        height: 100%;
-        animation: roll 2s infinite linear;
-    }
-
-    @keyframes bounce {
-        0% { bottom: 20px; right: 20px; }
-        25% { bottom: 20px; right: calc(100% - 80px); }
-        50% { bottom: calc(100% - 80px); right: calc(100% - 80px); }
-        75% { bottom: calc(100% - 80px); right: 20px; }
-        100% { bottom: 20px; right: 20px; }
-    }
-
-    @keyframes roll {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-    }
-
-    /* Pause animation when hovering (optional fun touch) */
-    #bouncingBall:hover {
-        animation-play-state: paused;
-    }
-</style>
+    <div id="bouncingBall">
+        <img src="https://www.freeiconspng.com/thumbs/ball-icon-png/soccer-ball-icon-png-28.png" alt="Soccer Ball">
+    </div>
 </body>
 </html>

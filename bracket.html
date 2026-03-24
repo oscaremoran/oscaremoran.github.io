@@ -84,15 +84,38 @@
             transform: translateY(-2px);
         }
 
+        /* ── Two-Column Layout ── */
+        .main-layout {
+            display: flex;
+            gap: 28px;
+            max-width: 1400px;
+            width: 100%;
+            margin: 24px auto 0;
+            padding: 0 24px;
+            align-items: flex-start;
+        }
+
+        .left-panel {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .right-panel {
+            width: 420px;
+            flex-shrink: 0;
+            position: sticky;
+            top: 90px;
+            max-height: calc(100vh - 110px);
+            overflow-y: auto;
+        }
+
         /* ── Group Grid ── */
         .group-list {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-            gap: 18px;
-            max-width: 1200px;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
             width: 100%;
-            margin: 40px auto;
-            padding: 0 24px;
+            margin-top: 20px;
         }
 
         .group-button {
@@ -118,14 +141,12 @@
 
         /* ── Ranking Section ── */
         #ranking-section {
-            margin: 40px auto;
-            padding: 40px;
+            padding: 32px;
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(12px);
             border-radius: 24px;
             box-shadow: 0 12px 48px rgba(0,0,0,0.4);
-            max-width: 600px;
-            width: calc(100% - 48px);
+            width: 100%;
             display: none;
             border-top: 4px solid #ffd700;
             color: #1a1a2e;
@@ -197,10 +218,7 @@
 
         /* ── Progress Tracker ── */
         .progress-tracker {
-            max-width: 1200px;
             width: 100%;
-            margin: 24px auto 0;
-            padding: 0 24px;
             display: flex;
             gap: 16px;
             flex-wrap: wrap;
@@ -316,13 +334,23 @@
         }
 
         /* ── Responsive ── */
+        @media (max-width: 900px) {
+            .main-layout {
+                flex-direction: column;
+            }
+            .right-panel {
+                width: 100%;
+                position: static;
+                max-height: none;
+            }
+        }
+
         @media (max-width: 600px) {
             .header { padding: 14px 16px; }
             .header h1 { font-size: 1.4rem; }
-            .group-list { padding: 0 12px; gap: 12px; }
+            .group-list { gap: 12px; }
             .group-button { padding: 24px 12px; font-size: 1.2rem; }
-            #ranking-section { padding: 24px; margin: 24px auto; }
-            .progress-tracker { padding: 0 12px; }
+            #ranking-section { padding: 20px; }
             .match-row { flex-direction: column; align-items: flex-start; gap: 4px; }
             .match-venue { text-align: left; }
         }
@@ -336,31 +364,37 @@
         <button class="clear-button" id="clearBtn">Clear Bracket</button>
     </div>
 
-    <div class="progress-tracker">
-        <div class="progress-card">
-            <div class="progress-label">Groups Ranked</div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill groups" id="groupsBar" style="width:0%"></div></div>
-            <div class="progress-count"><span id="groupsCount">0</span> <span>/ 12</span></div>
-        </div>
-        <div class="progress-card">
-            <div class="progress-label">3rd Place Teams Selected</div>
-            <div class="progress-bar-bg"><div class="progress-bar-fill thirds" id="thirdsBar" style="width:0%"></div></div>
-            <div class="progress-count"><span id="thirdsCount">0</span> <span>/ 8</span></div>
-        </div>
-    </div>
+    <div class="main-layout">
+        <div class="left-panel">
+            <div class="progress-tracker">
+                <div class="progress-card">
+                    <div class="progress-label">Groups Ranked</div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill groups" id="groupsBar" style="width:0%"></div></div>
+                    <div class="progress-count"><span id="groupsCount">0</span> <span>/ 12</span></div>
+                </div>
+                <div class="progress-card">
+                    <div class="progress-label">3rd Place Teams Selected</div>
+                    <div class="progress-bar-bg"><div class="progress-bar-fill thirds" id="thirdsBar" style="width:0%"></div></div>
+                    <div class="progress-count"><span id="thirdsCount">0</span> <span>/ 8</span></div>
+                </div>
+            </div>
 
-    <div class="group-list" id="groupList"></div>
+            <div class="group-list" id="groupList"></div>
+        </div>
 
-    <div id="ranking-section">
-        <h2 id="selected-group-title"></h2>
-        <ol class="ranking-list" id="ranking-list"></ol>
-        <p style="text-align: center; margin-top: 20px;">
-            Drag and drop to predict standings.<br>
-            Click the <strong>3rd place</strong> team to select/deselect it as one of the 8 best third-place teams advancing (green = selected).
-        </p>
-        <div class="schedule-info" id="schedule-info" style="display:none;">
-            <h3 id="schedule-title"></h3>
-            <div class="match-list" id="match-list"></div>
+        <div class="right-panel">
+            <div id="ranking-section">
+                <h2 id="selected-group-title"></h2>
+                <ol class="ranking-list" id="ranking-list"></ol>
+                <p style="text-align: center; margin-top: 20px;">
+                    Drag and drop to predict standings.<br>
+                    Click the <strong>3rd place</strong> team to select/deselect it as one of the 8 best third-place teams advancing (green = selected).
+                </p>
+                <div class="schedule-info" id="schedule-info" style="display:none;">
+                    <h3 id="schedule-title"></h3>
+                    <div class="match-list" id="match-list"></div>
+                </div>
+            </div>
         </div>
     </div>
 
@@ -509,7 +543,9 @@
             scheduleInfo.style.display = 'block';
 
             rankingSection.style.display = 'block';
-            rankingSection.scrollIntoView({ behavior: 'smooth' });
+            if (window.innerWidth <= 900) {
+                rankingSection.scrollIntoView({ behavior: 'smooth' });
+            }
         }
 
         function toggleThirdPlace(e) {

@@ -275,49 +275,71 @@
             border-radius: 50%;
         }
 
-        /* ── Goal ── */
-        #goal {
+        /* ── Goal (3D perspective) ── */
+        #goal-wrapper {
             position: fixed;
-            top: 0;
+            top: -30px;
             left: 50%;
-            transform: translateX(-50%);
-            width: 280px;
-            height: 60px;
-            border: none;
+            transform: translateX(-50%) perspective(600px) rotateX(-25deg);
+            transform-origin: center top;
+            width: 300px;
+            height: 140px;
             z-index: 9998;
             pointer-events: none;
-            background: repeating-conic-gradient(rgba(255,255,255,0.12) 0% 25%, transparent 0% 50%) 0 0 / 14px 14px;
+        }
+
+        /* Net - back panel */
+        #goal-net-back {
+            position: absolute;
+            top: 0;
+            left: 10px;
+            right: 10px;
+            height: 80px;
+            background: repeating-conic-gradient(rgba(255,255,255,0.1) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px;
+            border: 2px solid rgba(255,255,255,0.15);
+            border-bottom: none;
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* Net - bottom panel (floor of goal) */
+        #goal-net-floor {
+            position: absolute;
+            top: 80px;
+            left: 10px;
+            right: 10px;
+            height: 50px;
+            background: repeating-conic-gradient(rgba(255,255,255,0.06) 0% 25%, transparent 0% 50%) 0 0 / 12px 12px;
+            border: 2px solid rgba(255,255,255,0.1);
+            border-top: none;
         }
 
         /* Crossbar */
         #goal-crossbar {
-            position: fixed;
-            top: 56px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 292px;
-            height: 10px;
-            background: linear-gradient(180deg, #fff 0%, #ccc 100%);
-            border-radius: 5px;
-            z-index: 10000;
-            pointer-events: none;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
+            position: absolute;
+            bottom: 58px;
+            left: 0;
+            width: 300px;
+            height: 12px;
+            background: linear-gradient(180deg, #fff 0%, #ddd 40%, #aaa 100%);
+            border-radius: 6px;
+            z-index: 10001;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5), inset 0 2px 2px rgba(255,255,255,0.6);
         }
 
+        /* Posts */
         #goal-post-left, #goal-post-right {
-            position: fixed;
-            top: 0;
-            width: 10px;
-            height: 66px;
-            background: linear-gradient(90deg, #ccc 0%, #fff 50%, #ccc 100%);
-            z-index: 10000;
-            pointer-events: none;
-            border-radius: 0 0 4px 4px;
-            box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+            position: absolute;
+            top: 70px;
+            width: 12px;
+            height: 72px;
+            background: linear-gradient(90deg, #aaa 0%, #fff 40%, #ddd 80%, #aaa 100%);
+            z-index: 10001;
+            border-radius: 6px;
+            box-shadow: 2px 4px 10px rgba(0,0,0,0.4), inset 1px 0 2px rgba(255,255,255,0.5);
         }
 
-        #goal-post-left { left: calc(50% - 146px); }
-        #goal-post-right { left: calc(50% + 136px); }
+        #goal-post-left { left: 0; }
+        #goal-post-right { right: 0; }
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
@@ -442,10 +464,13 @@
         updateCountdown();
     </script>
 
-    <div id="goal"></div>
-    <div id="goal-crossbar"></div>
-    <div id="goal-post-left"></div>
-    <div id="goal-post-right"></div>
+    <div id="goal-wrapper">
+        <div id="goal-net-back"></div>
+        <div id="goal-net-floor"></div>
+        <div id="goal-crossbar"></div>
+        <div id="goal-post-left"></div>
+        <div id="goal-post-right"></div>
+    </div>
     <div id="bouncingBall">
         <img src="https://www.freeiconspng.com/thumbs/ball-icon-png/soccer-ball-icon-png-28.png" alt="Soccer Ball">
     </div>
@@ -530,18 +555,21 @@
                     // Pause in goal
                     await new Promise(r => setTimeout(r, 1500));
                 } else if (outcome < 0.666) {
-                    // Bounce off post corner, then bounce off screen edge, land at bottom
-                    const hitLeft = Math.random() < 0.5;
-                    const postX = hitLeft ? (w / 2 - 146 - ballSize) : (w / 2 + 136);
-                    const postY = 56 - ballSize / 2;
-                    await animateArc(startX, startY, postX, postY, -80, 1400);
-                    // Deflect to screen edge
-                    const edgeX = hitLeft ? 0 : w - ballSize;
-                    const edgeY = h * 0.3;
-                    await animateArc(postX, postY, edgeX, edgeY, postY - 40, 700);
-                    // Bounce off edge back down to bottom
-                    const landX = w / 2 - ballSize / 2 + (hitLeft ? 100 : -100);
-                    await animateArc(edgeX, edgeY, landX, h - ballSize, edgeY - 50, 1000);
+                    // Hit the crossbar, bounce straight back down
+                    const barX = w / 2 - ballSize / 2 + (Math.random() - 0.5) * 200;
+                    const barY = 50; // crossbar visual position
+                    await animateArc(startX, startY, barX, barY, -60, 1400);
+                    // Bounce off crossbar back down, slight sideways drift
+                    const drift = (Math.random() - 0.5) * 300;
+                    const bounceEdge = Math.random() < 0.5;
+                    const landX = bounceEdge ? (drift > 0 ? w - ballSize : 0) : barX + drift;
+                    const landY = bounceEdge ? h * 0.5 : h - ballSize;
+                    await animateArc(barX, barY, landX, landY, barY - 80, 1200);
+                    if (bounceEdge) {
+                        // Bounce off edge back to bottom
+                        const finalX = w / 2 - ballSize / 2 + (landX < w / 2 ? 120 : -120);
+                        await animateArc(landX, landY, finalX, h - ballSize, landY - 60, 900);
+                    }
                     await new Promise(r => setTimeout(r, 800));
                 } else {
                     // Miss completely - hits edge of screen, bounces back down

@@ -1,0 +1,25 @@
+.DS_Store
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+venv/
+env/
+ENV/
+*.egg-info/
+dist/
+build/
+*.so
+*.egg
+
+# Don't upload raw Python game files to a GitHub Pages site
+*.py
+DungeonDelver/
+mathgame/
+portfolio/
+save.json
+saves.txt
+*.json
+
+# Large files (uncomment if you don't want game.zip on GitHub)
+# *.zip

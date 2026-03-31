@@ -112,8 +112,8 @@
         .bracket-container {
             position: relative;
             display: flex;
-            justify-content: center;
-            overflow-x: auto;
+            justify-content: flex-start;
+            overflow: auto;
             padding: 40px 20px;
             width: 100%;
         }
@@ -123,9 +123,9 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            min-height: 900px;
-            margin: 0 70px;
+            margin: 0 100px;
             position: relative;
+            flex-shrink: 0;
         }
 
         .round-title {
@@ -147,7 +147,6 @@
             width: 240px;
             box-shadow: 0 4px 16px rgba(0,0,0,0.2);
             overflow: hidden;
-            margin: 10px 0;
             border: 1px solid rgba(255,255,255,0.15);
             transition: all 0.3s ease;
         }
@@ -192,9 +191,18 @@
         /* ── Connectors ── */
         .connector {
             position: absolute;
-            background-color: rgba(255,215,0,0.4);
+            background-color: rgba(0,102,204,0.6);
             z-index: 1;
             pointer-events: none;
+        }
+
+        .team-flag {
+            width: 24px;
+            height: 18px;
+            vertical-align: middle;
+            margin-right: 6px;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
         /* ── Warning ── */
@@ -238,6 +246,27 @@
     </div>
 
     <script>
+        const countryFlags = {
+            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr',
+            'Canada': 'ca', 'Qatar': 'qa', 'Switzerland': 'ch',
+            'Brazil': 'br', 'Morocco': 'ma', 'Haiti': 'ht', 'Scotland': 'gb-sct',
+            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au',
+            'Germany': 'de', 'Curaçao': 'cw', 'Ivory Coast': 'ci', 'Ecuador': 'ec',
+            'Netherlands': 'nl', 'Japan': 'jp', 'Tunisia': 'tn',
+            'Belgium': 'be', 'Egypt': 'eg', 'Iran': 'ir', 'New Zealand': 'nz',
+            'Spain': 'es', 'Cabo Verde': 'cv', 'Saudi Arabia': 'sa', 'Uruguay': 'uy',
+            'France': 'fr', 'Senegal': 'sn', 'Norway': 'no',
+            'Argentina': 'ar', 'Algeria': 'dz', 'Austria': 'at', 'Jordan': 'jo',
+            'Portugal': 'pt', 'Uzbekistan': 'uz', 'Colombia': 'co',
+            'England': 'gb-eng', 'Croatia': 'hr', 'Ghana': 'gh', 'Panama': 'pa'
+        };
+
+        function flagImg(team) {
+            const code = countryFlags[team];
+            if (!code) return '';
+            return `<img class="team-flag" src="https://flagcdn.com/24x18/${code}.png" alt="">`;
+        }
+
         const groups = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
             'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
@@ -315,17 +344,20 @@
 
         let allMatchups = [];
 
+        const BASE_GAP = 16; // gap between matchups in round 0
+
         function createBracket() {
             const container = document.getElementById('bracket');
             container.innerHTML = '';
-            document.querySelectorAll('.connector').forEach(el => el.remove());
             allMatchups = [];
 
             let teamsForNextRound = roundOf32Matchups.slice();
 
+            // Step 1: Build all rounds into the DOM (no absolute positioning yet)
             rounds.forEach((roundName, roundIdx) => {
                 const roundDiv = document.createElement('div');
                 roundDiv.className = 'round';
+                roundDiv.dataset.round = roundIdx;
 
                 const title = document.createElement('div');
                 title.className = 'round-title';
@@ -344,12 +376,12 @@
 
                     const team1 = document.createElement('div');
                     team1.className = 'team';
-                    team1.textContent = team1Text;
+                    team1.innerHTML = flagImg(team1Text) + team1Text;
                     if (team1Text.includes('#') || team1Text === 'TBD') team1.classList.add('placeholder');
 
                     const team2 = document.createElement('div');
                     team2.className = 'team';
-                    team2.textContent = team2Text;
+                    team2.innerHTML = flagImg(team2Text) + team2Text;
                     if (team2Text.includes('#') || team2Text === 'TBD') team2.classList.add('placeholder');
 
                     const matchKey = roundIdx * 100 + m;
@@ -378,45 +410,113 @@
                 teamsForNextRound = nextTeams;
             });
 
-            requestAnimationFrame(drawConnectors);
+            // Step 2: After DOM is laid out, measure actual matchup height then reposition
+            requestAnimationFrame(positionAndConnect);
+        }
+
+        function positionAndConnect() {
+            const bracketEl = document.getElementById('bracket');
+
+            // Measure the actual height of a matchup card
+            const sampleMatchup = allMatchups[0][0];
+            const matchupH = sampleMatchup.offsetHeight;
+
+            // Now switch all rounds to relative positioning with calculated spacing
+            // Round 0: each matchup gets a fixed amount of vertical space
+            // Round N: each matchup is centered between its two feeder matchups
+
+            // Calculate Y positions for each matchup (relative to the round's content start)
+            const yPositions = []; // yPositions[round][match] = top offset
+
+            // Round 0: evenly spaced
+            const round0Y = [];
+            for (let m = 0; m < matchesPerRound[0]; m++) {
+                round0Y.push(m * (matchupH + BASE_GAP));
+            }
+            yPositions.push(round0Y);
+
+            // Later rounds: centered between feeders
+            for (let r = 1; r < rounds.length; r++) {
+                const roundY = [];
+                for (let m = 0; m < matchesPerRound[r]; m++) {
+                    const topY = yPositions[r - 1][m * 2];
+                    const botY = yPositions[r - 1][m * 2 + 1];
+                    // Center this matchup between the two feeders (center of card, not top)
+                    const topCenter = topY + matchupH / 2;
+                    const botCenter = botY + matchupH / 2;
+                    roundY.push((topCenter + botCenter) / 2 - matchupH / 2);
+                }
+                yPositions.push(roundY);
+            }
+
+            const totalHeight = round0Y[round0Y.length - 1] + matchupH;
+            const titleOffset = 60; // space for round title
+
+            // Apply positions
+            for (let r = 0; r < allMatchups.length; r++) {
+                const roundDiv = allMatchups[r][0].parentElement;
+                roundDiv.style.position = 'relative';
+                roundDiv.style.height = `${totalHeight + titleOffset}px`;
+                roundDiv.style.justifyContent = 'flex-start';
+
+                // Position the title
+                const title = roundDiv.querySelector('.round-title');
+                title.style.marginBottom = '0';
+
+                for (let m = 0; m < allMatchups[r].length; m++) {
+                    const matchup = allMatchups[r][m];
+                    matchup.style.position = 'absolute';
+                    matchup.style.top = `${titleOffset + yPositions[r][m]}px`;
+                    matchup.style.left = '50%';
+                    matchup.style.transform = 'translateX(-50%)';
+                }
+            }
+
+            // Step 3: Draw connectors
+            drawConnectors();
         }
 
         function drawConnectors() {
-            const containerRect = document.getElementById('bracket').getBoundingClientRect();
+            const bracketEl = document.getElementById('bracket');
+            const containerRect = bracketEl.getBoundingClientRect();
+            const scrollLeft = bracketEl.scrollLeft;
+            const scrollTop = bracketEl.scrollTop;
+
+            function addLine(x, y, w, h) {
+                const line = document.createElement('div');
+                line.className = 'connector';
+                line.style.left = `${x}px`;
+                line.style.top = `${y}px`;
+                line.style.width = `${w}px`;
+                line.style.height = `${h}px`;
+                bracketEl.appendChild(line);
+            }
 
             for (let r = 0; r < allMatchups.length - 1; r++) {
                 const currentRound = allMatchups[r];
                 const nextRound = allMatchups[r + 1];
 
-                currentRound.forEach((matchup, i) => {
-                    const matchupRect = matchup.getBoundingClientRect();
-                    const centerY = matchupRect.top + matchupRect.height / 2 - containerRect.top;
-                    const startX = matchupRect.right - containerRect.left + 20;
+                for (let i = 0; i < currentRound.length; i += 2) {
+                    const topMatchup = currentRound[i];
+                    const botMatchup = currentRound[i + 1];
+                    const nextMatchup = nextRound[i / 2];
 
-                    const nextMatchIndex = Math.floor(i / 2);
-                    const nextMatchup = nextRound[nextMatchIndex];
+                    const topRect = topMatchup.getBoundingClientRect();
+                    const botRect = botMatchup.getBoundingClientRect();
                     const nextRect = nextMatchup.getBoundingClientRect();
-                    const endX = nextRect.left - containerRect.left - 20;
-                    const endY = nextRect.top + nextRect.height / 2 - containerRect.top;
 
-                    const hLine = document.createElement('div');
-                    hLine.className = 'connector';
-                    hLine.style.left = `${startX}px`;
-                    hLine.style.top = `${centerY}px`;
-                    hLine.style.width = `${endX - startX}px`;
-                    hLine.style.height = '2px';
-                    container.appendChild(hLine);
+                    const topY = topRect.top + topRect.height / 2 - containerRect.top + scrollTop;
+                    const botY = botRect.top + botRect.height / 2 - containerRect.top + scrollTop;
+                    const startX = topRect.right - containerRect.left + scrollLeft - 115;
+                    const endX = nextRect.left - containerRect.left + scrollLeft - 115;
+                    const midX = startX + (endX - startX) / 2;
+                    const nextY = nextRect.top + nextRect.height / 2 - containerRect.top + scrollTop;
 
-                    if (Math.abs(centerY - endY) > 2) {
-                        const vLine = document.createElement('div');
-                        vLine.className = 'connector';
-                        vLine.style.left = `${endX}px`;
-                        vLine.style.top = `${Math.min(centerY, endY)}px`;
-                        vLine.style.height = `${Math.abs(centerY - endY)}px`;
-                        vLine.style.width = '2px';
-                        container.appendChild(vLine);
-                    }
-                });
+                    addLine(startX, topY, midX - startX, 2);
+                    addLine(startX, botY, midX - startX, 2);
+                    addLine(midX, topY, 2, botY - topY + 2);
+                    addLine(midX, nextY, endX - midX, 2);
+                }
             }
         }
 

@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Create Bracket - FIFA World Cup 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -84,25 +83,28 @@
             transform: translateY(-2px);
         }
 
-        /* ── Stacked Layout ── */
+        /* ── Side-by-Side Layout ── */
         .main-layout {
             display: flex;
-            flex-direction: column;
+            flex-direction: row;
             max-width: 1600px;
             width: 100%;
             margin: 24px auto 0;
             padding: 0 24px;
             align-items: flex-start;
+            gap: 32px;
         }
 
         .left-panel {
-            width: 100%;
-            max-width: 700px;
+            flex: 0 0 auto;
+            width: 520px;
         }
 
         .right-panel {
-            width: 100%;
-            margin-top: 28px;
+            flex: 1;
+            min-width: 0;
+            position: sticky;
+            top: 100px;
         }
 
         /* ── Group Grid ── */
@@ -223,64 +225,28 @@
             color: #666;
         }
 
-        /* ── Progress Tracker ── */
-        .progress-tracker {
-            width: 100%;
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
+        .group-button.third-selected {
+            box-shadow: 0 6px 24px rgba(0,30,80,0.4), inset 0 0 0 2px rgba(40,167,69,0.6);
+            border-color: rgba(40,167,69,0.6);
+            background: linear-gradient(135deg, rgba(0,102,204,0.95), rgba(0,60,150,0.98)), linear-gradient(135deg, rgba(40,167,69,0.15), transparent);
         }
 
-        .progress-card {
-            flex: 1;
-            min-width: 220px;
-            background: rgba(6,10,30,0.85);
-            border: 1px solid rgba(255,215,0,0.2);
-            border-radius: 14px;
-            padding: 18px 22px;
-            backdrop-filter: blur(16px);
-            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
-        }
-
-        .progress-label {
-            font-size: 0.9rem;
+        .group-button.third-selected::after {
+            content: '3rd ✓';
+            display: block;
+            font-size: 0.7rem;
             font-weight: 600;
-            color: rgba(255,255,255,0.6);
-            margin-bottom: 10px;
+            color: #5fd87f;
+            margin-top: 4px;
         }
 
-        .progress-bar-bg {
-            width: 100%;
-            height: 10px;
-            background: rgba(255,255,255,0.1);
-            border-radius: 10px;
-            overflow: hidden;
-            margin-bottom: 8px;
-        }
-
-        .progress-bar-fill {
-            height: 100%;
-            border-radius: 10px;
-            transition: width 0.5s ease;
-        }
-
-        .progress-bar-fill.groups {
-            background: linear-gradient(90deg, #0066cc, #00aaff);
-        }
-
-        .progress-bar-fill.thirds {
-            background: linear-gradient(90deg, #28a745, #5fd87f);
-        }
-
-        .progress-count {
-            font-size: 1.1rem;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .progress-count span {
-            color: rgba(255,255,255,0.4);
-            font-weight: 400;
+        .team-flag {
+            width: 24px;
+            height: 18px;
+            vertical-align: middle;
+            margin-right: 8px;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
         /* ── Group Schedule ── */
@@ -342,7 +308,9 @@
 
         /* ── Responsive ── */
         @media (max-width: 900px) {
-            .left-panel { max-width: 100%; }
+            .main-layout { flex-direction: column; }
+            .left-panel { width: 100%; }
+            .right-panel { position: static; }
             .ranking-inner { flex-direction: column; }
         }
 
@@ -367,19 +335,6 @@
 
     <div class="main-layout">
         <div class="left-panel">
-            <div class="progress-tracker">
-                <div class="progress-card">
-                    <div class="progress-label">Groups Ranked</div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill groups" id="groupsBar" style="width:0%"></div></div>
-                    <div class="progress-count"><span id="groupsCount">0</span> <span>/ 12</span></div>
-                </div>
-                <div class="progress-card">
-                    <div class="progress-label">3rd Place Teams Selected</div>
-                    <div class="progress-bar-bg"><div class="progress-bar-fill thirds" id="thirdsBar" style="width:0%"></div></div>
-                    <div class="progress-count"><span id="thirdsCount">0</span> <span>/ 8</span></div>
-                </div>
-            </div>
-
             <div class="group-list" id="groupList"></div>
         </div>
 
@@ -406,6 +361,27 @@
     </div>
 
     <script>
+        const countryFlags = {
+            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr',
+            'Canada': 'ca', 'Qatar': 'qa', 'Switzerland': 'ch',
+            'Brazil': 'br', 'Morocco': 'ma', 'Haiti': 'ht', 'Scotland': 'gb-sct',
+            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au',
+            'Germany': 'de', 'Curaçao': 'cw', 'Ivory Coast': 'ci', 'Ecuador': 'ec',
+            'Netherlands': 'nl', 'Japan': 'jp', 'Tunisia': 'tn',
+            'Belgium': 'be', 'Egypt': 'eg', 'Iran': 'ir', 'New Zealand': 'nz',
+            'Spain': 'es', 'Cabo Verde': 'cv', 'Saudi Arabia': 'sa', 'Uruguay': 'uy',
+            'France': 'fr', 'Senegal': 'sn', 'Norway': 'no',
+            'Argentina': 'ar', 'Algeria': 'dz', 'Austria': 'at', 'Jordan': 'jo',
+            'Portugal': 'pt', 'Uzbekistan': 'uz', 'Colombia': 'co',
+            'England': 'gb-eng', 'Croatia': 'hr', 'Ghana': 'gh', 'Panama': 'pa'
+        };
+
+        function flagImg(team) {
+            const code = countryFlags[team];
+            if (!code) return '';
+            return `<img class="team-flag" src="https://flagcdn.com/24x18/${code}.png" alt="${team} flag">`;
+        }
+
         // Official 2026 World Cup groups (draw from Dec 5, 2025; playoffs March 26-31, 2026)
         const groups = {
             'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
@@ -464,18 +440,11 @@
         }
 
         function updateProgress() {
-            const rankedCount = Object.keys(savedRankings).length;
-            const thirdsCount = selectedThirdPlaces.length;
-
-            document.getElementById('groupsCount').textContent = rankedCount;
-            document.getElementById('thirdsCount').textContent = thirdsCount;
-            document.getElementById('groupsBar').style.width = `${(rankedCount / 12) * 100}%`;
-            document.getElementById('thirdsBar').style.width = `${(thirdsCount / 8) * 100}%`;
-
-            // Mark ranked group buttons
             document.querySelectorAll('.group-button').forEach(btn => {
-                const letter = btn.textContent.replace('Group ', '');
+                const letter = btn.dataset.group;
                 btn.classList.toggle('ranked', !!savedRankings[letter]);
+                const hasThird = selectedThirdPlaces.some(k => k.startsWith(`Group${letter}-`));
+                btn.classList.toggle('third-selected', hasThird);
             });
         }
 
@@ -483,6 +452,7 @@
         Object.keys(groups).sort().forEach(group => {
             const button = document.createElement('button');
             button.className = 'group-button';
+            button.dataset.group = group;
             button.textContent = `Group ${group}`;
             button.addEventListener('click', () => showGroupRanking(group));
             groupList.appendChild(button);
@@ -509,7 +479,7 @@
                 pos.textContent = `${index + 1}.`;
 
                 const teamName = document.createElement('span');
-                teamName.textContent = team;
+                teamName.innerHTML = flagImg(team) + team;
 
                 li.appendChild(pos);
                 li.appendChild(teamName);
@@ -544,7 +514,7 @@
                 }
                 const row = document.createElement('div');
                 row.className = 'match-row';
-                row.innerHTML = `<span class="match-teams">${m.t1} vs ${m.t2}</span><span class="match-venue">${m.venue}</span>`;
+                row.innerHTML = `<span class="match-teams">${flagImg(m.t1)}${m.t1} vs ${flagImg(m.t2)}${m.t2}</span><span class="match-venue">${m.venue}</span>`;
                 matchList.appendChild(row);
             });
             scheduleInfo.style.display = 'block';

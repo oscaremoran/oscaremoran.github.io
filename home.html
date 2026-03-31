@@ -259,37 +259,65 @@
 
         .footer p { margin-bottom: 12px; }
 
-        /* ── Bouncing Ball ── */
+        /* ── Soccer Ball ── */
         #bouncingBall {
             position: fixed;
             width: 50px;
             height: 50px;
-            bottom: 20px;
-            right: 20px;
             pointer-events: none;
             z-index: 9999;
-            animation: bounce 8s infinite linear;
             filter: drop-shadow(2px 2px 6px rgba(0,0,0,0.5));
         }
 
         #bouncingBall img {
             width: 100%;
             height: 100%;
-            animation: roll 2s infinite linear;
+            border-radius: 50%;
         }
 
-        @keyframes bounce {
-            0% { bottom: 20px; right: 20px; }
-            25% { bottom: 20px; right: calc(100% - 70px); }
-            50% { bottom: calc(100% - 70px); right: calc(100% - 70px); }
-            75% { bottom: calc(100% - 70px); right: 20px; }
-            100% { bottom: 20px; right: 20px; }
+        /* ── Goal ── */
+        #goal {
+            position: fixed;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 280px;
+            height: 60px;
+            border: none;
+            z-index: 9998;
+            pointer-events: none;
+            background: repeating-conic-gradient(rgba(255,255,255,0.12) 0% 25%, transparent 0% 50%) 0 0 / 14px 14px;
         }
 
-        @keyframes roll {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+        /* Crossbar */
+        #goal-crossbar {
+            position: fixed;
+            top: 56px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 292px;
+            height: 10px;
+            background: linear-gradient(180deg, #fff 0%, #ccc 100%);
+            border-radius: 5px;
+            z-index: 10000;
+            pointer-events: none;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.4);
         }
+
+        #goal-post-left, #goal-post-right {
+            position: fixed;
+            top: 0;
+            width: 10px;
+            height: 66px;
+            background: linear-gradient(90deg, #ccc 0%, #fff 50%, #ccc 100%);
+            z-index: 10000;
+            pointer-events: none;
+            border-radius: 0 0 4px 4px;
+            box-shadow: 2px 2px 8px rgba(0,0,0,0.3);
+        }
+
+        #goal-post-left { left: calc(50% - 146px); }
+        #goal-post-right { left: calc(50% + 136px); }
 
         /* ── Responsive ── */
         @media (max-width: 600px) {
@@ -414,8 +442,125 @@
         updateCountdown();
     </script>
 
+    <div id="goal"></div>
+    <div id="goal-crossbar"></div>
+    <div id="goal-post-left"></div>
+    <div id="goal-post-right"></div>
     <div id="bouncingBall">
         <img src="https://www.freeiconspng.com/thumbs/ball-icon-png/soccer-ball-icon-png-28.png" alt="Soccer Ball">
     </div>
+
+    <script>
+        (function() {
+            const ball = document.getElementById('bouncingBall');
+            const ballSize = 50;
+            const goalLeft = window.innerWidth / 2 - 80;
+            const goalRight = window.innerWidth / 2 + 80;
+            const goalBottom = 64;
+
+            let rotation = 0;
+
+            function animate(startX, startY, endX, endY, duration) {
+                return new Promise(resolve => {
+                    const start = performance.now();
+                    const dx = endX - startX;
+                    const dy = endY - startY;
+                    const dist = Math.sqrt(dx * dx + dy * dy);
+                    const rotSpeed = dist / duration * 360;
+
+                    function frame(now) {
+                        const t = Math.min((now - start) / duration, 1);
+                        const x = startX + dx * t;
+                        const y = startY + dy * t;
+                        rotation += rotSpeed * (16 / 1000);
+                        ball.style.left = `${x}px`;
+                        ball.style.top = `${y}px`;
+                        ball.querySelector('img').style.transform = `rotate(${rotation}deg)`;
+                        if (t < 1) requestAnimationFrame(frame);
+                        else resolve();
+                    }
+                    requestAnimationFrame(frame);
+                });
+            }
+
+            function animateArc(startX, startY, endX, endY, peakY, duration) {
+                return new Promise(resolve => {
+                    const start = performance.now();
+                    const dx = endX - startX;
+                    const dist = Math.abs(dx) + Math.abs(endY - startY);
+                    const rotSpeed = dist / duration * 360;
+
+                    function frame(now) {
+                        const t = Math.min((now - start) / duration, 1);
+                        const x = startX + dx * t;
+                        // Parabolic arc: peaks at t=0.5
+                        const y = startY + (endY - startY) * t + (peakY - startY - (endY - startY) * 0.5) * 4 * t * (1 - t);
+                        rotation += rotSpeed * (16 / 1000);
+                        ball.style.left = `${x}px`;
+                        ball.style.top = `${y}px`;
+                        ball.querySelector('img').style.transform = `rotate(${rotation}deg)`;
+                        if (t < 1) requestAnimationFrame(frame);
+                        else resolve();
+                    }
+                    requestAnimationFrame(frame);
+                });
+            }
+
+            async function runCycle() {
+                const w = window.innerWidth;
+                const h = window.innerHeight;
+                const goalCenterX = w / 2 - ballSize / 2;
+                const goalY = goalBottom - ballSize / 2;
+
+                // Always start at bottom middle
+                const startX = w / 2 - ballSize / 2;
+                const startY = h - ballSize - 20;
+                ball.style.left = `${startX}px`;
+                ball.style.top = `${startY}px`;
+                ball.style.display = 'block';
+
+                const outcome = Math.random();
+
+                if (outcome < 0.333) {
+                    // GOAL! Kick arcs into the goal
+                    const targetX = goalCenterX + (Math.random() - 0.5) * 200;
+                    await animateArc(startX, startY, targetX, goalY + 20, -100, 1800);
+                    // Settle into goal
+                    await animate(targetX, goalY + 20, targetX, goalY + 30, 300);
+                    // Pause in goal
+                    await new Promise(r => setTimeout(r, 1500));
+                } else if (outcome < 0.666) {
+                    // Bounce off post corner, then bounce off screen edge, land at bottom
+                    const hitLeft = Math.random() < 0.5;
+                    const postX = hitLeft ? (w / 2 - 146 - ballSize) : (w / 2 + 136);
+                    const postY = 56 - ballSize / 2;
+                    await animateArc(startX, startY, postX, postY, -80, 1400);
+                    // Deflect to screen edge
+                    const edgeX = hitLeft ? 0 : w - ballSize;
+                    const edgeY = h * 0.3;
+                    await animateArc(postX, postY, edgeX, edgeY, postY - 40, 700);
+                    // Bounce off edge back down to bottom
+                    const landX = w / 2 - ballSize / 2 + (hitLeft ? 100 : -100);
+                    await animateArc(edgeX, edgeY, landX, h - ballSize, edgeY - 50, 1000);
+                    await new Promise(r => setTimeout(r, 800));
+                } else {
+                    // Miss completely - hits edge of screen, bounces back down
+                    const goLeft = Math.random() < 0.5;
+                    const edgeX = goLeft ? 0 : w - ballSize;
+                    const edgeY = 80 + Math.random() * 100;
+                    await animateArc(startX, startY, edgeX, edgeY, -150, 1600);
+                    // Bounce off edge back down
+                    const landX = w / 2 - ballSize / 2 + (goLeft ? 150 : -150);
+                    await animateArc(edgeX, edgeY, landX, h - ballSize, edgeY - 60, 1200);
+                    await new Promise(r => setTimeout(r, 800));
+                }
+
+                runCycle();
+            }
+
+            ball.style.position = 'fixed';
+            runCycle();
+        })();
+    </script>
 </body>
 </html>

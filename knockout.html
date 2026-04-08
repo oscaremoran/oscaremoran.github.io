@@ -6,6 +6,7 @@
     <title>Knockout Phase - FIFA World Cup 2026</title>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="annex-c.js"></script>
     <style>
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -149,6 +150,17 @@
             overflow: hidden;
             border: 1px solid rgba(255,255,255,0.15);
             transition: all 0.3s ease;
+        }
+
+        .match-num {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: #666;
+            text-align: center;
+            padding: 4px 0 2px;
+            background: rgba(0,0,0,0.04);
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
         }
 
         .matchup:hover {
@@ -305,60 +317,103 @@
         const thirdPlaces = savedData.thirdPlaces || [];
         const knockoutPicks = savedData.knockoutPicks || {};
 
-        function getAdvancers() {
-            const first = {}, second = {}, thirds = [];
-
-            Object.keys(groups).forEach(group => {
-                const order = rankings[group] || groups[group];
-                first[group] = order[0] || 'TBD';
-                second[group] = order[1] || 'TBD';
-                const thirdTeam = order[2];
-                if (thirdTeam) {
-                    const key = `Group${group}-${thirdTeam}`;
-                    if (thirdPlaces.includes(key)) {
-                        thirds.push(thirdTeam);
-                    }
-                }
-            });
-
-            while (thirds.length < 8) {
-                thirds.push(`3rd Place #${thirds.length + 1}`);
-            }
-
-            return { first, second, thirds };
+        // ── Per-group lookups: winner / runner-up / 3rd place ──
+        function groupSlot(group, slot) {
+            const order = rankings[group] || groups[group];
+            return order[slot] || 'TBD';
         }
 
-        const adv = getAdvancers();
+        // ── Which groups provided the 8 best 3rd place teams? ──
+        function qualifyingThirdGroups() {
+            // Each entry in thirdPlaces is `Group<G>-<team>` — extract group letters and sort
+            const letters = thirdPlaces
+                .map(k => (k.match(/^Group([A-L])-/) || [])[1])
+                .filter(Boolean);
+            return [...new Set(letters)].sort();
+        }
+
+        const thirdGroups = qualifyingThirdGroups();
+        const thirdComboKey = thirdGroups.length === 8 ? thirdGroups.join('') : null;
+        const thirdMap = (thirdComboKey && typeof THIRD_PLACE_LOOKUP !== 'undefined')
+            ? THIRD_PLACE_LOOKUP[thirdComboKey] || null
+            : null;
 
         if (thirdPlaces.length !== 8) {
             document.getElementById('warning').innerHTML = `
                 <strong>Note:</strong> You have selected ${thirdPlaces.length}/8 third-place teams.
-                Placeholders are used for missing teams. Return to Groups to select more!
+                Return to Groups to select all 8 so the bracket can auto-populate from FIFA's Annex C.
+            `;
+            document.getElementById('warning').style.display = 'block';
+        } else if (!thirdMap) {
+            document.getElementById('warning').innerHTML = `
+                <strong>Note:</strong> Could not resolve FIFA third-place bracket assignment for combination ${thirdComboKey}.
             `;
             document.getElementById('warning').style.display = 'block';
         }
 
-        const roundOf32Matchups = [
-            adv.first['A'], adv.second['B'],
-            adv.first['C'], adv.second['D'],
-            adv.first['E'], adv.second['F'],
-            adv.first['G'], adv.second['H'],
-            adv.first['I'], adv.second['J'],
-            adv.first['K'], adv.second['L'],
-            adv.thirds[0], adv.thirds[1],
-            adv.thirds[2], adv.thirds[3],
-            adv.first['B'], adv.second['A'],
-            adv.first['D'], adv.second['C'],
-            adv.first['F'], adv.second['E'],
-            adv.first['H'], adv.second['G'],
-            adv.first['J'], adv.second['I'],
-            adv.first['L'], adv.second['K'],
-            adv.thirds[4], adv.thirds[5],
-            adv.thirds[6], adv.thirds[7]
+        // Resolve a 3rd-place slot for a given R32 group-winner match.
+        // winnerGroup is the letter of the group winner whose R32 slot faces a 3rd place team.
+        function thirdForWinner(winnerGroup) {
+            if (!thirdMap) return '3rd TBD';
+            const srcGroup = thirdMap[winnerGroup];
+            if (!srcGroup) return '3rd TBD';
+            return groupSlot(srcGroup, 2);
+        }
+
+        // ── FIFA Round of 32 match definitions ──
+        // Each match is { num, top, bottom } where top/bottom resolve to a team name.
+        // Ordered so that pairs (0,1),(2,3),... feed consecutive Round of 16 matches,
+        // and that propagates cleanly through QF, SF, and Final.
+        //
+        //   R32 idx  Match   Feeds R16
+        //   0,1      74,77   89 (W74 vs W77)
+        //   2,3      73,75   90 (W73 vs W75)
+        //   4,5      83,84   93 (W83 vs W84)
+        //   6,7      81,82   94 (W81 vs W82)
+        //   8,9      76,78   91 (W76 vs W78)
+        //   10,11    79,80   92 (W79 vs W80)
+        //   12,13    86,88   95 (W86 vs W88)
+        //   14,15    85,87   96 (W85 vs W87)
+        //
+        // Then R16 pairs feed QF: 89+90→97, 93+94→98, 91+92→99, 95+96→100
+        // QF pairs feed SF: 97+98→101, 99+100→102. SF feeds Final.
+        const R32_DEFS = [
+            { num: 74, top: () => groupSlot('E', 0), bottom: () => thirdForWinner('E') },
+            { num: 77, top: () => groupSlot('I', 0), bottom: () => thirdForWinner('I') },
+            { num: 73, top: () => groupSlot('A', 1), bottom: () => groupSlot('B', 1) },
+            { num: 75, top: () => groupSlot('F', 0), bottom: () => groupSlot('C', 1) },
+            { num: 83, top: () => groupSlot('K', 1), bottom: () => groupSlot('L', 1) },
+            { num: 84, top: () => groupSlot('H', 0), bottom: () => groupSlot('J', 1) },
+            { num: 81, top: () => groupSlot('D', 0), bottom: () => thirdForWinner('D') },
+            { num: 82, top: () => groupSlot('G', 0), bottom: () => thirdForWinner('G') },
+            { num: 76, top: () => groupSlot('C', 0), bottom: () => groupSlot('F', 1) },
+            { num: 78, top: () => groupSlot('E', 1), bottom: () => groupSlot('I', 1) },
+            { num: 79, top: () => groupSlot('A', 0), bottom: () => thirdForWinner('A') },
+            { num: 80, top: () => groupSlot('L', 0), bottom: () => thirdForWinner('L') },
+            { num: 86, top: () => groupSlot('J', 0), bottom: () => groupSlot('H', 1) },
+            { num: 88, top: () => groupSlot('D', 1), bottom: () => groupSlot('G', 1) },
+            { num: 85, top: () => groupSlot('B', 0), bottom: () => thirdForWinner('B') },
+            { num: 87, top: () => groupSlot('K', 0), bottom: () => thirdForWinner('K') },
         ];
+
+        // Match numbers for subsequent rounds, in propagation order
+        const R16_NUMS = [89, 90, 93, 94, 91, 92, 95, 96];
+        const QF_NUMS  = [97, 98, 99, 100];
+        const SF_NUMS  = [101, 102];
+        const FINAL_NUM = 104; // 103 = 3rd-place playoff, 104 = Final
+
+        // Flat initial team list for R32 (16 pairs = 32 slots)
+        const roundOf32Matchups = R32_DEFS.flatMap(m => [m.top(), m.bottom()]);
 
         const rounds = ['Round of 32', 'Round of 16', 'Quarterfinals', 'Semifinals', 'Final'];
         const matchesPerRound = [16, 8, 4, 2, 1];
+        const matchNumsPerRound = [
+            R32_DEFS.map(d => d.num),
+            R16_NUMS,
+            QF_NUMS,
+            SF_NUMS,
+            [FINAL_NUM],
+        ];
 
         let allMatchups = [];
 
@@ -388,6 +443,11 @@
                 for (let m = 0; m < numMatches; m++) {
                     const matchup = document.createElement('div');
                     matchup.className = 'matchup';
+
+                    const numLabel = document.createElement('div');
+                    numLabel.className = 'match-num';
+                    numLabel.textContent = `Match ${matchNumsPerRound[roundIdx][m]}`;
+                    matchup.appendChild(numLabel);
 
                     const team1Text = teamsForNextRound[m * 2] || 'TBD';
                     const team2Text = teamsForNextRound[m * 2 + 1] || 'TBD';

@@ -62,17 +62,6 @@
             transform: translateY(-2px);
         }
 
-        .knockout-button {
-            background: linear-gradient(135deg, #ffd700, #ffaa00);
-            color: #0a0e1a;
-            font-weight: 700;
-            box-shadow: 0 4px 18px rgba(255,215,0,0.3);
-        }
-        .knockout-button:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 8px 28px rgba(255,215,0,0.45);
-        }
-
         .clear-button {
             background: rgba(220,53,69,0.15);
             color: #ff6b7a;
@@ -83,92 +72,112 @@
             transform: translateY(-2px);
         }
 
-        /* ── Side-by-Side Layout ── */
-        .main-layout {
+        /* ── Start Screen ── */
+        .start-screen {
             display: flex;
-            flex-direction: row;
-            max-width: 1600px;
-            width: 100%;
-            margin: 24px auto 0;
-            padding: 0 24px;
-            align-items: flex-start;
-            gap: 32px;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: calc(100vh - 80px);
+            text-align: center;
+            padding: 40px 24px;
         }
 
-        .left-panel {
-            flex: 0 0 auto;
-            width: 520px;
+        .start-screen h2 {
+            font-size: 2.8rem;
+            font-weight: 800;
+            margin-bottom: 16px;
+            background: linear-gradient(135deg, #fff 30%, #ffd700);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
         }
 
-        .right-panel {
-            flex: 1;
-            min-width: 0;
-            position: sticky;
-            top: 100px;
+        .start-screen p {
+            font-size: 1.2rem;
+            color: rgba(255,255,255,0.7);
+            margin-bottom: 40px;
+            max-width: 600px;
+            line-height: 1.6;
         }
 
-        /* ── Group Grid ── */
-        .group-list {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 16px;
-            width: 100%;
-            margin-top: 20px;
-        }
-
-        .group-button {
-            padding: 22px 14px;
-            font-size: 1.3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, rgba(0,102,204,0.95), rgba(0,60,150,0.98));
-            color: white;
-            border: 1px solid rgba(255,255,255,0.15);
-            border-radius: 18px;
-            box-shadow: 0 6px 24px rgba(0,30,80,0.4);
+        .start-btn {
+            padding: 22px 64px;
+            font-size: 1.8rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e1a;
+            border: none;
+            border-radius: 60px;
+            cursor: pointer;
+            box-shadow: 0 8px 32px rgba(255,215,0,0.35);
             transition: all 0.3s ease;
-            backdrop-filter: blur(6px);
-            letter-spacing: 0.5px;
+            letter-spacing: 1px;
         }
 
-        .group-button:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 14px 36px rgba(0,50,130,0.5);
-            border-color: #ffd700;
-            background: linear-gradient(135deg, rgba(0,120,230,0.9), rgba(0,80,180,0.9));
+        .start-btn:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 40px rgba(255,215,0,0.5);
         }
 
-        /* ── Ranking Section ── */
-        #ranking-section {
+        /* ── Progress Bar ── */
+        .progress-bar {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto 8px;
+            padding: 0 24px;
+        }
+
+        .progress-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #ffd700, #ffaa00);
+            border-radius: 4px;
+            transition: width 0.4s ease;
+        }
+
+        .progress-label {
+            text-align: center;
+            font-size: 0.9rem;
+            color: rgba(255,255,255,0.6);
+            margin-top: 8px;
+        }
+
+        /* ── Wizard Content ── */
+        .wizard-content {
+            max-width: 800px;
+            margin: 20px auto 0;
+            padding: 0 24px 40px;
+            display: none;
+        }
+
+        .wizard-content.active { display: block; }
+
+        .wizard-card {
             padding: 32px;
             background: rgba(255,255,255,0.95);
             backdrop-filter: blur(12px);
             border-radius: 24px;
             box-shadow: 0 12px 48px rgba(0,0,0,0.4);
-            width: 100%;
-            display: none;
             border-top: 4px solid #ffd700;
             color: #1a1a2e;
         }
 
-        #ranking-section h2 {
+        .wizard-card h2 {
             font-size: 1.7rem;
             font-weight: 700;
             margin-bottom: 20px;
-            text-align: left;
+            text-align: center;
             color: #0a0e1a;
         }
 
-        .ranking-inner {
-            display: flex;
-            gap: 32px;
-            align-items: flex-start;
-        }
-
-        .ranking-col {
-            flex: 1;
-            min-width: 0;
-        }
-
+        /* ── Ranking Section ── */
         .ranking-list {
             list-style: none;
             padding: 0;
@@ -203,11 +212,6 @@
             transform: scale(1.03);
         }
 
-        .ranking-item.third-place {
-            background: linear-gradient(135deg, #d4edda, #c3e6cb);
-            border-left-color: #28a745;
-        }
-
         .position {
             font-weight: 800;
             font-size: 1.4rem;
@@ -215,29 +219,6 @@
             width: 36px;
             text-align: center;
             color: #0066cc;
-        }
-
-        .ranking-item.third-place .position {
-            color: #1e7e34;
-        }
-
-        #ranking-section p {
-            color: #666;
-        }
-
-        .group-button.third-selected {
-            box-shadow: 0 6px 24px rgba(0,30,80,0.4), inset 0 0 0 2px rgba(40,167,69,0.6);
-            border-color: rgba(40,167,69,0.6);
-            background: linear-gradient(135deg, rgba(0,102,204,0.95), rgba(0,60,150,0.98)), linear-gradient(135deg, rgba(40,167,69,0.15), transparent);
-        }
-
-        .group-button.third-selected::after {
-            content: '3rd ✓';
-            display: block;
-            font-size: 0.7rem;
-            font-weight: 600;
-            color: #5fd87f;
-            margin-top: 4px;
         }
 
         .team-flag {
@@ -249,77 +230,120 @@
             box-shadow: 0 1px 3px rgba(0,0,0,0.15);
         }
 
-        /* ── Group Schedule ── */
-        .schedule-info {
-            margin-top: 0;
-            padding-top: 0;
-            border-top: none;
-        }
+        /* ── Schedule ── */
+        .schedule-info { margin-top: 24px; padding-top: 20px; border-top: 1px solid #eee; }
+        .schedule-info h3 { font-size: 1.1rem; font-weight: 700; color: #0a0e1a; margin-bottom: 12px; text-align: center; }
+        .match-list { display: flex; flex-direction: column; gap: 6px; }
+        .matchday-label { font-size: 0.75rem; font-weight: 700; color: #0066cc; text-transform: uppercase; letter-spacing: 1px; margin-top: 8px; }
+        .match-row { display: flex; justify-content: space-between; align-items: center; padding: 8px 14px; background: #f0f2f6; border-radius: 8px; font-size: 0.9rem; color: #1a1a2e; }
+        .match-teams { font-weight: 600; }
+        .match-venue { font-size: 0.75rem; color: #888; text-align: right; }
 
-        .schedule-info h3 {
-            font-size: 1.2rem;
-            font-weight: 700;
-            color: #0a0e1a;
-            margin-bottom: 16px;
+        .wizard-hint {
             text-align: center;
+            margin-top: 16px;
+            font-size: 0.9rem;
+            color: #666;
         }
 
-        .match-list {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .matchday-label {
-            font-size: 0.8rem;
-            font-weight: 700;
-            color: #0066cc;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-top: 8px;
-            margin-bottom: 2px;
-        }
-
-        .match-row {
+        /* ── Nav Buttons ── */
+        .wizard-nav {
             display: flex;
             justify-content: space-between;
+            margin-top: 24px;
+            gap: 16px;
+        }
+
+        .nav-btn {
+            flex: 1;
+            padding: 16px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            border-radius: 14px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .nav-prev {
+            background: rgba(0,0,0,0.06);
+            color: #333;
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+        .nav-prev:hover:not(:disabled) { background: rgba(0,0,0,0.1); transform: translateY(-2px); }
+
+        .nav-next {
+            background: linear-gradient(135deg, #ffd700, #ffaa00);
+            color: #0a0e1a;
+            box-shadow: 0 4px 18px rgba(255,215,0,0.3);
+        }
+        .nav-next:hover:not(:disabled) { transform: translateY(-3px); box-shadow: 0 8px 28px rgba(255,215,0,0.45); }
+
+        /* ── Third Place Selection ── */
+        .third-place-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-top: 16px;
+        }
+
+        .third-place-item {
+            display: flex;
             align-items: center;
-            padding: 10px 16px;
-            background: #f0f2f6;
-            border-radius: 10px;
-            font-size: 0.95rem;
+            padding: 14px 18px;
+            background: #f4f6f9;
+            border: 2px solid transparent;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
             color: #1a1a2e;
         }
 
-        .match-teams {
-            font-weight: 600;
+        .third-place-item:hover { background: #eef1f6; border-color: #0066cc; }
+
+        .third-place-item.selected {
+            background: linear-gradient(135deg, #d4edda, #c3e6cb);
+            border-color: #28a745;
+            font-weight: 700;
         }
 
-        .match-venue {
-            font-size: 0.8rem;
-            color: #888;
-            text-align: right;
+        .third-place-item .group-tag {
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: #0066cc;
+            background: rgba(0,102,204,0.1);
+            padding: 2px 8px;
+            border-radius: 6px;
+            margin-right: 10px;
         }
 
-        .group-button.ranked {
-            border-color: rgba(40,167,69,0.5);
-            box-shadow: 0 6px 24px rgba(0,30,80,0.4), inset 0 0 0 2px rgba(40,167,69,0.3);
+        .third-place-count {
+            text-align: center;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #0a0e1a;
+            margin-top: 16px;
+        }
+
+        .third-place-count span {
+            color: #28a745;
         }
 
         /* ── Responsive ── */
-        @media (max-width: 900px) {
-            .main-layout { flex-direction: column; }
-            .left-panel { width: 100%; }
-            .right-panel { position: static; }
-            .ranking-inner { flex-direction: column; }
-        }
-
         @media (max-width: 600px) {
             .header { padding: 14px 16px; }
             .header h1 { font-size: 1.4rem; }
-            .group-list { gap: 12px; }
-            .group-button { padding: 24px 12px; font-size: 1.2rem; }
-            #ranking-section { padding: 20px; }
+            .wizard-card { padding: 20px; }
+            .start-screen h2 { font-size: 2rem; }
+            .start-btn { font-size: 1.4rem; padding: 18px 48px; }
             .match-row { flex-direction: column; align-items: flex-start; gap: 4px; }
             .match-venue { text-align: left; }
         }
@@ -329,51 +353,52 @@
     <div class="header">
         <button class="back-button" onclick="window.location.href='home.html'">&larr; Back to Home</button>
         <h1>Create Your Bracket</h1>
-        <button class="knockout-button" id="enterKnockoutBtn">Save and enter Knockout Phase</button>
         <button class="clear-button" id="clearBtn">Clear Bracket</button>
     </div>
 
-    <div class="main-layout">
-        <div class="left-panel">
-            <div class="group-list" id="groupList"></div>
-        </div>
+    <!-- Start Screen -->
+    <div class="start-screen" id="startScreen">
+        <h2>Bracket Wizard</h2>
+        <p>Predict the group standings for all 12 groups, then pick which 8 third-place teams advance to the knockout round.</p>
+        <button class="start-btn" id="startBtn">Start</button>
+    </div>
 
-        <div class="right-panel">
-            <div id="ranking-section">
-                <h2 id="selected-group-title"></h2>
-                <div class="ranking-inner">
-                    <div class="ranking-col">
-                        <ol class="ranking-list" id="ranking-list"></ol>
-                        <p style="text-align: center; margin-top: 16px; font-size: 0.9rem;">
-                            Drag and drop to predict standings.<br>
-                            Click <strong>3rd place</strong> to select/deselect as advancing (green = selected).
-                        </p>
-                    </div>
-                    <div class="ranking-col">
-                        <div class="schedule-info" id="schedule-info" style="display:none;">
-                            <h3 id="schedule-title"></h3>
-                            <div class="match-list" id="match-list"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+    <!-- Wizard -->
+    <div class="wizard-content" id="wizardContent">
+        <div class="progress-bar">
+            <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="progress-label" id="progressLabel"></div>
         </div>
+        <div class="wizard-card" id="wizardCard"></div>
     </div>
 
     <script>
         const countryFlags = {
-            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr',
-            'Canada': 'ca', 'Qatar': 'qa', 'Switzerland': 'ch',
+            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr', 'Czechia': 'cz',
+            'Canada': 'ca', 'Bosnia and Herzegovina': 'ba', 'Qatar': 'qa', 'Switzerland': 'ch',
             'Brazil': 'br', 'Morocco': 'ma', 'Haiti': 'ht', 'Scotland': 'gb-sct',
-            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au',
+            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au', 'Turkey': 'tr',
             'Germany': 'de', 'Curaçao': 'cw', 'Ivory Coast': 'ci', 'Ecuador': 'ec',
-            'Netherlands': 'nl', 'Japan': 'jp', 'Tunisia': 'tn',
+            'Netherlands': 'nl', 'Japan': 'jp', 'Sweden': 'se', 'Tunisia': 'tn',
             'Belgium': 'be', 'Egypt': 'eg', 'Iran': 'ir', 'New Zealand': 'nz',
             'Spain': 'es', 'Cabo Verde': 'cv', 'Saudi Arabia': 'sa', 'Uruguay': 'uy',
-            'France': 'fr', 'Senegal': 'sn', 'Norway': 'no',
+            'France': 'fr', 'Senegal': 'sn', 'Iraq': 'iq', 'Norway': 'no',
             'Argentina': 'ar', 'Algeria': 'dz', 'Austria': 'at', 'Jordan': 'jo',
-            'Portugal': 'pt', 'Uzbekistan': 'uz', 'Colombia': 'co',
+            'Portugal': 'pt', 'DR Congo': 'cd', 'Uzbekistan': 'uz', 'Colombia': 'co',
             'England': 'gb-eng', 'Croatia': 'hr', 'Ghana': 'gh', 'Panama': 'pa'
+        };
+
+        const fifaRankings = {
+            'France': 1, 'Spain': 2, 'Argentina': 3, 'England': 4, 'Portugal': 5,
+            'Brazil': 6, 'Netherlands': 7, 'Morocco': 8, 'Belgium': 9, 'Germany': 10,
+            'Croatia': 11, 'Colombia': 13, 'Senegal': 14, 'Mexico': 15, 'United States': 16,
+            'Uruguay': 17, 'Japan': 18, 'Switzerland': 19, 'Iran': 21, 'Turkey': 22,
+            'Ecuador': 23, 'Austria': 24, 'South Korea': 25, 'Australia': 27, 'Algeria': 28,
+            'Egypt': 29, 'Canada': 30, 'Norway': 31, 'Panama': 33, 'Ivory Coast': 34,
+            'Sweden': 38, 'Paraguay': 40, 'Czechia': 41, 'Scotland': 43, 'Tunisia': 44,
+            'DR Congo': 46, 'Uzbekistan': 50, 'Qatar': 55, 'Iraq': 57, 'South Africa': 60,
+            'Saudi Arabia': 61, 'Jordan': 63, 'Bosnia and Herzegovina': 65,
+            'Cabo Verde': 69, 'Ghana': 74, 'Curaçao': 82, 'Haiti': 83, 'New Zealand': 85
         };
 
         function flagImg(team) {
@@ -382,91 +407,212 @@
             return `<img class="team-flag" src="https://flagcdn.com/24x18/${code}.png" alt="${team} flag">`;
         }
 
-        // Official 2026 World Cup groups (draw from Dec 5, 2025; playoffs March 26-31, 2026)
+        function teamLabel(team) {
+            const rank = fifaRankings[team];
+            return flagImg(team) + team + (rank ? ` (${rank})` : '');
+        }
+
         const groups = {
-            'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
-            'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
+            'A': ['Mexico', 'South Africa', 'South Korea', 'Czechia'],
+            'B': ['Canada', 'Bosnia and Herzegovina', 'Qatar', 'Switzerland'],
             'C': ['Brazil', 'Morocco', 'Haiti', 'Scotland'],
-            'D': ['United States', 'Paraguay', 'Australia', 'UEFA Play-off C Winner'],
+            'D': ['United States', 'Paraguay', 'Australia', 'Turkey'],
             'E': ['Germany', 'Cura\u00e7ao', 'Ivory Coast', 'Ecuador'],
-            'F': ['Netherlands', 'Japan', 'UEFA Play-off B Winner', 'Tunisia'],
+            'F': ['Netherlands', 'Japan', 'Sweden', 'Tunisia'],
             'G': ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
             'H': ['Spain', 'Cabo Verde', 'Saudi Arabia', 'Uruguay'],
-            'I': ['France', 'Senegal', 'Intercontinental Play-off Winner 2', 'Norway'],
+            'I': ['France', 'Senegal', 'Iraq', 'Norway'],
             'J': ['Argentina', 'Algeria', 'Austria', 'Jordan'],
-            'K': ['Portugal', 'Intercontinental Play-off Winner 1', 'Uzbekistan', 'Colombia'],
+            'K': ['Portugal', 'DR Congo', 'Uzbekistan', 'Colombia'],
             'L': ['England', 'Croatia', 'Ghana', 'Panama']
         };
 
-        const groupList = document.getElementById('groupList');
-        const rankingSection = document.getElementById('ranking-section');
-        const selectedGroupTitle = document.getElementById('selected-group-title');
-        const rankingList = document.getElementById('ranking-list');
-
-        // Load saved data from localStorage
-        const savedData = JSON.parse(localStorage.getItem('worldCupBracketData') || '{"rankings": {}, "thirdPlaces": []}');
-        const savedRankings = savedData.rankings;
-        let selectedThirdPlaces = savedData.thirdPlaces;
-
-        let currentGroup = '';
-
-        // Group stage schedule data (dates and venues)
         const schedule = {
-            'A': { dates: ['June 11', 'June 16', 'June 21'], venue: 'Mexico City & Houston' },
-            'B': { dates: ['June 12', 'June 17', 'June 22'], venue: 'Vancouver & Seattle' },
-            'C': { dates: ['June 12', 'June 17', 'June 22'], venue: 'Los Angeles & Atlanta' },
-            'D': { dates: ['June 13', 'June 18', 'June 23'], venue: 'Dallas & Philadelphia' },
-            'E': { dates: ['June 13', 'June 18', 'June 23'], venue: 'Guadalajara & San Francisco' },
-            'F': { dates: ['June 14', 'June 19', 'June 24'], venue: 'Miami & Boston' },
-            'G': { dates: ['June 14', 'June 19', 'June 24'], venue: 'Toronto & Kansas City' },
-            'H': { dates: ['June 15', 'June 20', 'June 25'], venue: 'Monterrey & New York/NJ' },
-            'I': { dates: ['June 15', 'June 20', 'June 25'], venue: 'Seattle & Dallas' },
-            'J': { dates: ['June 16', 'June 21', 'June 26'], venue: 'Miami & Houston' },
-            'K': { dates: ['June 16', 'June 21', 'June 26'], venue: 'Atlanta & Philadelphia' },
-            'L': { dates: ['June 17', 'June 22', 'June 27'], venue: 'Los Angeles & Toronto' }
+            'A': [
+                { day: 'Matchday 1', date: 'June 11', t1: 'Mexico', t2: 'South Africa', venue: 'Mexico City' },
+                { day: 'Matchday 1', date: 'June 11', t1: 'South Korea', t2: 'Czechia', venue: 'Guadalajara' },
+                { day: 'Matchday 2', date: 'June 18', t1: 'Czechia', t2: 'South Africa', venue: 'Atlanta' },
+                { day: 'Matchday 2', date: 'June 18', t1: 'Mexico', t2: 'South Korea', venue: 'Guadalajara' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'Czechia', t2: 'Mexico', venue: 'Mexico City' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'South Africa', t2: 'South Korea', venue: 'Monterrey' }
+            ],
+            'B': [
+                { day: 'Matchday 1', date: 'June 12', t1: 'Canada', t2: 'Bosnia and Herzegovina', venue: 'Toronto' },
+                { day: 'Matchday 1', date: 'June 13', t1: 'Qatar', t2: 'Switzerland', venue: 'San Francisco' },
+                { day: 'Matchday 2', date: 'June 18', t1: 'Switzerland', t2: 'Bosnia and Herzegovina', venue: 'Los Angeles' },
+                { day: 'Matchday 2', date: 'June 18', t1: 'Canada', t2: 'Qatar', venue: 'Vancouver' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'Switzerland', t2: 'Canada', venue: 'Vancouver' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'Bosnia and Herzegovina', t2: 'Qatar', venue: 'Seattle' }
+            ],
+            'C': [
+                { day: 'Matchday 1', date: 'June 13', t1: 'Brazil', t2: 'Morocco', venue: 'New York/NJ' },
+                { day: 'Matchday 1', date: 'June 13', t1: 'Haiti', t2: 'Scotland', venue: 'Boston' },
+                { day: 'Matchday 2', date: 'June 19', t1: 'Scotland', t2: 'Morocco', venue: 'Boston' },
+                { day: 'Matchday 2', date: 'June 19', t1: 'Brazil', t2: 'Haiti', venue: 'Philadelphia' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'Scotland', t2: 'Brazil', venue: 'Miami' },
+                { day: 'Matchday 3', date: 'June 24', t1: 'Morocco', t2: 'Haiti', venue: 'Atlanta' }
+            ],
+            'D': [
+                { day: 'Matchday 1', date: 'June 12', t1: 'United States', t2: 'Paraguay', venue: 'Los Angeles' },
+                { day: 'Matchday 1', date: 'June 13', t1: 'Australia', t2: 'Turkey', venue: 'Vancouver' },
+                { day: 'Matchday 2', date: 'June 19', t1: 'United States', t2: 'Australia', venue: 'Seattle' },
+                { day: 'Matchday 2', date: 'June 19', t1: 'Turkey', t2: 'Paraguay', venue: 'San Francisco' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Turkey', t2: 'United States', venue: 'Los Angeles' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Paraguay', t2: 'Australia', venue: 'San Francisco' }
+            ],
+            'E': [
+                { day: 'Matchday 1', date: 'June 14', t1: 'Germany', t2: 'Cura\u00e7ao', venue: 'Houston' },
+                { day: 'Matchday 1', date: 'June 14', t1: 'Ivory Coast', t2: 'Ecuador', venue: 'Philadelphia' },
+                { day: 'Matchday 2', date: 'June 20', t1: 'Germany', t2: 'Ivory Coast', venue: 'Toronto' },
+                { day: 'Matchday 2', date: 'June 20', t1: 'Ecuador', t2: 'Cura\u00e7ao', venue: 'Kansas City' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Ecuador', t2: 'Germany', venue: 'New York/NJ' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Cura\u00e7ao', t2: 'Ivory Coast', venue: 'Philadelphia' }
+            ],
+            'F': [
+                { day: 'Matchday 1', date: 'June 14', t1: 'Netherlands', t2: 'Japan', venue: 'Dallas' },
+                { day: 'Matchday 1', date: 'June 14', t1: 'Sweden', t2: 'Tunisia', venue: 'Monterrey' },
+                { day: 'Matchday 2', date: 'June 20', t1: 'Netherlands', t2: 'Sweden', venue: 'Houston' },
+                { day: 'Matchday 2', date: 'June 20', t1: 'Tunisia', t2: 'Japan', venue: 'Monterrey' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Japan', t2: 'Sweden', venue: 'Dallas' },
+                { day: 'Matchday 3', date: 'June 25', t1: 'Tunisia', t2: 'Netherlands', venue: 'Kansas City' }
+            ],
+            'G': [
+                { day: 'Matchday 1', date: 'June 15', t1: 'Belgium', t2: 'Egypt', venue: 'Seattle' },
+                { day: 'Matchday 1', date: 'June 15', t1: 'Iran', t2: 'New Zealand', venue: 'Los Angeles' },
+                { day: 'Matchday 2', date: 'June 21', t1: 'Belgium', t2: 'Iran', venue: 'Los Angeles' },
+                { day: 'Matchday 2', date: 'June 21', t1: 'New Zealand', t2: 'Egypt', venue: 'Vancouver' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'Egypt', t2: 'Iran', venue: 'Seattle' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'New Zealand', t2: 'Belgium', venue: 'Vancouver' }
+            ],
+            'H': [
+                { day: 'Matchday 1', date: 'June 15', t1: 'Spain', t2: 'Cabo Verde', venue: 'Atlanta' },
+                { day: 'Matchday 1', date: 'June 15', t1: 'Saudi Arabia', t2: 'Uruguay', venue: 'Miami' },
+                { day: 'Matchday 2', date: 'June 21', t1: 'Spain', t2: 'Saudi Arabia', venue: 'Atlanta' },
+                { day: 'Matchday 2', date: 'June 21', t1: 'Uruguay', t2: 'Cabo Verde', venue: 'Miami' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'Uruguay', t2: 'Spain', venue: 'Guadalajara' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'Cabo Verde', t2: 'Saudi Arabia', venue: 'Houston' }
+            ],
+            'I': [
+                { day: 'Matchday 1', date: 'June 16', t1: 'France', t2: 'Senegal', venue: 'New York/NJ' },
+                { day: 'Matchday 1', date: 'June 16', t1: 'Iraq', t2: 'Norway', venue: 'Boston' },
+                { day: 'Matchday 2', date: 'June 22', t1: 'France', t2: 'Iraq', venue: 'Philadelphia' },
+                { day: 'Matchday 2', date: 'June 22', t1: 'Norway', t2: 'Senegal', venue: 'New York/NJ' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'Norway', t2: 'France', venue: 'Boston' },
+                { day: 'Matchday 3', date: 'June 26', t1: 'Senegal', t2: 'Iraq', venue: 'Toronto' }
+            ],
+            'J': [
+                { day: 'Matchday 1', date: 'June 16', t1: 'Argentina', t2: 'Algeria', venue: 'Kansas City' },
+                { day: 'Matchday 1', date: 'June 16', t1: 'Austria', t2: 'Jordan', venue: 'San Francisco' },
+                { day: 'Matchday 2', date: 'June 22', t1: 'Argentina', t2: 'Austria', venue: 'Dallas' },
+                { day: 'Matchday 2', date: 'June 22', t1: 'Jordan', t2: 'Algeria', venue: 'San Francisco' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'Jordan', t2: 'Argentina', venue: 'Dallas' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'Algeria', t2: 'Austria', venue: 'Kansas City' }
+            ],
+            'K': [
+                { day: 'Matchday 1', date: 'June 17', t1: 'Portugal', t2: 'DR Congo', venue: 'Houston' },
+                { day: 'Matchday 1', date: 'June 17', t1: 'Uzbekistan', t2: 'Colombia', venue: 'Mexico City' },
+                { day: 'Matchday 2', date: 'June 23', t1: 'Portugal', t2: 'Uzbekistan', venue: 'Houston' },
+                { day: 'Matchday 2', date: 'June 23', t1: 'Colombia', t2: 'DR Congo', venue: 'Guadalajara' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'Colombia', t2: 'Portugal', venue: 'Miami' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'DR Congo', t2: 'Uzbekistan', venue: 'Atlanta' }
+            ],
+            'L': [
+                { day: 'Matchday 1', date: 'June 17', t1: 'England', t2: 'Croatia', venue: 'Dallas' },
+                { day: 'Matchday 1', date: 'June 17', t1: 'Ghana', t2: 'Panama', venue: 'Toronto' },
+                { day: 'Matchday 2', date: 'June 23', t1: 'England', t2: 'Ghana', venue: 'Boston' },
+                { day: 'Matchday 2', date: 'June 23', t1: 'Panama', t2: 'Croatia', venue: 'Toronto' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'Panama', t2: 'England', venue: 'New York/NJ' },
+                { day: 'Matchday 3', date: 'June 27', t1: 'Croatia', t2: 'Ghana', venue: 'Philadelphia' }
+            ]
         };
 
-        function getGroupMatches(group) {
-            const teams = savedRankings[group] || groups[group];
-            const s = schedule[group];
-            return [
-                { day: 'Matchday 1', date: s.dates[0], t1: teams[0], t2: teams[1], venue: s.venue.split(' & ')[0] },
-                { day: 'Matchday 1', date: s.dates[0], t1: teams[2], t2: teams[3], venue: s.venue.split(' & ')[1] || s.venue.split(' & ')[0] },
-                { day: 'Matchday 2', date: s.dates[1], t1: teams[0], t2: teams[2], venue: s.venue.split(' & ')[1] || s.venue.split(' & ')[0] },
-                { day: 'Matchday 2', date: s.dates[1], t1: teams[1], t2: teams[3], venue: s.venue.split(' & ')[0] },
-                { day: 'Matchday 3', date: s.dates[2], t1: teams[0], t2: teams[3], venue: s.venue.split(' & ')[0] },
-                { day: 'Matchday 3', date: s.dates[2], t1: teams[1], t2: teams[2], venue: s.venue.split(' & ')[1] || s.venue.split(' & ')[0] }
-            ];
+        const groupKeys = Object.keys(groups).sort();
+        const TOTAL_STEPS = groupKeys.length + 1; // 12 groups + 1 third-place step
+
+        let currentStep = 0; // 0..11 = groups, 12 = third place
+        let wizardRankings = {};
+        let wizardThirdPlaces = [];
+
+        // Check if wizard was already completed
+        const savedData = JSON.parse(localStorage.getItem('worldCupBracketData') || 'null');
+        const wizardCompleted = savedData && Object.keys(savedData.rankings || {}).length === 12 && (savedData.thirdPlaces || []).length === 8;
+
+        if (wizardCompleted) {
+            // Already completed - go straight to knockout
+            document.getElementById('startScreen').innerHTML = `
+                <h2>Bracket Complete!</h2>
+                <p>You've already made your predictions. View your knockout bracket or start over.</p>
+                <button class="start-btn" onclick="window.location.href='knockout.html'" style="margin-bottom: 16px;">View Knockout Bracket</button>
+                <br>
+                <button class="clear-button" style="margin-top: 16px; padding: 14px 36px; font-size: 1.1rem;" onclick="if(confirm('Clear all predictions and start over?')){localStorage.removeItem('worldCupBracketData');location.reload();}">Start Over</button>
+            `;
         }
 
-        function updateProgress() {
-            document.querySelectorAll('.group-button').forEach(btn => {
-                const letter = btn.dataset.group;
-                btn.classList.toggle('ranked', !!savedRankings[letter]);
-                const hasThird = selectedThirdPlaces.some(k => k.startsWith(`Group${letter}-`));
-                btn.classList.toggle('third-selected', hasThird);
-            });
-        }
-
-        // Create group buttons
-        Object.keys(groups).sort().forEach(group => {
-            const button = document.createElement('button');
-            button.className = 'group-button';
-            button.dataset.group = group;
-            button.textContent = `Group ${group}`;
-            button.addEventListener('click', () => showGroupRanking(group));
-            groupList.appendChild(button);
+        document.getElementById('startBtn')?.addEventListener('click', () => {
+            document.getElementById('startScreen').style.display = 'none';
+            document.getElementById('wizardContent').classList.add('active');
+            renderStep();
         });
 
-        updateProgress();
+        document.getElementById('clearBtn').addEventListener('click', () => {
+            if (confirm('Are you sure you want to clear all your predictions? This cannot be undone.')) {
+                localStorage.removeItem('worldCupBracketData');
+                location.reload();
+            }
+        });
 
-        function showGroupRanking(group) {
-            currentGroup = group;
-            selectedGroupTitle.textContent = `Predict Group ${group} Standings`;
-            rankingList.innerHTML = '';
+        function updateProgress() {
+            const pct = ((currentStep + 1) / TOTAL_STEPS) * 100;
+            document.getElementById('progressFill').style.width = pct + '%';
+            if (currentStep < 12) {
+                document.getElementById('progressLabel').textContent = `Group ${groupKeys[currentStep]} (${currentStep + 1} of 13)`;
+            } else {
+                document.getElementById('progressLabel').textContent = `Third-Place Selection (13 of 13)`;
+            }
+        }
 
-            let teamOrder = savedRankings[group] || groups[group];
+        function renderStep() {
+            updateProgress();
+            const card = document.getElementById('wizardCard');
 
+            if (currentStep < 12) {
+                renderGroupStep(card, groupKeys[currentStep]);
+            } else {
+                renderThirdPlaceStep(card);
+            }
+
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function renderGroupStep(card, group) {
+            const teamOrder = wizardRankings[group] || groups[group];
+
+            let scheduleHtml = '';
+            const matches = schedule[group];
+            let lastDay = '';
+            matches.forEach(m => {
+                if (m.day !== lastDay) {
+                    scheduleHtml += `<div class="matchday-label">${m.day} — ${m.date}</div>`;
+                    lastDay = m.day;
+                }
+                scheduleHtml += `<div class="match-row"><span class="match-teams">${flagImg(m.t1)}${m.t1} vs ${flagImg(m.t2)}${m.t2}</span><span class="match-venue">${m.date} &bull; ${m.venue}</span></div>`;
+            });
+
+            card.innerHTML = `
+                <h2>Predict Group ${group} Standings</h2>
+                <ol class="ranking-list" id="ranking-list"></ol>
+                <p class="wizard-hint">Drag and drop to predict the final standings.</p>
+                <div class="schedule-info">
+                    <h3>Group ${group} Match Schedule</h3>
+                    <div class="match-list">${scheduleHtml}</div>
+                </div>
+                <div class="wizard-nav">
+                    <button class="nav-btn nav-prev" id="prevBtn" ${currentStep === 0 ? 'disabled' : ''}>&larr; Back</button>
+                    <button class="nav-btn nav-next" id="nextBtn">Next &rarr;</button>
+                </div>
+            `;
+
+            const rankingList = document.getElementById('ranking-list');
             teamOrder.forEach((team, index) => {
                 const li = document.createElement('li');
                 li.className = 'ranking-item';
@@ -479,167 +625,151 @@
                 pos.textContent = `${index + 1}.`;
 
                 const teamName = document.createElement('span');
-                teamName.innerHTML = flagImg(team) + team;
+                teamName.innerHTML = teamLabel(team);
 
                 li.appendChild(pos);
                 li.appendChild(teamName);
                 rankingList.appendChild(li);
+            });
 
-                if (index === 2) {
-                    const key = `Group${group}-${team}`;
-                    if (selectedThirdPlaces.includes(key)) {
-                        li.classList.add('third-place');
+            // Drag and drop
+            rankingList.addEventListener('dragstart', (e) => {
+                if (e.target.classList.contains('ranking-item')) e.target.classList.add('dragging');
+            });
+            rankingList.addEventListener('dragend', (e) => {
+                if (e.target.classList.contains('ranking-item')) {
+                    e.target.classList.remove('dragging');
+                    updatePositions(rankingList);
+                    saveCurrentGroupRanking(group, rankingList);
+                }
+            });
+            rankingList.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                const dragging = document.querySelector('.dragging');
+                const afterElement = getDragAfterElement(rankingList, e.clientY);
+                if (afterElement == null) rankingList.appendChild(dragging);
+                else rankingList.insertBefore(dragging, afterElement);
+                updatePositions(rankingList);
+            });
+
+            // Touch drag support
+            let dragItem = null;
+            let dragClone = null;
+            let touchStartY = 0;
+            rankingList.addEventListener('touchstart', (e) => {
+                const item = e.target.closest('.ranking-item');
+                if (!item) return;
+                dragItem = item;
+                touchStartY = e.touches[0].clientY;
+                dragItem.classList.add('dragging');
+            }, { passive: true });
+            rankingList.addEventListener('touchmove', (e) => {
+                if (!dragItem) return;
+                e.preventDefault();
+                const touchY = e.touches[0].clientY;
+                const afterElement = getDragAfterElement(rankingList, touchY);
+                if (afterElement == null) rankingList.appendChild(dragItem);
+                else rankingList.insertBefore(dragItem, afterElement);
+                updatePositions(rankingList);
+            }, { passive: false });
+            rankingList.addEventListener('touchend', () => {
+                if (!dragItem) return;
+                dragItem.classList.remove('dragging');
+                saveCurrentGroupRanking(group, rankingList);
+                dragItem = null;
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                saveCurrentGroupRanking(group, rankingList);
+                currentStep++;
+                renderStep();
+            });
+
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                saveCurrentGroupRanking(group, rankingList);
+                if (currentStep > 0) { currentStep--; renderStep(); }
+            });
+        }
+
+        function renderThirdPlaceStep(card) {
+            // Collect all 12 third-place teams
+            const thirdPlaceTeams = [];
+            groupKeys.forEach(group => {
+                const ranking = wizardRankings[group] || groups[group];
+                thirdPlaceTeams.push({ group, team: ranking[2] });
+            });
+
+            let gridHtml = '';
+            thirdPlaceTeams.forEach(({ group, team }) => {
+                const key = `Group${group}-${team}`;
+                const selected = wizardThirdPlaces.includes(key) ? 'selected' : '';
+                gridHtml += `<div class="third-place-item ${selected}" data-key="${key}" data-team="${team}" data-group="${group}">
+                    <span class="group-tag">${group}</span>${teamLabel(team)}
+                </div>`;
+            });
+
+            card.innerHTML = `
+                <h2>Select 8 Third-Place Teams to Advance</h2>
+                <p style="text-align:center;color:#666;margin-bottom:8px;">Click to select which 8 of the 12 third-place teams advance to the Round of 32.</p>
+                <div class="third-place-count"><span id="thirdCount">${wizardThirdPlaces.length}</span> / 8 selected</div>
+                <div class="third-place-grid" id="thirdPlaceGrid">${gridHtml}</div>
+                <div class="wizard-nav">
+                    <button class="nav-btn nav-prev" id="prevBtn">&larr; Back</button>
+                    <button class="nav-btn nav-next" id="finishBtn" ${wizardThirdPlaces.length !== 8 ? 'disabled' : ''}>Finish &amp; Enter Knockout &rarr;</button>
+                </div>
+            `;
+
+            document.querySelectorAll('.third-place-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    const key = item.dataset.key;
+                    if (item.classList.contains('selected')) {
+                        item.classList.remove('selected');
+                        wizardThirdPlaces = wizardThirdPlaces.filter(k => k !== key);
+                    } else {
+                        if (wizardThirdPlaces.length >= 8) return;
+                        item.classList.add('selected');
+                        wizardThirdPlaces.push(key);
                     }
-                    li.addEventListener('click', toggleThirdPlace);
-                }
+                    document.getElementById('thirdCount').textContent = wizardThirdPlaces.length;
+                    document.getElementById('finishBtn').disabled = wizardThirdPlaces.length !== 8;
+                });
             });
 
-            // Show group match schedule
-            const scheduleInfo = document.getElementById('schedule-info');
-            const scheduleTitle = document.getElementById('schedule-title');
-            const matchList = document.getElementById('match-list');
-
-            scheduleTitle.textContent = `Group ${group} Match Schedule`;
-            matchList.innerHTML = '';
-
-            const matches = getGroupMatches(group);
-            let lastDay = '';
-            matches.forEach(m => {
-                if (m.day !== lastDay) {
-                    const label = document.createElement('div');
-                    label.className = 'matchday-label';
-                    label.textContent = `${m.day} — ${m.date}`;
-                    matchList.appendChild(label);
-                    lastDay = m.day;
-                }
-                const row = document.createElement('div');
-                row.className = 'match-row';
-                row.innerHTML = `<span class="match-teams">${flagImg(m.t1)}${m.t1} vs ${flagImg(m.t2)}${m.t2}</span><span class="match-venue">${m.venue}</span>`;
-                matchList.appendChild(row);
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                currentStep--;
+                renderStep();
             });
-            scheduleInfo.style.display = 'block';
 
-            rankingSection.style.display = 'block';
-            if (window.innerWidth <= 900) {
-                rankingSection.scrollIntoView({ behavior: 'smooth' });
-            }
+            document.getElementById('finishBtn').addEventListener('click', () => {
+                localStorage.setItem('worldCupBracketData', JSON.stringify({
+                    rankings: wizardRankings,
+                    thirdPlaces: wizardThirdPlaces
+                }));
+                window.location.href = 'knockout.html';
+            });
         }
 
-        function toggleThirdPlace(e) {
-            const item = e.currentTarget;
-            if (parseInt(item.dataset.index) !== 2) return;
-
-            const team = item.dataset.team;
-            const key = `Group${currentGroup}-${team}`;
-
-            if (item.classList.contains('third-place')) {
-                item.classList.remove('third-place');
-                selectedThirdPlaces = selectedThirdPlaces.filter(k => k !== key);
-            } else {
-                if (selectedThirdPlaces.length >= 8) {
-                    alert('You can only select 8 third-place teams to advance!');
-                    return;
-                }
-                item.classList.add('third-place');
-                selectedThirdPlaces.push(key);
-            }
-
-            saveAllData();
-            updateProgress();
+        function saveCurrentGroupRanking(group, rankingList) {
+            const orderedTeams = [...rankingList.querySelectorAll('.ranking-item')].map(item => item.dataset.team);
+            wizardRankings[group] = orderedTeams;
         }
 
-        // Drag and drop logic
-        rankingList.addEventListener('dragstart', (e) => {
-            if (e.target.classList.contains('ranking-item')) {
-                e.target.classList.add('dragging');
-            }
-        });
-
-        rankingList.addEventListener('dragend', (e) => {
-            if (e.target.classList.contains('ranking-item')) {
-                e.target.classList.remove('dragging');
-                updateAfterDrag();
-            }
-        });
-
-        rankingList.addEventListener('dragover', (e) => {
-            e.preventDefault();
-            const dragging = document.querySelector('.dragging');
-            const afterElement = getDragAfterElement(rankingList, e.clientY);
-            if (afterElement == null) {
-                rankingList.appendChild(dragging);
-            } else {
-                rankingList.insertBefore(dragging, afterElement);
-            }
-            updatePositions();
-        });
-
-        function getDragAfterElement(container, y) {
-            const draggableElements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
-
-            return draggableElements.reduce((closest, child) => {
-                const box = child.getBoundingClientRect();
-                const offset = y - box.top - box.height / 2;
-                if (offset < 0 && offset > closest.offset) {
-                    return { offset: offset, element: child };
-                } else {
-                    return closest;
-                }
-            }, { offset: Number.NEGATIVE_INFINITY }).element;
-        }
-
-        function updatePositions() {
-            const items = rankingList.querySelectorAll('.ranking-item');
-            items.forEach((item, index) => {
+        function updatePositions(list) {
+            list.querySelectorAll('.ranking-item').forEach((item, index) => {
                 item.querySelector('.position').textContent = `${index + 1}.`;
                 item.dataset.index = index;
             });
         }
 
-        function updateAfterDrag() {
-            updatePositions();
-
-            const items = rankingList.querySelectorAll('.ranking-item');
-            const thirdItem = items[2];
-            if (thirdItem && thirdItem.classList.contains('third-place')) {
-                const oldKey = selectedThirdPlaces.find(k => k.startsWith(`Group${currentGroup}-`));
-                const newTeam = thirdItem.dataset.team;
-                const newKey = `Group${currentGroup}-${newTeam}`;
-                if (oldKey && oldKey !== newKey) {
-                    thirdItem.classList.remove('third-place');
-                    selectedThirdPlaces = selectedThirdPlaces.filter(k => k !== oldKey);
-                }
-            }
-
-            saveCurrentRanking();
+        function getDragAfterElement(container, y) {
+            const draggableElements = [...container.querySelectorAll('.ranking-item:not(.dragging)')];
+            return draggableElements.reduce((closest, child) => {
+                const box = child.getBoundingClientRect();
+                const offset = y - box.top - box.height / 2;
+                if (offset < 0 && offset > closest.offset) return { offset, element: child };
+                return closest;
+            }, { offset: Number.NEGATIVE_INFINITY }).element;
         }
-
-        function saveCurrentRanking() {
-            const orderedTeams = [...rankingList.querySelectorAll('.ranking-item')].map(item => item.dataset.team);
-            savedRankings[currentGroup] = orderedTeams;
-            saveAllData();
-            updateProgress();
-        }
-
-        function saveAllData() {
-            localStorage.setItem('worldCupBracketData', JSON.stringify({
-                rankings: savedRankings,
-                thirdPlaces: selectedThirdPlaces
-            }));
-        }
-
-        // Enter knockout phase button
-        document.getElementById('enterKnockoutBtn').addEventListener('click', () => {
-            saveAllData();
-            window.location.href = 'knockout.html';
-        });
-
-        document.getElementById('clearBtn').addEventListener('click', () => {
-            if (confirm('Are you sure you want to clear all your predictions? This cannot be undone.')) {
-                localStorage.removeItem('worldCupBracketData');
-                location.reload();
-            }
-        });
     </script>
 </body>
 </html>

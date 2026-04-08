@@ -247,18 +247,31 @@
 
     <script>
         const countryFlags = {
-            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr',
-            'Canada': 'ca', 'Qatar': 'qa', 'Switzerland': 'ch',
+            'Mexico': 'mx', 'South Africa': 'za', 'South Korea': 'kr', 'Czechia': 'cz',
+            'Canada': 'ca', 'Bosnia and Herzegovina': 'ba', 'Qatar': 'qa', 'Switzerland': 'ch',
             'Brazil': 'br', 'Morocco': 'ma', 'Haiti': 'ht', 'Scotland': 'gb-sct',
-            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au',
+            'United States': 'us', 'Paraguay': 'py', 'Australia': 'au', 'Turkey': 'tr',
             'Germany': 'de', 'Curaçao': 'cw', 'Ivory Coast': 'ci', 'Ecuador': 'ec',
-            'Netherlands': 'nl', 'Japan': 'jp', 'Tunisia': 'tn',
+            'Netherlands': 'nl', 'Japan': 'jp', 'Sweden': 'se', 'Tunisia': 'tn',
             'Belgium': 'be', 'Egypt': 'eg', 'Iran': 'ir', 'New Zealand': 'nz',
             'Spain': 'es', 'Cabo Verde': 'cv', 'Saudi Arabia': 'sa', 'Uruguay': 'uy',
-            'France': 'fr', 'Senegal': 'sn', 'Norway': 'no',
+            'France': 'fr', 'Senegal': 'sn', 'Iraq': 'iq', 'Norway': 'no',
             'Argentina': 'ar', 'Algeria': 'dz', 'Austria': 'at', 'Jordan': 'jo',
-            'Portugal': 'pt', 'Uzbekistan': 'uz', 'Colombia': 'co',
+            'Portugal': 'pt', 'DR Congo': 'cd', 'Uzbekistan': 'uz', 'Colombia': 'co',
             'England': 'gb-eng', 'Croatia': 'hr', 'Ghana': 'gh', 'Panama': 'pa'
+        };
+
+        const fifaRankings = {
+            'France': 1, 'Spain': 2, 'Argentina': 3, 'England': 4, 'Portugal': 5,
+            'Brazil': 6, 'Netherlands': 7, 'Morocco': 8, 'Belgium': 9, 'Germany': 10,
+            'Croatia': 11, 'Colombia': 13, 'Senegal': 14, 'Mexico': 15, 'United States': 16,
+            'Uruguay': 17, 'Japan': 18, 'Switzerland': 19, 'Iran': 21, 'Turkey': 22,
+            'Ecuador': 23, 'Austria': 24, 'South Korea': 25, 'Australia': 27, 'Algeria': 28,
+            'Egypt': 29, 'Canada': 30, 'Norway': 31, 'Panama': 33, 'Ivory Coast': 34,
+            'Sweden': 38, 'Paraguay': 40, 'Czechia': 41, 'Scotland': 43, 'Tunisia': 44,
+            'DR Congo': 46, 'Uzbekistan': 50, 'Qatar': 55, 'Iraq': 57, 'South Africa': 60,
+            'Saudi Arabia': 61, 'Jordan': 63, 'Bosnia and Herzegovina': 65,
+            'Cabo Verde': 69, 'Ghana': 74, 'Curaçao': 82, 'Haiti': 83, 'New Zealand': 85
         };
 
         function flagImg(team) {
@@ -267,18 +280,23 @@
             return `<img class="team-flag" src="https://flagcdn.com/24x18/${code}.png" alt="">`;
         }
 
+        function teamLabel(team) {
+            const rank = fifaRankings[team];
+            return flagImg(team) + team + (rank ? ` (${rank})` : '');
+        }
+
         const groups = {
-            'A': ['Mexico', 'South Africa', 'South Korea', 'UEFA Play-off D Winner'],
-            'B': ['Canada', 'UEFA Play-off A Winner', 'Qatar', 'Switzerland'],
+            'A': ['Mexico', 'South Africa', 'South Korea', 'Czechia'],
+            'B': ['Canada', 'Bosnia and Herzegovina', 'Qatar', 'Switzerland'],
             'C': ['Brazil', 'Morocco', 'Haiti', 'Scotland'],
-            'D': ['United States', 'Paraguay', 'Australia', 'UEFA Play-off C Winner'],
+            'D': ['United States', 'Paraguay', 'Australia', 'Turkey'],
             'E': ['Germany', 'Cura\u00e7ao', 'Ivory Coast', 'Ecuador'],
-            'F': ['Netherlands', 'Japan', 'UEFA Play-off B Winner', 'Tunisia'],
+            'F': ['Netherlands', 'Japan', 'Sweden', 'Tunisia'],
             'G': ['Belgium', 'Egypt', 'Iran', 'New Zealand'],
             'H': ['Spain', 'Cabo Verde', 'Saudi Arabia', 'Uruguay'],
-            'I': ['France', 'Senegal', 'Intercontinental Play-off Winner 2', 'Norway'],
+            'I': ['France', 'Senegal', 'Iraq', 'Norway'],
             'J': ['Argentina', 'Algeria', 'Austria', 'Jordan'],
-            'K': ['Portugal', 'Intercontinental Play-off Winner 1', 'Uzbekistan', 'Colombia'],
+            'K': ['Portugal', 'DR Congo', 'Uzbekistan', 'Colombia'],
             'L': ['England', 'Croatia', 'Ghana', 'Panama']
         };
 
@@ -376,13 +394,13 @@
 
                     const team1 = document.createElement('div');
                     team1.className = 'team';
-                    team1.innerHTML = flagImg(team1Text) + team1Text;
-                    if (team1Text.includes('#') || team1Text === 'TBD') team1.classList.add('placeholder');
+                    team1.innerHTML = teamLabel(team1Text);
+                    if (team1Text.includes('#') || team1Text === 'TBD' || team1Text.includes('Winner')) team1.classList.add('placeholder');
 
                     const team2 = document.createElement('div');
                     team2.className = 'team';
-                    team2.innerHTML = flagImg(team2Text) + team2Text;
-                    if (team2Text.includes('#') || team2Text === 'TBD') team2.classList.add('placeholder');
+                    team2.innerHTML = teamLabel(team2Text);
+                    if (team2Text.includes('#') || team2Text === 'TBD' || team2Text.includes('Winner')) team2.classList.add('placeholder');
 
                     const matchKey = roundIdx * 100 + m;
 
@@ -417,9 +435,10 @@
         function positionAndConnect() {
             const bracketEl = document.getElementById('bracket');
 
-            // Measure the actual height of a matchup card
+            // Measure the actual height and width of a matchup card
             const sampleMatchup = allMatchups[0][0];
             const matchupH = sampleMatchup.offsetHeight;
+            const matchupW = sampleMatchup.offsetWidth;
 
             // Now switch all rounds to relative positioning with calculated spacing
             // Round 0: each matchup gets a fixed amount of vertical space
@@ -457,6 +476,7 @@
                 const roundDiv = allMatchups[r][0].parentElement;
                 roundDiv.style.position = 'relative';
                 roundDiv.style.height = `${totalHeight + titleOffset}px`;
+                roundDiv.style.width = `${matchupW}px`;
                 roundDiv.style.justifyContent = 'flex-start';
 
                 // Position the title
@@ -528,7 +548,16 @@
             otherEl.classList.remove('selected');
 
             localStorage.setItem('worldCupBracketData', JSON.stringify({ ...savedData, knockoutPicks }));
+
+            // Preserve scroll position across rebuild
+            const container = document.getElementById('bracket');
+            const savedScrollLeft = container.scrollLeft;
+            const savedScrollTop = container.scrollTop;
             createBracket();
+            requestAnimationFrame(() => {
+                container.scrollLeft = savedScrollLeft;
+                container.scrollTop = savedScrollTop;
+            });
         }
 
         document.getElementById('clearBtn').addEventListener('click', () => {
@@ -540,6 +569,14 @@
 
         document.getElementById('exportPngBtn').addEventListener('click', async () => {
             const element = document.getElementById('fullBracketCapture');
+            const bracketEl = document.getElementById('bracket');
+
+            // Temporarily remove overflow clipping so html2canvas can see all content
+            const origOverflow = bracketEl.style.overflow;
+            const origWidth = bracketEl.style.width;
+            bracketEl.style.overflow = 'visible';
+            bracketEl.style.width = bracketEl.scrollWidth + 'px';
+            element.style.width = bracketEl.scrollWidth + 'px';
 
             try {
                 const canvas = await html2canvas(element, {
@@ -548,7 +585,10 @@
                     backgroundColor: '#0a0e1a',
                     logging: false,
                     width: element.scrollWidth,
-                    height: element.scrollHeight
+                    height: element.scrollHeight,
+                    scrollX: 0,
+                    scrollY: 0,
+                    windowWidth: element.scrollWidth
                 });
 
                 const link = document.createElement('a');
@@ -558,6 +598,11 @@
             } catch (err) {
                 alert('PNG export failed. Try scrolling to ensure full bracket is visible.');
                 console.error(err);
+            } finally {
+                // Restore original styles
+                bracketEl.style.overflow = origOverflow;
+                bracketEl.style.width = origWidth;
+                element.style.width = '';
             }
         });
 

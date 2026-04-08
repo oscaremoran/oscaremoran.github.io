@@ -162,6 +162,99 @@
             margin-bottom: 8px;
         }
 
+        /* ── Teams Table ── */
+        .teams-table-wrapper {
+            max-height: 600px;
+            overflow-y: auto;
+            border-radius: 16px;
+            border: 1px solid rgba(255,255,255,0.1);
+            margin: 24px 0 40px;
+        }
+
+        .teams-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 1rem;
+        }
+
+        .teams-table thead {
+            position: sticky;
+            top: 0;
+            z-index: 2;
+        }
+
+        .teams-table th {
+            background: linear-gradient(135deg, #0066cc, #004999);
+            color: #fff;
+            padding: 14px 20px;
+            text-align: left;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+
+        .teams-table th:last-child {
+            text-align: right;
+        }
+
+        .teams-table td {
+            padding: 12px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+            color: #fff;
+        }
+
+        .teams-table td:last-child {
+            text-align: right;
+            font-weight: 700;
+            color: #ffd700;
+            white-space: nowrap;
+        }
+
+        .teams-table td:nth-child(2) {
+            text-align: center;
+            color: rgba(255,255,255,0.5);
+            font-weight: 600;
+        }
+
+        .teams-table tbody tr {
+            transition: background 0.2s ease;
+        }
+
+        .teams-table tbody tr:hover {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .teams-table tbody tr:nth-child(even) {
+            background: rgba(255,255,255,0.02);
+        }
+
+        .teams-table tbody tr:nth-child(even):hover {
+            background: rgba(255,255,255,0.06);
+        }
+
+        .tbd-row td {
+            color: rgba(255,255,255,0.5);
+            font-style: italic;
+        }
+
+        .tbd-row td:last-child {
+            color: rgba(255,215,0,0.4);
+        }
+
+        .tbd-note {
+            font-size: 0.8rem;
+            color: rgba(255,255,255,0.35);
+            font-style: normal;
+        }
+
+        .flag-sm {
+            width: 24px;
+            height: 18px;
+            vertical-align: middle;
+            margin-right: 8px;
+            border-radius: 2px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+        }
+
         /* ── Buttons ── */
         .back-btn {
             display: inline-block;
@@ -369,25 +462,86 @@
     </div>
 
     <div class="content">
-        <h2>Current Betting Favorites (as of January 2026)</h2>
-        <p>Spain lead after their strong form and favorable group. Can anyone stop them?</p>
+        <h2>Current Betting Favorites (as of April 4, 2026)</h2>
+        <p>Spain lead the pack as reigning European champions. France reclaim #1 in FIFA rankings. Who lifts the trophy?</p>
 
         <div class="odds-grid">
-            <div class="odd-card"><strong>Spain</strong>+450</div>
-            <div class="odd-card"><strong>England</strong>+550 to +700</div>
-            <div class="odd-card"><strong>France</strong>+650 to +750</div>
-            <div class="odd-card"><strong>Brazil</strong>+700 to +800</div>
-            <div class="odd-card"><strong>Argentina</strong>+800</div>
-            <div class="odd-card"><strong>Portugal</strong>+1000 to +1400</div>
+            <div class="odd-card"><strong>Spain (2)</strong>+450</div>
+            <div class="odd-card"><strong>France (1)</strong>+600</div>
+            <div class="odd-card"><strong>England (4)</strong>+600</div>
+            <div class="odd-card"><strong>Brazil (6)</strong>+850</div>
+            <div class="odd-card"><strong>Argentina (3)</strong>+850</div>
+            <div class="odd-card"><strong>Portugal (5)</strong>+1100</div>
         </div>
 
         <p>Think you know better? Build your bracket and prove it!</p>
+
+        <h2 style="margin-top: 60px;">All 48 Teams — Odds to Win It All</h2>
+        <p style="color: rgba(255,255,255,0.6); margin-bottom: 24px;">Odds as of April 4, 2026. FIFA ranking in parentheses.</p>
+
+        <div class="teams-table-wrapper">
+        <table class="teams-table">
+            <thead>
+                <tr><th>Team</th><th>Group</th><th>Odds</th></tr>
+            </thead>
+            <tbody>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/es.png"> Spain (2)</td><td>H</td><td>+450</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/fr.png"> France (1)</td><td>I</td><td>+600</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/gb-eng.png"> England (4)</td><td>L</td><td>+600</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/br.png"> Brazil (6)</td><td>C</td><td>+850</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ar.png"> Argentina (3)</td><td>J</td><td>+850</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/pt.png"> Portugal (5)</td><td>K</td><td>+1100</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/de.png"> Germany (10)</td><td>E</td><td>+1400</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/nl.png"> Netherlands (7)</td><td>F</td><td>+2000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/no.png"> Norway (31)</td><td>I</td><td>+2800</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/be.png"> Belgium (9)</td><td>G</td><td>+3500</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/co.png"> Colombia (13)</td><td>K</td><td>+4000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/jp.png"> Japan (18)</td><td>F</td><td>+5000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ma.png"> Morocco (8)</td><td>C</td><td>+6000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/us.png"> United States (16)</td><td>D</td><td>+6500</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/uy.png"> Uruguay (17)</td><td>H</td><td>+6500</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/tr.png"> Turkey (22)</td><td>D</td><td>+6500</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/mx.png"> Mexico (15)</td><td>A</td><td>+7000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ec.png"> Ecuador (23)</td><td>E</td><td>+8000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/se.png"> Sweden (38)</td><td>F</td><td>+8000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/hr.png"> Croatia (11)</td><td>L</td><td>+9000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ch.png"> Switzerland (19)</td><td>B</td><td>+10000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/at.png"> Austria (24)</td><td>J</td><td>+10000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/sn.png"> Senegal (14)</td><td>I</td><td>+10000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/cz.png"> Czechia (41)</td><td>A</td><td>+15000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ca.png"> Canada (30)</td><td>B</td><td>+20000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/py.png"> Paraguay (40)</td><td>D</td><td>+20000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/gb-sct.png"> Scotland (43)</td><td>C</td><td>+20000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ci.png"> Ivory Coast (34)</td><td>E</td><td>+25000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ba.png"> Bosnia and Herzegovina (65)</td><td>B</td><td>+25000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/eg.png"> Egypt (29)</td><td>G</td><td>+30000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ir.png"> Iran (21)</td><td>G</td><td>+30000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/dz.png"> Algeria (28)</td><td>J</td><td>+35000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/kr.png"> South Korea (25)</td><td>A</td><td>+35000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/gh.png"> Ghana (74)</td><td>L</td><td>+35000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/au.png"> Australia (27)</td><td>D</td><td>+45000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/tn.png"> Tunisia (44)</td><td>F</td><td>+50000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/cd.png"> DR Congo (46)</td><td>K</td><td>+70000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/za.png"> South Africa (60)</td><td>A</td><td>+80000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/sa.png"> Saudi Arabia (61)</td><td>H</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/pa.png"> Panama (33)</td><td>L</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/qa.png"> Qatar (55)</td><td>B</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/nz.png"> New Zealand (85)</td><td>G</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/iq.png"> Iraq (57)</td><td>I</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/cv.png"> Cabo Verde (69)</td><td>H</td><td>+100000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/uz.png"> Uzbekistan (50)</td><td>K</td><td>+150000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/jo.png"> Jordan (63)</td><td>J</td><td>+150000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/ht.png"> Haiti (83)</td><td>C</td><td>+150000</td></tr>
+                <tr><td><img class="flag-sm" src="https://flagcdn.com/24x18/cw.png"> Cura&ccedil;ao (82)</td><td>E</td><td>+150000</td></tr>
+            </tbody>
+        </table>
+        </div>
         <p style="margin-top: 40px;">A sampling of the various stadiums this year.</p>
         <img class="stadiums-img" src="https://images.adsttc.com/media/images/639e/7c2b/a452/0802/91ad/503a/large_jpg/explore-the-full-list-of-football-stadiums-for-the-2026-fifa-world-cup-in-united-states-mexico-and-canada_17.jpg?1671330869" alt="2026 World Cup Host Stadiums">
 
         <div class="schedule-section">
             <h2>2026 World Cup Schedule Overview</h2>
-            <p style="color: rgba(255,255,255,0.6); margin-bottom: 32px;">104 matches from June 11 to July 19, 2026</p>
+            <p style="color: rgba(255,255,255,0.6); margin-bottom: 32px;">104 matches across 16 venues from June 11 to July 19, 2026</p>
 
             <div class="schedule-grid">
                 <div class="schedule-card">
@@ -549,37 +703,29 @@
                 if (outcome < 0.333) {
                     // GOAL! Kick arcs into the goal
                     const targetX = goalCenterX + (Math.random() - 0.5) * 200;
-                    await animateArc(startX, startY, targetX, goalY + 20, -100, 1800);
+                    await animateArc(startX, startY, targetX, goalY + 20, 60, 1800);
                     // Settle into goal
                     await animate(targetX, goalY + 20, targetX, goalY + 30, 300);
                     // Pause in goal
                     await new Promise(r => setTimeout(r, 1500));
                 } else if (outcome < 0.666) {
-                    // Hit the crossbar, bounce straight back down
+                    // Hit the crossbar, straight back down
                     const barX = w / 2 - ballSize / 2 + (Math.random() - 0.5) * 200;
-                    const barY = 50; // crossbar visual position
-                    await animateArc(startX, startY, barX, barY, -60, 1400);
-                    // Bounce off crossbar back down, slight sideways drift
-                    const drift = (Math.random() - 0.5) * 300;
-                    const bounceEdge = Math.random() < 0.5;
-                    const landX = bounceEdge ? (drift > 0 ? w - ballSize : 0) : barX + drift;
-                    const landY = bounceEdge ? h * 0.5 : h - ballSize;
-                    await animateArc(barX, barY, landX, landY, barY - 80, 1200);
-                    if (bounceEdge) {
-                        // Bounce off edge back to bottom
-                        const finalX = w / 2 - ballSize / 2 + (landX < w / 2 ? 120 : -120);
-                        await animateArc(landX, landY, finalX, h - ballSize, landY - 60, 900);
-                    }
+                    const barY = 80;
+                    // Straight line up to crossbar (no arc that overshoots)
+                    await animate(startX, startY, barX, barY, 1200);
+                    // Straight down with slight drift
+                    const landX = barX + (Math.random() - 0.5) * 60;
+                    await animate(barX, barY, landX, h - ballSize, 1000);
                     await new Promise(r => setTimeout(r, 800));
                 } else {
-                    // Miss completely - hits edge of screen, bounces back down
+                    // Miss completely - flies to screen edge, slowly rolls down
                     const goLeft = Math.random() < 0.5;
                     const edgeX = goLeft ? 0 : w - ballSize;
-                    const edgeY = 80 + Math.random() * 100;
-                    await animateArc(startX, startY, edgeX, edgeY, -150, 1600);
-                    // Bounce off edge back down
-                    const landX = w / 2 - ballSize / 2 + (goLeft ? 150 : -150);
-                    await animateArc(edgeX, edgeY, landX, h - ballSize, edgeY - 60, 1200);
+                    const edgeY = 100 + Math.random() * 150;
+                    await animate(startX, startY, edgeX, edgeY, 1400);
+                    // Slowly roll down the edge to the bottom
+                    await animate(edgeX, edgeY, edgeX + (goLeft ? 30 : -30), h - ballSize, 2500);
                     await new Promise(r => setTimeout(r, 800));
                 }
 

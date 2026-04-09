@@ -110,11 +110,18 @@
         }
 
         /* ── Bracket ── */
+        #fullBracketCapture {
+            width: 100%;
+            max-width: 1500px;
+            align-self: center;
+        }
+
         .bracket-container {
             position: relative;
             display: flex;
             justify-content: flex-start;
-            overflow: auto;
+            overflow-x: auto;
+            overflow-y: hidden;
             padding: 40px 20px;
             width: 100%;
         }
@@ -124,7 +131,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            margin: 0 100px;
+            margin: 0 60px;
             position: relative;
             flex-shrink: 0;
         }
